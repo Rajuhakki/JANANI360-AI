@@ -1,97 +1,363 @@
-# JANANI360-AI
+# 🏥 JANANI360 AI
 
-> **Autonomous AI-Driven Public Health Operating System for Maternal, Neonatal & Pediatric Care**
-
-Official repository for **JANANI360 AI**, a government-grade digital health platform engineered to reduce Maternal Mortality Ratio (MMR) and Infant Mortality Rate (IMR) through real-time predictive clinical decision support, WHO partograph intrapartum monitoring, automated 108 emergency referral telemetry, and multilingual frontline accessibility.
+> AI-Powered Maternal & Child Healthcare Ecosystem for Smart Pregnancy Monitoring, Emergency Referrals, and Public Health Management.
 
 ---
 
-## 🌟 Key Features
+# 📖 Overview
 
-- **🌐 Global Multilingual Architecture**: Full support for 9 languages including English, Kannada (ಕನ್ನಡ), Hindi (हिन्दी), Tamil (தமிழ்), Telugu (తెలుగు), Marathi (मराठी), Arabic (العربية - RTL), Spanish (Español), and French (Français) with instant zero-reload switching and `localStorage` persistence.
-- **🏥 Role-Based Persona Portals**: Dedicated dashboards for ASHA Facilitators, PHC Medical Officers, Hospital Administrators, District Health Officers (DHO), and Pregnant Mothers & Families.
-- **⚡ Zero-Delay Emergency Protocol**: Automated 108 ambulance dispatch, ICU bed reservation, and casualty emergency room pre-notifications for high-risk maternal cases.
-- **🩺 Clinical Decision Support System (CDSS)**: Explainable AI risk stratification for Severe Pre-Eclampsia, Postpartum Hemorrhage (PPH) shock index, and Fetal Heart Rate (FHR) distress based on ICMR & WHO clinical guidelines.
-- **👶 Child Health & Immunization Hub**: Vaccination schedule alerts, WHO growth curve tracking, and SAM/MAM malnutrition early detection up to 5 years.
-- **🔒 Public Health Security Standards**: ABDM (Ayushman Bharat Digital Mission) compliance, ABHA Health ID generation, and DISHA data privacy encryption.
+JANANI360 AI is a full-stack healthcare platform designed to improve maternal and child healthcare by connecting frontline health workers, doctors, hospitals, ambulance services, and health administrators into one unified digital ecosystem.
+
+The platform helps identify high-risk pregnancies early using an AI-powered Clinical Decision Support System (CDSS), enables faster emergency referrals, and provides real-time visibility across the complete pregnancy journey—from registration to delivery and child care.
+
+Rather than functioning as a standalone AI application, JANANI360 AI acts as a connected healthcare operating platform where AI assists healthcare professionals by providing risk analysis and clinical recommendations.
 
 ---
 
-## 📂 Project Architecture
+# 🎯 Problem Statement
+
+Maternal healthcare in many regions faces several challenges:
+
+- Paper-based pregnancy records
+- Delayed identification of high-risk pregnancies
+- Poor communication between PHCs and referral hospitals
+- Manual referral processes
+- Lack of real-time hospital resource visibility
+- Fragmented patient records
+- Language barriers for healthcare workers and patients
+
+JANANI360 AI aims to digitize and streamline this complete workflow.
+
+---
+
+# 💡 Solution
+
+JANANI360 AI provides one connected platform where:
+
+- ASHA workers register pregnant women
+- Doctors record ANC visits digitally
+- AI automatically evaluates pregnancy risk
+- High-risk cases are referred instantly
+- Hospitals prepare before patient arrival
+- Ambulance services receive emergency alerts
+- Mother and child records remain connected throughout the healthcare lifecycle
+
+---
+
+# 👥 User Roles
+
+The platform supports multiple healthcare stakeholders.
+
+- ASHA Worker
+- ANM Nurse
+- PHC Doctor
+- Hospital Administrator
+- District Health Officer
+- Pregnant Woman
+- Family Member
+- Lab Technician
+- Pharmacist
+- Ambulance Driver (108)
+
+Each user has dedicated dashboards and permissions using Role-Based Access Control (RBAC).
+
+---
+
+# 🔄 System Workflow
+
+```
+Pregnancy Registration
+        │
+        ▼
+Mother Profile Created
+        │
+        ▼
+ANC Visit Recorded
+        │
+        ▼
+AI Risk Analysis (Automatic)
+        │
+        ▼
+Low / Medium / High / Critical Risk
+        │
+        ▼
+Referral Recommendation
+        │
+        ▼
+Hospital Selection
+        │
+        ▼
+Bed Reservation
+        │
+        ▼
+108 Ambulance Dispatch
+        │
+        ▼
+Hospital Admission
+        │
+        ▼
+Delivery
+        │
+        ▼
+Child Profile Creation
+        │
+        ▼
+Vaccination & Follow-up
+```
+
+---
+
+# 🧠 Clinical Decision Support System (CDSS)
+
+The embedded AI engine runs automatically whenever clinical information is updated.
+
+It evaluates parameters such as:
+
+- Blood Pressure
+- Hemoglobin
+- Weight
+- Urine Protein
+- Gestational Age
+- Previous ANC History
+
+The engine generates:
+
+- Mother Safety Score
+- Risk Level
+- Clinical Recommendations
+- Referral Priority
+- Recommended Hospital
+
+The AI acts as a decision-support tool and does **not** replace medical professionals.
+
+---
+
+# ✨ Key Features
+
+## Maternal Care
+
+- Pregnancy Registration
+- Mother Profile
+- ANC Visit Recording
+- Medical History
+- Document Management
+- Activity Timeline
+
+## AI Clinical Decision Support
+
+- Mother Safety Score
+- High-Risk Detection
+- Explainable AI Recommendations
+- Clinical Guideline Triggers
+
+## Emergency Referral
+
+- Digital Referral Workflow
+- Smart Hospital Selection
+- Bed Reservation
+- Ambulance Tracking
+
+## Hospital Management
+
+- Hospital Dashboard
+- Bed Availability
+- Emergency Intake
+- Referral Acceptance
+
+## Child Care
+
+- Delivery Records
+- Child Profile
+- Vaccination Schedule
+- Growth Monitoring
+
+## Administration
+
+- District Analytics
+- Audit Logs
+- Role-Based Permissions
+- Notification System
+
+---
+
+# 🏗️ Architecture
+
+```
+React + TypeScript Frontend
+            │
+            ▼
+Node.js + Express Backend
+            │
+ ┌──────────┴──────────┐
+ │                     │
+ ▼                     ▼
+Prisma Database     Python FastAPI
+(SQLite / PostgreSQL)    AI Engine
+```
+
+---
+
+# 🛠️ Technology Stack
+
+## Frontend
+
+- React
+- TypeScript
+- Vite
+- Tailwind CSS
+- Redux Toolkit
+
+## Backend
+
+- Node.js
+- Express.js
+- Prisma ORM
+- JWT Authentication
+- Socket.IO
+
+## Database
+
+- SQLite (Development)
+- PostgreSQL (Production Ready)
+
+## AI Service
+
+- Python
+- FastAPI
+
+---
+
+# 🔐 Security
+
+- JWT Authentication
+- Role-Based Access Control
+- Password Hashing (bcrypt)
+- Audit Logging
+- Session Management
+- Permission-Based Authorization
+
+---
+
+# 📂 Project Structure
 
 ```
 JANANI360-AI/
-├── apps/
-│   ├── frontend/         # React + Vite + Redux Toolkit + i18next + TailwindCSS
-│   │   ├── src/
-│   │   │   ├── components/   # Government Header, Hero, LanguageSelector, Modals
-│   │   │   ├── i18n/         # i18next configuration & 9 locale dictionaries
-│   │   │   ├── pages/        # Dashboard, Mother Profile, ER Radar, Labor Ward, DHO
-│   │   │   └── store/        # Redux slices (auth, maternal, referrals, labor, child)
-│   │   └── public/images/    # High-resolution clinical photography
-│   │
-│   ├── backend/          # Node.js + Express + Socket.IO + Prisma / MongoDB
-│   │   └── src/              # REST API controllers, WebSocket events, seed data
-│   │
-│   └── ai-service/       # Python + FastAPI / Clinical AI CDSS Engine
-│       └── main.py           # Risk calculation & explainable medical rationales
-└── README.md
+
+apps/
+├── frontend/
+├── backend/
+└── ai-service/
+
+docs/
+README.md
 ```
 
 ---
 
-## 🚀 Quick Start & Installation
+# 🚀 Getting Started
 
-### Prerequisites
-- **Node.js**: `v18.x` or higher
-- **npm**: `v9.x` or higher
-- **Python**: `3.10+` (for AI Service)
+## Clone Repository
 
-### 1. Frontend Setup
+```bash
+git clone https://github.com/yourusername/JANANI360-AI.git
+
+cd JANANI360-AI
+```
+
+## Install Dependencies
+
+Frontend
+
 ```bash
 cd apps/frontend
 npm install
-npm run dev
 ```
-Open `http://localhost:5173/` in your browser.
 
-### 2. Backend Setup
+Backend
+
 ```bash
-cd apps/backend
+cd ../backend
 npm install
+```
+
+AI Service
+
+```bash
+cd ../ai-service
+pip install -r requirements.txt
+```
+
+---
+
+# ▶️ Run the Project
+
+Frontend
+
+```bash
 npm run dev
 ```
-Backend server starts on `http://localhost:5000/`.
 
-### 3. AI Service Setup
+Backend
+
 ```bash
-cd apps/ai-service
-python3 -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-python main.py
+npm run dev
+```
+
+AI Service
+
+```bash
+uvicorn main:app --reload
 ```
 
 ---
 
-## 🌐 Supported Languages & i18n
+# 📌 Current Development Status
 
-| Language | Native Name | Code | Direction |
-| :--- | :--- | :--- | :--- |
-| English | English | `en` | LTR |
-| Kannada | ಕನ್ನಡ | `kn` | LTR |
-| Hindi | हिन्दी | `hi` | LTR |
-| Tamil | தமிழ் | `ta` | LTR |
-| Telugu | తెలుగు | `te` | LTR |
-| Marathi | मराठी | `mr` | LTR |
-| Arabic | العربية | `ar` | RTL |
-| Spanish | Español | `es` | LTR |
-| French | Français | `fr` | LTR |
+| Module | Status |
+|---------|--------|
+| Master Data | ✅ Completed |
+| Authentication & RBAC | ✅ Completed |
+| Maternal Care Engine | ✅ Completed |
+| Clinical Decision Support (AI) | ✅ Completed |
+| Emergency Referral | ✅ Completed |
+| Delivery & Child Care | 🚧 In Progress |
+| Notifications | 🚧 Planned |
+| Analytics Dashboard | 🚧 Planned |
 
 ---
 
-## 📜 License
+# 📸 Screenshots
 
-Copyright © 2026 Government of Karnataka - Department of Health & Family Welfare.  
-JANANI360 AI Platform. All rights reserved.
-# JANANI360-AI
+*(Add screenshots here after completing the UI.)*
+
+---
+
+# 🔮 Future Enhancements
+
+- Offline-first support
+- Google Maps integration
+- SMS & WhatsApp notifications
+- Voice assistance
+- ABDM / ABHA integration
+- Real-time analytics dashboard
+- Multi-language support
+
+---
+
+# ⚠️ Disclaimer
+
+JANANI360 AI is an academic/hackathon project developed to demonstrate how AI and digital healthcare workflows can improve maternal and child healthcare. The Clinical Decision Support System (CDSS) provides recommendations to assist healthcare professionals and is **not intended to replace medical judgment**.
+
+---
+
+# 👨‍💻 Team
+
+Developed as part of a hackathon project.
+
+```
+
+This version is much more suitable for GitHub because it:
+- avoids unsupported impact claims,
+- accurately describes the architecture,
+- is easy for judges and recruiters to understand,
+- and presents the project professionally without overstating its deployment or affiliations.
