@@ -1,0 +1,182 @@
+export const fr = {
+  header: {
+    stateGovt: "Gouvernement du Karnataka",
+    department: "Ministère de la Santé et du Bien-être Familial",
+    mission: "Initiative de la Mission Nationale de Santé (NHM)",
+    helpline: "Ligne d'Urgence Santé 24/7: 108 / 104",
+    motherPortal: "Portail de Suivi Maternel et Familial",
+    officialAccess: "Connexion Portail Officiel",
+    nav: {
+      overview: "Vue d'Ensemble",
+      features: "Fonctionnalités",
+      aiSupport: "IA Clinique",
+      referralRadar: "Radar d'Urgence",
+      ecosystem: "Écosystème de Santé",
+      impact: "Impact & Résultats",
+      initiatives: "Directives Gouvernementales"
+    }
+  },
+  hero: {
+    badge: "Système d'Exploitation Officiel de Santé Publique",
+    titleLine1: "Écosystème d'IA Autonome pour la Santé",
+    titleLine2: "Maternelle, Néonatale et Pédiatrique",
+    subtitle: "Accompagnement de plus de 3,420 centres de santé, 42,000 agents ASHA et 2.4M de mères avec une intelligence médicale en temps réel et des transferts d'urgence immédiats.",
+    primaryCta: "Accéder au Portail Médical",
+    secondaryCta: "Consulter le Dossier Familial",
+    stats: {
+      mothersTracked: "2.4M+",
+      mothersLabel: "Mères Enregistrées",
+      riskPrevention: "99.4%",
+      riskLabel: "Prévention des Risques Critiques",
+      facilitiesConnected: "3,420+",
+      facilitiesLabel: "Centres et Hôpitaux Connectés",
+      turnaroundTime: "< 8 Mins",
+      turnaroundLabel: "Temps de Réponse d'Urgence"
+    },
+    cards: {
+      liveStatus: "Surveillance Continue en Direct",
+      activeReferrals: "14 Transferts d'Urgence Actifs",
+      triagedByAI: "Triage par le Moteur IA Janani",
+      ashaActive: "Synchronisation Terrain ASHA Active",
+      districtAlert: "Bengaluru Urban • Objectif Zéro Mortalité Maternel Atteint"
+    }
+  },
+  overview: {
+    tag: "Infrastructure Nationale de Santé",
+    title: "Renforcement des Soins Maternels et Infantiles à Haut Risque",
+    description: "JANANI360 AI relie les agents de santé communautaires aux services d'urgence des hôpitaux de district dans une plateforme numérique unifiée.",
+    pillar1Title: "Dépistage Communautaire",
+    pillar1Desc: "Saisie en temps réel de la tension artérielle et des constantes vitales.",
+    pillar2Title: "Moteur de Stratification des Risques",
+    pillar2Desc: "Alertes automatiques pour la pré-éclampsie et l'hémorragie du postpartum.",
+    pillar3Title: "Radar de Transfert d'Urgence",
+    pillar3Desc: "Réservation de lits de soins intensifs en un clic et envoi d'ambulances.",
+    pillar4Title: "Suivi Pédiatrique et Néonatal",
+    pillar4Desc: "Calendrier vaccinal et courbes de croissance OMS."
+  },
+  features: {
+    tag: "Technologies Clés",
+    title: "Conçu pour la Précision de Terrain et le Contrôle Régional",
+    smartAncTitle: "Numérisation des Visites Prénatales",
+    smartAncDesc: "Calcul automatique de l'âge gestationnel et rappels SMS.",
+    laborWardTitle: "Automatisation du Partogramme OMS",
+    laborWardDesc: "Suivi du travail d'accouchement et alertes chirurgicales.",
+    casualtyRadarTitle: "Radar des Urgences en Direct",
+    casualtyRadarDesc: "Carte interactive des lits de réanimation et ambulances disponibles.",
+    childHubTitle: "Centre Intégré de Santé Infantile",
+    childHubDesc: "Suivi des nouveau-nés, vaccination et prévention de la malnutrition.",
+    teleIcuTitle: "Télé-Réanimation de District",
+    teleIcuDesc: "Téléconsultations entre spécialistes et centres de santé ruraux."
+  },
+  stakeholders: {
+    tag: "Système Basé sur les Rôles",
+    title: "Tableaux de Bord Dédiés à Chaque Responsable",
+    ashaRole: "Agent de Santé ASHA",
+    ashaDesc: "Formulaires mobiles simples et assistance vocale.",
+    moRole: "Médecin de Centre de Santé (MO)",
+    moDesc: "Aide à la décision clinique et télémédecine.",
+    adminRole: "Administrateur d'Hôpital",
+    adminDesc: "Gestion des lits et contrôle de la banque de sang.",
+    dhoRole: "Directeur Régional de la Santé (DHO)",
+    dhoDesc: "Centre de commandement du district et cartographie des risques.",
+    motherRole: "Portail Mère et Famille",
+    motherDesc: "Passeport santé multilingue et bouton SOS d'urgence."
+  },
+  aiSupport: {
+    tag: "Système d'Aide à la Décision Clinique (CDSS)",
+    title: "IA Transparente Basée sur des Recommandations Médicales",
+    subtitle: "Aucune boîte noire. Chaque score de risque est accompagné de sa justification médicale.",
+    accuracyTitle: "Norme de Validation Clinique",
+    accuracyDesc: "Entraîné sur des millions de dossiers et validé par des spécialistes.",
+    feature1: "Détection précoce de la pré-éclampsie",
+    feature2: "Indice de choc pour hémorragie du postpartum",
+    feature3: "Détection des anomalies du rythme cardiaque fœtal",
+    feature4: "Protection des données et confidentialité DISHA"
+  },
+  referralWorkflow: {
+    tag: "Protocole Zéro Délai",
+    title: "Transfert d'Urgence Automatisé et Envoi d'Ambulance",
+    step1: "Détection du Risque",
+    step1Desc: "L'IA alerte dès que la tension artérielle dépasse 160/110 mmHg.",
+    step2: "Réservation Lit & Ambulance",
+    step2Desc: "Attribution automatique d'un lit en réanimation et départ de l'ambulance.",
+    step3: "Pré-Notification de l'Hôpital",
+    step3Desc: "L'équipe des urgences consulte les constantes du patient à l'avance.",
+    step4: "Préparation Chirurgicale",
+    step4Desc: "Banque de sang et bloc opératoire prêts avant l'arrivée."
+  },
+  impact: {
+    tag: "Résultats Prouvés",
+    title: "Transformation Mesurable de la Santé Publique",
+    stat1Value: "34%",
+    stat1Label: "Réduction de la Mortalité Maternelle",
+    stat2Value: "41%",
+    stat2Label: "Baisse de la Mortalité Néonatale",
+    stat3Value: "98.2%",
+    stat3Label: "Détection Précoce des Grossesses à Risque",
+    stat4Value: "6.2 Mins",
+    stat4Label: "Gains de Temps dans le Transport d'Urgence"
+  },
+  initiatives: {
+    tag: "Conformité Gouvernementale",
+    title: "Aligné avec les Cadres de Santé Régionaux et Nationaux",
+    abdmTitle: "Intégration ABDM & ABHA",
+    abdmDesc: "Création simple d'identifiants de santé numériques.",
+    dishaTitle: "Sécurité des Données DISHA",
+    dishaDesc: "Confidentialité totale et chiffrement des données médicales.",
+    eswasthyaTitle: "Synchronisation e-Swasthya",
+    eswasthyaDesc: "Connexion directe avec les bases de données d'État."
+  },
+  auth: {
+    tabLogin: "Authentification Session",
+    tabRegister: "Inscription Agent de Santé",
+    personaTitle: "Sélectionnez le Rôle Médical (Connexion 1-Clic)",
+    nameLabel: "Nom Complet",
+    emailLabel: "Adresse Email Officielle",
+    phoneLabel: "Numéro de Téléphone Mobile",
+    passwordLabel: "Mot de Passe / Identifiant",
+    districtLabel: "District / Juridiction",
+    loginSubmit: "S'authentifier et Accéder au Système",
+    registerSubmit: "Créer un Compte Vérifié",
+    otpTitle: "Vérification OTP par SMS",
+    otpDesc: "Entrez le code OTP à 6 chiffres envoyé sur votre mobile.",
+    otpVerify: "Vérifier et Continuer",
+    compliantBadge: "Certifié ABDM & DISHA",
+    encryptedBadge: "Chiffrement AES-256"
+  },
+  common: {
+    language: "Langue",
+    selectLanguage: "Choisir la Langue",
+    rtlNotice: "Mode RTL Actif",
+    close: "Fermer",
+    cancel: "Annuler",
+    save: "Enregistrer",
+    submit: "Soumettre",
+    loading: "Chargement...",
+    search: "Rechercher...",
+    filter: "Filtrer",
+    export: "Exporter le Rapport",
+    logout: "Déconnexion",
+    dashboard: "Tableau de bord",
+    motherHub: "Espace Mère",
+    erRadar: "Radar Urgences",
+    laborWard: "Bloc Accouchement",
+    childHealth: "Santé Infantile",
+    commandCenter: "Commandement District",
+    emergencySos: "URGENCE SOS 108",
+    officialOs: "Système Officiel",
+    karnatakaGovt: "Gouvernement du Karnataka - Ministère de la Santé"
+  },
+  footer: {
+    departmentName: "Ministère de la Santé et du Bien-être Familial, Gouvernement du Karnataka",
+    address: "Arogya Soudha, Bengaluru, Karnataka 560023",
+    copyright: "© 2026 Gouvernement du Karnataka. JANANI360 AI. Tous droits réservés.",
+    links: {
+      privacy: "Politique de Confidentialité",
+      terms: "Conditions d'Utilisation",
+      accessibility: "Accessibilité",
+      abdm: "Portail ABDM",
+      nhm: "NHM Karnataka"
+    }
+  }
+};

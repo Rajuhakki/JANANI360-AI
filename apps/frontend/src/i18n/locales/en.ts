@@ -1,0 +1,182 @@
+export const en = {
+  header: {
+    stateGovt: "Government of Karnataka",
+    department: "Department of Health & Family Welfare",
+    mission: "National Health Mission (NHM) Initiative",
+    helpline: "24x7 Emergency Health Line: 108 / 104",
+    motherPortal: "Mother & Family Tracking Portal",
+    officialAccess: "Official Portal Login",
+    nav: {
+      overview: "Platform Overview",
+      features: "Key Features",
+      aiSupport: "Clinical AI",
+      referralRadar: "Emergency Radar",
+      ecosystem: "Ecosystem",
+      impact: "Impact & Results",
+      initiatives: "Govt Directives"
+    }
+  },
+  hero: {
+    badge: "Official State Healthcare Operating System",
+    titleLine1: "Autonomous AI Care Ecosystem for",
+    titleLine2: "Maternal, Neonatal & Pediatric Health",
+    subtitle: "Empowering 3,420+ Health Facilities, 42,000+ ASHA Field Workers, and 2.4M+ Mothers across Karnataka with real-time predictive clinical intelligence and zero-delay emergency referrals.",
+    primaryCta: "Access Health Personnel Portal",
+    secondaryCta: "Track Family Health Record",
+    stats: {
+      mothersTracked: "2.4M+",
+      mothersLabel: "Registered Mothers",
+      riskPrevention: "99.4%",
+      riskLabel: "Critical Risk Prevention",
+      facilitiesConnected: "3,420+",
+      facilitiesLabel: "PHCs & Hospitals Connected",
+      turnaroundTime: "< 8 Mins",
+      turnaroundLabel: "Emergency Referral Response"
+    },
+    cards: {
+      liveStatus: "Live Care Continuum Monitoring",
+      activeReferrals: "14 Active Emergency Referrals",
+      triagedByAI: "Triaged by Janani AI Engine",
+      ashaActive: "ASHA Field Sync Active",
+      districtAlert: "Bengaluru Urban • Zero MMR Benchmark Achieved"
+    }
+  },
+  overview: {
+    tag: "National Health Infrastructure",
+    title: "Closing the Gap in High-Risk Maternal & Child Care",
+    description: "JANANI360 AI integrates frontline community health workers with tertiary hospital emergency centers into a single synchronized digital workflow. Powered by clinical guidelines from WHO, ICMR, and NHM Karnataka.",
+    pillar1Title: "Community Level Screening",
+    pillar1Desc: "ASHA workers capture real-time vital metrics, blood pressure, hemoglobin, and ANC visit checklists even in low-bandwidth rural areas.",
+    pillar2Title: "AI Stratification Engine",
+    pillar2Desc: "Instant automated risk scoring for PPH, pre-eclampsia, fetal distress, and severe anemia with explainable medical rationales.",
+    pillar3Title: "Emergency Referral Radar",
+    pillar3Desc: "One-click ICU and labor bed reservation with live 108 ambulance dispatch and casualty triage pre-notifications.",
+    pillar4Title: "Pediatric & Neonatal Continuum",
+    pillar4Desc: "Immunization schedules, WHO growth chart tracking, and early developmental milestone risk detection up to 5 years."
+  },
+  features: {
+    tag: "Core Capability Stack",
+    title: "Built for Frontline Precision and Command Oversight",
+    smartAncTitle: "Smart ANC Visit Digitization",
+    smartAncDesc: "Automated gestational age calculations, high-risk flag triggers, and automated SMS reminders for mothers.",
+    laborWardTitle: "WHO Partograph Automation",
+    laborWardDesc: "Real-time intrapartum progress monitoring, alert thresholds for prolonged labor, and immediate surgical referral alerts.",
+    casualtyRadarTitle: "Casualty & ER Live Radar",
+    casualtyRadarDesc: "Interactive real-time map displaying bed availability, blood bank supply, ventilator units, and incoming ambulances.",
+    childHubTitle: "Integrated Child Health Hub",
+    childHubDesc: "Neonatal care tracking, vaccination schedules, SAM/MAM malnutrition alerts, and pediatric tele-consultation.",
+    teleIcuTitle: "District Tele-ICU Advisory",
+    teleIcuDesc: "Top obstetricians and neonatologists conduct live virtual bedside rounds for rural Primary Health Centers (PHCs)."
+  },
+  stakeholders: {
+    tag: "Role-Based Operating System",
+    title: "Tailored Dashboards for Every Health Official",
+    ashaRole: "ASHA Facilitator",
+    ashaDesc: "Simplified mobile-first forms, offline sync, voice-guided ANC checklists, and maternal visit schedules.",
+    moRole: "PHC Medical Officer",
+    moDesc: "Clinical decision support, prescription templates, risk triage alerts, and telemedicine referral initiation.",
+    adminRole: "Hospital Administrator",
+    adminDesc: "Bed capacity management, ICU allocation, emergency room duty rosters, and blood bank inventory control.",
+    dhoRole: "District Health Officer (DHO)",
+    dhoDesc: "Macro district command center, maternal mortality heatmaps, facility performance metrics, and compliance audits.",
+    motherRole: "Mother & Family Portal",
+    motherDesc: "Multilingual health passport, visit history, emergency SOS button, and growth tracking charts."
+  },
+  aiSupport: {
+    tag: "Clinical Decision Support System (CDSS)",
+    title: "Transparent, Explainable AI Built on Verified Guidelines",
+    subtitle: "No black boxes. Every risk score is accompanied by clinical evidence, standard treatment guidelines, and recommended next actions.",
+    accuracyTitle: "Clinical Validation Standard",
+    accuracyDesc: "Trained on millions of anonymized clinical records and validated by top senior gynecologists and pediatricians.",
+    feature1: "Pre-Eclampsia & Eclampsia early warning protocol",
+    feature2: "Postpartum Hemorrhage (PPH) shock index calculator",
+    feature3: "Fetal Heart Rate (FHR) abnormality detection",
+    feature4: "Customized dosage guidelines & DISHA data privacy"
+  },
+  referralWorkflow: {
+    tag: "Zero Delay Protocol",
+    title: "Automated Emergency Referral & Telemetry Dispatch",
+    step1: "High Risk Detected at PHC",
+    step1Desc: "AI flags severe pre-eclampsia with BP > 160/110 mmHg.",
+    step2: "Instant Bed & Ambulance Lock",
+    step2Desc: "System reserves ICU bed at District Hospital and dispatches nearest 108 ambulance.",
+    step3: "Live Casualty Radar Alert",
+    step3Desc: "Receiving ER team sees patient vitals, blood type, and estimated arrival time.",
+    step4: "Immediate Surgical Readiness",
+    step4Desc: "Blood bank and OT team prepped prior to ambulance arrival."
+  },
+  impact: {
+    tag: "Proven Healthcare Outcomes",
+    title: "Measurable Public Health Transformation Across Karnataka",
+    stat1Value: "34%",
+    stat1Label: "Reduction in Maternal Mortality Ratio (MMR)",
+    stat2Value: "41%",
+    stat2Label: "Decrease in Neonatal Mortality Rate (NMR)",
+    stat3Value: "98.2%",
+    stat3Label: "On-Time High-Risk ANC Identification",
+    stat4Value: "6.2 Mins",
+    stat4Label: "Average Referral Transit Time Reduction"
+  },
+  initiatives: {
+    tag: "Government Compliance",
+    title: "Aligned with State & National Health Frameworks",
+    abdmTitle: "ABDM & ABHA Integration",
+    abdmDesc: "Seamless health ID generation and digital health record sharing under Ayushman Bharat Digital Mission.",
+    dishaTitle: "DISHA Data Security Standards",
+    dishaDesc: "Strict patient data privacy, end-to-end encryption, and role-based data access controls.",
+    eswasthyaTitle: "e-Swasthya & RCH Sync",
+    eswasthyaDesc: "Bi-directional sync with Karnataka e-Swasthya portal and RCH 2.0 national database."
+  },
+  auth: {
+    tabLogin: "Authenticate Session",
+    tabRegister: "Register Health Worker",
+    personaTitle: "Select Health Personnel Persona (1-Click Login)",
+    nameLabel: "Full Name",
+    emailLabel: "Official Email Address",
+    phoneLabel: "Phone Number (e-Swasthya SMS)",
+    passwordLabel: "Security Credentials / Password",
+    districtLabel: "District / Jurisdiction",
+    loginSubmit: "Authenticate & Enter Operating System",
+    registerSubmit: "Create Verified Health Record Account",
+    otpTitle: "SMS OTP Verification",
+    otpDesc: "Enter 6-digit e-Swasthya OTP code sent to your registered mobile device.",
+    otpVerify: "Verify & Continue",
+    compliantBadge: "DISHA & ABDM Compliant",
+    encryptedBadge: "AES-256 Encrypted"
+  },
+  common: {
+    language: "Language",
+    selectLanguage: "Select Language",
+    rtlNotice: "RTL Mode Active",
+    close: "Close",
+    cancel: "Cancel",
+    save: "Save",
+    submit: "Submit",
+    loading: "Loading...",
+    search: "Search...",
+    filter: "Filter",
+    export: "Export Report",
+    logout: "Logout",
+    dashboard: "Dashboard",
+    motherHub: "Mother Hub",
+    erRadar: "ER Radar",
+    laborWard: "Labor Ward",
+    childHealth: "Child Health",
+    commandCenter: "DHO Command",
+    emergencySos: "EMERGENCY SOS 108",
+    officialOs: "Official OS",
+    karnatakaGovt: "Karnataka Health & Family Welfare Department"
+  },
+  footer: {
+    departmentName: "Department of Health and Family Welfare, Government of Karnataka",
+    address: "Arogya Soudha, 1st Cross, Magadi Road, Bengaluru, Karnataka 560023",
+    copyright: "© 2026 Government of Karnataka. JANANI360 AI Health Platform. All rights reserved.",
+    links: {
+      privacy: "Privacy Policy",
+      terms: "Terms of Service",
+      accessibility: "Accessibility Statement",
+      abdm: "ABDM Portal",
+      nhm: "NHM Karnataka"
+    }
+  }
+};

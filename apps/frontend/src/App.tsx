@@ -1,0 +1,102 @@
+import React, { useEffect } from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { LandingPage } from './pages/LandingPage';
+import { LoginPage } from './pages/LoginPage';
+import { MotherProfileHub } from './pages/MotherProfileHub';
+import { CasualtyErRadarPage } from './pages/CasualtyErRadarPage';
+import { FamilyTrackingPage } from './pages/FamilyTrackingPage';
+import { LaborRoomDashboardPage } from './pages/LaborRoomDashboardPage';
+import { ChildProfileHubPage } from './pages/ChildProfileHubPage';
+import { DistrictCommandCenterPage } from './pages/DistrictCommandCenterPage';
+import { LogoutPage } from './pages/LogoutPage';
+import { UnauthorizedPage } from './pages/UnauthorizedPage';
+import { SessionExpiredPage } from './pages/SessionExpiredPage';
+import { ProtectedRoute } from './components/ProtectedRoute';
+import { DashboardRouter } from './components/DashboardRouter';
+import { fetchCurrentUser } from './store/authSlice';
+import { AppDispatch, RootState } from './store';
+
+export const App: React.FC = () => {
+  const dispatch = useDispatch<AppDispatch>();
+  const { token, isAuthenticated } = useSelector((state: RootState) => state.auth);
+
+  useEffect(() => {
+    if (token) {
+      dispatch(fetchCurrentUser());
+    }
+  }, [dispatch, token]);
+
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/login" element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <LoginPage />} />
+        <Route path="/logout" element={<LogoutPage />} />
+        <Route path="/unauthorized" element={<UnauthorizedPage />} />
+        <Route path="/session-expired" element={<SessionExpiredPage />} />
+        <Route path="/track/:code" element={<FamilyTrackingPage />} />
+        <Route path="/track" element={<FamilyTrackingPage />} />
+        <Route 
+          path="/dashboard" 
+          element={
+            <ProtectedRoute>
+              <DashboardRouter />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/mother-profile" 
+          element={
+            <ProtectedRoute>
+              <MotherProfileHub />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/casualty-radar" 
+          element={
+            <ProtectedRoute>
+              <CasualtyErRadarPage />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/labor-dashboard" 
+          element={
+            <ProtectedRoute>
+              <LaborRoomDashboardPage />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/child-profile/:id" 
+          element={
+            <ProtectedRoute>
+              <ChildProfileHubPage />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/child-profile" 
+          element={
+            <ProtectedRoute>
+              <ChildProfileHubPage />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/command-center" 
+          element={
+            <ProtectedRoute>
+              <DistrictCommandCenterPage />
+            </ProtectedRoute>
+          } 
+        />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </BrowserRouter>
+  );
+};
+
+export default App;

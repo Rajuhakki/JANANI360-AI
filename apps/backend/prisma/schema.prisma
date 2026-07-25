@@ -1,0 +1,848 @@
+// Prisma Schema for JANANI360 AI Master Data, Auth RBAC, Maternal Care, CDSS, Referral Engine, Labor Room & Child Health Engine
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// Module 1: Master Location Hierarchy Models
+
+model State {
+  id        String     @id @default(uuid())
+  code      String     @unique
+  nameEn    String
+  nameKn    String
+  districts District[]
+
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  @@map("master_states")
+}
+
+model District {
+  id             String          @id @default(uuid())
+  stateId        String
+  code           String          @unique
+  nameEn         String
+  nameKn         String
+  
+  state          State           @relation(fields: [stateId], references: [id], onDelete: Cascade)
+  taluks         Taluk[]
+  users          User[]
+  motherProfiles MotherProfile[]
+
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+
+  @@index([stateId])
+  @@map("master_districts")
+}
+
+model Taluk {
+  id         String          @id @default(uuid())
+  districtId String
+  code       String          @unique
+  nameEn     String
+  nameKn     String
+  
+  district   District        @relation(fields: [districtId], references: [id], onDelete: Cascade)
+  hoblis     Hobli[]
+  facilities HealthFacility[]
+  users      User[]
+
+  createdAt  DateTime        @default(now())
+  updatedAt  DateTime        @updatedAt
+
+  @@index([districtId])
+  @@map("master_taluks")
+}
+
+model Hobli {
+  id        String     @id @default(uuid())
+  talukId   String
+  code      String     @unique
+  nameEn    String
+  nameKn    String
+  
+  taluk     Taluk      @relation(fields: [talukId], references: [id], onDelete: Cascade)
+  villages  Village[]
+
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  @@index([talukId])
+  @@map("master_hoblis")
+}
+
+model Village {
+  id             String          @id @default(uuid())
+  hobliId        String
+  code           String          @unique
+  nameEn         String
+  nameKn         String
+  pincode        String
+  
+  hobli          Hobli           @relation(fields: [hobliId], references: [id], onDelete: Cascade)
+  catchments     AshaCatchment[]
+  motherProfiles MotherProfile[]
+
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+
+  @@index([hobliId])
+  @@map("master_villages")
+}
+
+model HealthFacility {
+  id                   String              @id @default(uuid())
+  talukId              String
+  code                 String              @unique
+  nameEn               String
+  nameKn               String
+  tier                 String              
+  latitude             Float
+  longitude            Float
+  emergencyPhone       String
+  
+  taluk                Taluk               @relation(fields: [talukId], references: [id], onDelete: Cascade)
+  subCenters           SubCenter[]
+  users                User[]
+  motherProfiles       MotherProfile[]
+  hospitalBeds         HospitalBed[]
+  bloodBankStocks      BloodBankStock[]
+  originReferrals      ReferralCase[]      @relation("OriginReferrals")
+  destinationReferrals ReferralCase[]      @relation("DestinationReferrals")
+  laborCases           LaborCase[]
+  deliveryRecords      DeliveryRecord[]
+
+  createdAt            DateTime            @default(now())
+  updatedAt            DateTime            @updatedAt
+
+  @@index([talukId])
+  @@index([tier])
+  @@map("health_facilities")
+}
+
+model SubCenter {
+  id             String          @id @default(uuid())
+  facilityId     String
+  code           String          @unique
+  nameEn         String
+  nameKn         String
+  
+  facility       HealthFacility  @relation(fields: [facilityId], references: [id], onDelete: Cascade)
+  catchments     AshaCatchment[]
+  users          User[]
+  motherProfiles MotherProfile[]
+
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+
+  @@index([facilityId])
+  @@map("sub_centers")
+}
+
+model AshaCatchment {
+  id          String    @id @default(uuid())
+  subCenterId String
+  villageId   String
+  code        String    @unique
+  name        String
+  population  Int       @default(1000)
+  
+  subCenter   SubCenter @relation(fields: [subCenterId], references: [id], onDelete: Cascade)
+  village     Village   @relation(fields: [villageId], references: [id], onDelete: Cascade)
+  users       User[]
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([subCenterId])
+  @@index([villageId])
+  @@map("asha_catchments")
+}
+
+// Module 2: Authentication & RBAC Data Models
+
+model User {
+  id                  String                   @id @default(uuid())
+  staffId             String?                  @unique @map("staff_id")
+  abhaId              String?                  @unique @map("abha_id")
+  email               String?                  @unique
+  phone               String                   @unique
+  passwordHash        String                   @map("password_hash")
+  name                String
+  profilePhotoUrl     String?                  @map("profile_photo_url")
+  role                String                   @default("ASHA_WORKER")
+  status              String                   @default("ACTIVE")
+  mustChangePassword  Boolean                  @default(false) @map("must_change_password")
+  failedLoginAttempts Int                      @default(0) @map("failed_login_attempts")
+  lockoutUntil        DateTime?                @map("lockout_until")
+  lastLogin           DateTime?                @map("last_login")
+  
+  districtId          String?                  @map("district_id")
+  talukId             String?                  @map("taluk_id")
+  facilityId          String?                  @map("facility_id")
+  subCenterId         String?                  @map("sub_center_id")
+  catchmentId         String?                  @map("catchment_id")
+
+  district            District?                @relation(fields: [districtId], references: [id])
+  taluk               Taluk?                   @relation(fields: [talukId], references: [id])
+  facility            HealthFacility?          @relation(fields: [facilityId], references: [id])
+  subCenter           SubCenter?               @relation(fields: [subCenterId], references: [id])
+  catchment           AshaCatchment?           @relation(fields: [catchmentId], references: [id])
+  
+  sessions            UserSession[]
+  auditLogs           AuditLog[]
+  passwordResets      PasswordReset[]
+  registeredMothers   MotherProfile[]          @relation("RegisteredMothers")
+  recordedVisits      AncVisit[]               @relation("RecordedVisits")
+  labReports          LabReport[]              @relation("LabTechReports")
+  prescriptions       MedicationPrescription[] @relation("DoctorPrescriptions")
+  aiOverrides         AiOverrideLog[]          @relation("DoctorAiOverrides")
+  createdReferrals    ReferralCase[]           @relation("ReferralsCreated")
+  acceptedReferrals   ReferralCase[]           @relation("ReferralsAccepted")
+  assignedDoctorLabors LaborCase[]             @relation("AssignedDoctorLabors")
+  assignedNurseLabors  LaborCase[]             @relation("AssignedNurseLabors")
+  deliveriesExecuted  DeliveryRecord[]         @relation("DeliveriesExecuted")
+  recordedPncVisits   PncVisit[]               @relation("RecordedPncVisits")
+  administeredVaccines ChildImmunizationRecord[] @relation("AdministeredVaccines")
+  recordedGrowth      ChildGrowthRecord[]      @relation("RecordedGrowth")
+
+  createdAt           DateTime                 @default(now()) @map("created_at")
+  updatedAt           DateTime                 @updatedAt @map("updated_at")
+
+  @@index([email])
+  @@index([phone])
+  @@index([staffId])
+  @@index([role])
+  @@map("users")
+}
+
+model UserSession {
+  id               String   @id @default(uuid())
+  userId           String   @map("user_id")
+  refreshTokenHash String   @unique @map("refresh_token_hash")
+  ipAddress        String?  @map("ip_address")
+  userAgent        String?  @map("user_agent")
+  expiresAt        DateTime @map("expires_at")
+  revoked          Boolean  @default(false)
+  
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt        DateTime @default(now()) @map("created_at")
+
+  @@index([userId])
+  @@map("user_sessions")
+}
+
+model PasswordReset {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  tokenHash String   @unique @map("token_hash")
+  expiresAt DateTime @map("expires_at")
+  used      Boolean  @default(false)
+  
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("password_resets")
+}
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  userId     String?  @map("user_id")
+  actionType String   @map("action_type")
+  resource   String
+  oldValue   String?  @map("old_value")
+  newValue   String?  @map("new_value")
+  ipAddress  String?  @map("ip_address")
+  deviceInfo String?  @map("device_info")
+  
+  user       User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@index([userId])
+  @@index([actionType])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
+// Module 3: Maternal Case Management Engine Models
+
+model MotherProfile {
+  id                  String            @id @default(uuid())
+  rchId               String            @unique @map("rch_id")
+  abhaId              String?           @unique @map("abha_id")
+  fullName            String            @map("full_name")
+  age                 Int
+  phone               String
+  husbandName         String            @map("husband_name")
+  husbandPhone        String?           @map("husband_phone")
+  emergencyPhone      String?           @map("emergency_phone")
+  photoUrl            String?           @map("photo_url")
+  bloodGroup          String?           @map("blood_group")
+  bplCardNumber       String?           @map("bpl_card_number")
+  
+  caseStatus          String            @default("REGISTERED_ANC_ACTIVE") @map("case_status")
+  currentRiskLevel    String            @default("LOW") @map("current_risk_level")
+  motherSafetyScore   Int               @default(100) @map("mother_safety_score")
+  status              String            @default("PREGNANT") @map("status")
+
+  districtId          String            @map("district_id")
+  talukId             String            @map("taluk_id")
+  hobliId             String            @map("hobli_id")
+  villageId           String            @map("village_id")
+  facilityId          String            @map("facility_id")
+  subCenterId         String            @map("sub_center_id")
+  catchmentId         String            @map("catchment_id")
+  registeredByUserId  String            @map("registered_by_user_id")
+
+  district            District          @relation(fields: [districtId], references: [id])
+  village             Village           @relation(fields: [villageId], references: [id])
+  facility            HealthFacility    @relation(fields: [facilityId], references: [id])
+  subCenter           SubCenter         @relation(fields: [subCenterId], references: [id])
+  registeredByUser    User              @relation("RegisteredMothers", fields: [registeredByUserId], references: [id])
+
+  pregnancies         PregnancyRecord[]
+  documents           MotherDocument[]
+  activityLogs        ActivityLog[]
+  aiPredictionLogs    AiPredictionLog[]
+  referralCases       ReferralCase[]
+  laborCases          LaborCase[]
+  deliveryRecords     DeliveryRecord[]
+  childProfiles       ChildProfile[]
+  hbncSchedules       HbncSchedule[]
+  pncVisits           PncVisit[]
+
+  createdAt           DateTime          @default(now()) @map("created_at")
+  updatedAt           DateTime          @updatedAt @map("updated_at")
+
+  @@index([rchId])
+  @@index([subCenterId])
+  @@index([catchmentId])
+  @@index([caseStatus])
+  @@index([currentRiskLevel])
+  @@map("mother_profiles")
+}
+
+model PregnancyRecord {
+  id                  String                   @id @default(uuid())
+  motherId            String                   @map("mother_id")
+  gravida             Int                      @default(1)
+  parity              Int                      @default(0)
+  abortions           Int                      @default(0)
+  lmpDate             DateTime                 @map("lmp_date")
+  eddDate             DateTime                 @map("edd_date")
+  
+  currentRiskLevel    String                   @default("LOW") @map("current_risk_level")
+  motherSafetyScore   Int                      @default(100) @map("mother_safety_score")
+  status              String                   @default("PREGNANT")
+  
+  medicalHistory      String?                  @map("medical_history")
+  highRiskFactors     String?                  @map("high_risk_factors")
+
+  mother              MotherProfile            @relation(fields: [motherId], references: [id], onDelete: Cascade)
+  ancVisits           AncVisit[]
+  labReports          LabReport[]
+  prescriptions       MedicationPrescription[]
+  laborCases          LaborCase[]
+  deliveryRecords     DeliveryRecord[]
+
+  createdAt           DateTime                 @default(now()) @map("created_at")
+  updatedAt           DateTime                 @updatedAt @map("updated_at")
+
+  @@index([motherId])
+  @@map("pregnancy_records")
+}
+
+model AncVisit {
+  id                    String          @id @default(uuid())
+  pregnancyId           String          @map("pregnancy_id")
+  visitNumber           Int             @map("visit_number")
+  visitDate             DateTime        @default(now()) @map("visit_date")
+  gestationalAgeWeeks   Int             @map("gestational_age_weeks")
+  systolicBp            Int             @map("systolic_bp")
+  diastolicBp           Int             @map("diastolic_bp")
+  hbLevel               Float           @map("hb_level")
+  weightKg              Float           @map("weight_kg")
+  temperatureF          Float?          @default(98.6) @map("temperature_f")
+  urineProtein          String          @default("Nil") @map("urine_protein")
+  randomBloodSugar      Float?          @default(100.0) @map("random_blood_sugar")
+  fetalHeartRate        Int?            @map("fetal_heart_rate")
+  complaints            String?
+  ifaTabletsDistributed Int             @default(30) @map("ifa_tablets_distributed")
+
+  aiSafetyScore         Int             @map("ai_safety_score")
+  aiRiskLevel           String          @map("ai_risk_level")
+  aiReasoning           String?         @map("ai_reasoning")
+  aiRecommendationsJson String?         @map("ai_recommendations_json")
+
+  recordedByUserId      String          @map("recorded_by_user_id")
+  followUpDate          DateTime?       @map("follow_up_date")
+
+  pregnancy             PregnancyRecord @relation(fields: [pregnancyId], references: [id], onDelete: Cascade)
+  recordedByUser        User            @relation("RecordedVisits", fields: [recordedByUserId], references: [id])
+
+  createdAt             DateTime        @default(now()) @map("created_at")
+
+  @@index([pregnancyId])
+  @@map("anc_visits")
+}
+
+model LabReport {
+  id               String          @id @default(uuid())
+  pregnancyId      String          @map("pregnancy_id")
+  testName         String          @map("test_name")
+  sampleDate       DateTime        @default(now()) @map("sample_date")
+  resultsJson      String          @map("results_json")
+  labTechUserId    String          @map("lab_tech_user_id")
+
+  pregnancy        PregnancyRecord @relation(fields: [pregnancyId], references: [id], onDelete: Cascade)
+  labTechUser      User            @relation("LabTechReports", fields: [labTechUserId], references: [id])
+
+  createdAt        DateTime        @default(now()) @map("created_at")
+
+  @@map("lab_reports")
+}
+
+model MedicationPrescription {
+  id               String          @id @default(uuid())
+  pregnancyId      String          @map("pregnancy_id")
+  prescribedByUserId String        @map("prescribed_by_user_id")
+  medicationsJson  String          @map("medications_json")
+  dispensedStatus  Boolean         @default(false) @map("dispensed_status")
+
+  pregnancy        PregnancyRecord @relation(fields: [pregnancyId], references: [id], onDelete: Cascade)
+  prescribedByUser User            @relation("DoctorPrescriptions", fields: [prescribedByUserId], references: [id])
+
+  createdAt        DateTime        @default(now()) @map("created_at")
+
+  @@map("medication_prescriptions")
+}
+
+model MotherDocument {
+  id          String        @id @default(uuid())
+  motherId    String        @map("mother_id")
+  title       String
+  category    String
+  fileUrl     String        @map("file_url")
+  uploadedBy  String        @map("uploaded_by")
+
+  mother      MotherProfile @relation(fields: [motherId], references: [id], onDelete: Cascade)
+
+  createdAt   DateTime      @default(now()) @map("created_at")
+
+  @@map("mother_documents")
+}
+
+model ActivityLog {
+  id          String        @id @default(uuid())
+  motherId    String        @map("mother_id")
+  eventType   String        @map("event_type")
+  description String
+  actorName   String        @map("actor_name")
+  actorRole   String        @map("actor_role")
+
+  mother      MotherProfile @relation(fields: [motherId], references: [id], onDelete: Cascade)
+
+  createdAt   DateTime      @default(now()) @map("created_at")
+
+  @@index([motherId])
+  @@map("activity_logs")
+}
+
+model AiPredictionLog {
+  id                      String          @id @default(uuid())
+  motherId                String          @map("mother_id")
+  visitId                 String?         @map("visit_id")
+  aiVersion               String          @default("v3.0.0-cdss") @map("ai_version")
+  ruleVersion             String          @default("2026.1-WHO-GOI") @map("rule_version")
+  safetyScore             Int             @map("safety_score")
+  riskLevel               String          @map("risk_level")
+  predictionReliability   String          @default("HIGH") @map("prediction_reliability")
+  inputSnapshotJson       String          @map("input_snapshot_json")
+  outputSnapshotJson      String          @map("output_snapshot_json")
+  
+  mother                  MotherProfile   @relation(fields: [motherId], references: [id], onDelete: Cascade)
+  overrides               AiOverrideLog[]
+
+  createdAt               DateTime        @default(now()) @map("created_at")
+
+  @@index([motherId])
+  @@index([safetyScore])
+  @@map("ai_prediction_logs")
+}
+
+model AiOverrideLog {
+  id                     String          @id @default(uuid())
+  predictionId           String          @map("prediction_id")
+  motherId               String          @map("mother_id")
+  doctorId               String          @map("doctor_id")
+  originalAiAction       String          @map("original_ai_action")
+  doctorDecisionAction   String          @map("doctor_decision_action")
+  overrideReason         String          @map("override_reason")
+  
+  prediction             AiPredictionLog @relation(fields: [predictionId], references: [id], onDelete: Cascade)
+  doctor                 User            @relation("DoctorAiOverrides", fields: [doctorId], references: [id])
+
+  createdAt              DateTime        @default(now()) @map("created_at")
+
+  @@map("ai_override_logs")
+}
+
+// Module 5: Emergency Referral Orchestration Engine Models
+
+model ReferralCase {
+  id                      String            @id @default(uuid())
+  referralCode            String            @unique @map("referral_code")
+  motherId                String            @map("mother_id")
+  originFacilityId        String            @map("origin_facility_id")
+  destinationFacilityId  String            @map("destination_facility_id")
+  
+  status                  String            @default("CREATED") @map("status")
+  priority                String            @default("EMERGENCY") @map("priority")
+  clinicalReason          String            @map("clinical_reason")
+  rejectionReason         String?           @map("rejection_reason")
+
+  reservedBedId           String?           @map("reserved_bed_id")
+  reservedBloodUnitId     String?           @map("reserved_blood_unit_id")
+  ambulanceUnitId         String?           @map("ambulance_unit_id")
+  
+  currentLat              Float?            @map("current_lat")
+  currentLng              Float?            @map("current_lng")
+  etaMinutes              Int?              @default(18) @map("eta_minutes")
+  familySmsSent           Boolean           @default(false) @map("family_sms_sent")
+
+  createdByUserId         String            @map("created_by_user_id")
+  acceptedByUserId        String?           @map("accepted_by_user_id")
+
+  mother                  MotherProfile     @relation(fields: [motherId], references: [id], onDelete: Cascade)
+  originFacility          HealthFacility    @relation("OriginReferrals", fields: [originFacilityId], references: [id])
+  destinationFacility     HealthFacility    @relation("DestinationReferrals", fields: [destinationFacilityId], references: [id])
+  reservedBed             HospitalBed?      @relation(fields: [reservedBedId], references: [id])
+  reservedBlood           BloodBankStock?   @relation(fields: [reservedBloodUnitId], references: [id])
+  ambulanceUnit           AmbulanceUnit?    @relation(fields: [ambulanceUnitId], references: [id])
+  createdByUser           User              @relation("ReferralsCreated", fields: [createdByUserId], references: [id])
+  acceptedByUser          User?             @relation("ReferralsAccepted", fields: [acceptedByUserId], references: [id])
+
+  timelineEvents          ReferralTimeline[]
+
+  createdAt               DateTime          @default(now()) @map("created_at")
+  updatedAt               DateTime          @updatedAt @map("updated_at")
+
+  @@index([motherId])
+  @@index([destinationFacilityId])
+  @@index([status])
+  @@map("referral_cases")
+}
+
+model HospitalBed {
+  id              String            @id @default(uuid())
+  facilityId      String            @map("facility_id")
+  bedNumber       String            @map("bed_number")
+  bedType         String            @default("HDU") @map("bed_type")
+  status          String            @default("AVAILABLE") @map("status")
+  reservedUntil   DateTime?         @map("reserved_until")
+
+  facility        HealthFacility    @relation(fields: [facilityId], references: [id], onDelete: Cascade)
+  referralCases   ReferralCase[]
+
+  createdAt       DateTime          @default(now()) @map("created_at")
+  updatedAt       DateTime          @updatedAt @map("updated_at")
+
+  @@index([facilityId])
+  @@map("hospital_beds")
+}
+
+model BloodBankStock {
+  id              String            @id @default(uuid())
+  facilityId      String            @map("facility_id")
+  bloodGroup      String            @map("blood_group")
+  availableUnits  Int               @default(0) @map("available_units")
+  reservedUnits   Int               @default(0) @map("reserved_units")
+
+  facility        HealthFacility    @relation(fields: [facilityId], references: [id], onDelete: Cascade)
+  referralCases   ReferralCase[]
+
+  createdAt       DateTime          @default(now()) @map("created_at")
+  updatedAt       DateTime          @updatedAt @map("updated_at")
+
+  @@index([facilityId])
+  @@map("blood_bank_stocks")
+}
+
+model AmbulanceUnit {
+  id              String            @id @default(uuid())
+  vehicleNumber   String            @unique @map("vehicle_number")
+  driverName      String            @map("driver_name")
+  driverPhone     String            @map("driver_phone")
+  status          String            @default("AVAILABLE") @map("status")
+  currentLat      Float             @map("current_lat")
+  currentLng      Float             @map("current_lng")
+  assignedBase    String            @map("assigned_base")
+
+  referralCases   ReferralCase[]
+
+  createdAt       DateTime          @default(now()) @map("created_at")
+  updatedAt       DateTime          @updatedAt @map("updated_at")
+
+  @@map("ambulance_units")
+}
+
+model ReferralTimeline {
+  id              String            @id @default(uuid())
+  referralCaseId  String            @map("referral_case_id")
+  status          String
+  description     String
+  actorName       String            @map("actor_name")
+  actorRole       String            @map("actor_role")
+
+  referralCase    ReferralCase      @relation(fields: [referralCaseId], references: [id], onDelete: Cascade)
+
+  createdAt       DateTime          @default(now()) @map("created_at")
+
+  @@index([referralCaseId])
+  @@map("referral_timelines")
+}
+
+// Module 6: Digital Labor Room Management Engine Models
+
+model LaborCase {
+  id                    String                 @id @default(uuid())
+  motherId              String                 @map("mother_id")
+  pregnancyId           String                 @map("pregnancy_id")
+  referralId            String?                @map("referral_id")
+  facilityId            String                 @map("facility_id")
+  
+  laborRoomNumber       String                 @default("LR-02") @map("labor_room_number")
+  laborStatus           String                 @default("ADMITTED") @map("labor_status")
+  admissionDateTime     DateTime               @default(now()) @map("admission_date_time")
+  
+  assignedDoctorId      String?                @map("assigned_doctor_id")
+  assignedStaffNurseId  String?                @map("assigned_staff_nurse_id")
+  
+  maternalStatus        String                 @default("STABLE") @map("maternal_status")
+  babyStatus            String                 @default("HEALTHY") @map("baby_status")
+  dischargeStatus       String                 @default("PENDING") @map("discharge_status")
+
+  mother                MotherProfile          @relation(fields: [motherId], references: [id], onDelete: Cascade)
+  pregnancy             PregnancyRecord        @relation(fields: [pregnancyId], references: [id], onDelete: Cascade)
+  facility              HealthFacility         @relation(fields: [facilityId], references: [id])
+  assignedDoctor        User?                  @relation("AssignedDoctorLabors", fields: [assignedDoctorId], references: [id])
+  assignedStaffNurse    User?                  @relation("AssignedNurseLabors", fields: [assignedStaffNurseId], references: [id])
+
+  partographEntries     PartographObservation[]
+  deliveryRecord        DeliveryRecord?
+  hbncVisits            HbncSchedule[]
+  timelineEvents        LaborTimeline[]
+
+  createdAt             DateTime               @default(now()) @map("created_at")
+  updatedAt             DateTime               @updatedAt @map("updated_at")
+
+  @@index([motherId])
+  @@index([facilityId])
+  @@index([laborStatus])
+  @@map("labor_cases")
+}
+
+model PartographObservation {
+  id                    String                 @id @default(uuid())
+  laborCaseId           String                 @map("labor_case_id")
+  observationDateTime   DateTime               @default(now()) @map("observation_date_time")
+  
+  cervicalDilationCm    Float                  @map("cervical_dilation_cm")
+  fetalHeartRateBpm     Int                    @map("fetal_heart_rate_bpm")
+  maternalPulseBpm      Int                    @map("maternal_pulse_bpm")
+  systolicBp            Int                    @map("systolic_bp")
+  diastolicBp           Int                    @map("diastolic_bp")
+  contractionsPer10Min  Int                    @map("contractions_per_10_min")
+  membraneStatus        String                 @default("INTACT") @map("membrane_status")
+  dangerSigns           String?                @map("danger_signs")
+  
+  recordedByUserId      String                 @map("recorded_by_user_id")
+
+  laborCase             LaborCase              @relation(fields: [laborCaseId], references: [id], onDelete: Cascade)
+
+  createdAt             DateTime               @default(now()) @map("created_at")
+
+  @@index([laborCaseId])
+  @@map("partograph_observations")
+}
+
+model DeliveryRecord {
+  id                    String                 @id @default(uuid())
+  laborCaseId           String                 @unique @map("labor_case_id")
+  motherId              String                 @map("mother_id")
+  pregnancyId           String                 @map("pregnancy_id")
+  facilityId            String                 @map("facility_id")
+  
+  deliveryDateTime      DateTime               @default(now()) @map("delivery_date_time")
+  deliveryMode          String                 @default("NORMAL_VAGINAL") @map("delivery_mode")
+  deliveryIndication    String?                @map("delivery_indication")
+  estimatedBloodLossMl Int                    @default(200) @map("estimated_blood_loss_ml")
+  pphRiskDetected       Boolean                @default(false) @map("pph_risk_detected")
+  amtslAdministered     Boolean                @default(true) @map("amtsl_administered")
+  placentaComplete      Boolean                @default(true) @map("placenta_complete")
+
+  deliveredByUserId     String                 @map("delivered_by_user_id")
+
+  laborCase             LaborCase              @relation(fields: [laborCaseId], references: [id], onDelete: Cascade)
+  mother                MotherProfile          @relation(fields: [motherId], references: [id], onDelete: Cascade)
+  pregnancy             PregnancyRecord        @relation(fields: [pregnancyId], references: [id], onDelete: Cascade)
+  facility              HealthFacility         @relation(fields: [facilityId], references: [id])
+  deliveredByUser       User                   @relation("DeliveriesExecuted", fields: [deliveredByUserId], references: [id])
+
+  childProfiles         ChildProfile[]
+
+  createdAt             DateTime               @default(now()) @map("created_at")
+  updatedAt             DateTime               @updatedAt @map("updated_at")
+
+  @@index([motherId])
+  @@map("delivery_records")
+}
+
+model ChildProfile {
+  id                    String                 @id @default(uuid())
+  childRchId            String                 @unique @map("child_rch_id")
+  motherId              String                 @map("mother_id")
+  deliveryRecordId      String                 @map("delivery_record_id")
+  
+  fullName              String                 @default("Baby of Lakshmi") @map("full_name")
+  gender                String                 
+  birthDateTime         DateTime               @default(now()) @map("birth_date_time")
+  birthWeightKg         Float                  @map("birth_weight_kg")
+  headCircumferenceCm   Float?                 @default(34.0) @map("head_circumference_cm")
+  apgarScore1Min        Int                    @default(8) @map("apgar_score_1_min")
+  apgarScore5Min        Int                    @default(9) @map("apgar_score_5_min")
+  newbornRiskCategory   String                 @default("HEALTHY") @map("newborn_risk_category")
+  
+  vitaminKGiven         Boolean                @default(true) @map("vitamin_k_given")
+  bcgVaccineGiven       Boolean                @default(true) @map("bcg_vaccine_given")
+  opv0Given             Boolean                @default(true) @map("opv0_given")
+  hepB0Given            Boolean                @default(true) @map("hepb0_given")
+
+  mother                MotherProfile          @relation(fields: [motherId], references: [id], onDelete: Cascade)
+  deliveryRecord        DeliveryRecord        @relation(fields: [deliveryRecordId], references: [id], onDelete: Cascade)
+
+  immunizationRecords   ChildImmunizationRecord[]
+  growthRecords         ChildGrowthRecord[]
+
+  createdAt             DateTime               @default(now()) @map("created_at")
+  updatedAt             DateTime               @updatedAt @map("updated_at")
+
+  @@index([motherId])
+  @@index([childRchId])
+  @@map("child_profiles")
+}
+
+model HbncSchedule {
+  id                    String                 @id @default(uuid())
+  laborCaseId           String                 @map("labor_case_id")
+  motherId              String                 @map("mother_id")
+  visitNumber           Int                    @map("visit_number")
+  scheduledDate         DateTime               @map("scheduled_date")
+  status                String                 @default("PENDING") @map("status")
+
+  laborCase             LaborCase              @relation(fields: [laborCaseId], references: [id], onDelete: Cascade)
+  mother                MotherProfile          @relation(fields: [motherId], references: [id], onDelete: Cascade)
+
+  createdAt             DateTime               @default(now()) @map("created_at")
+
+  @@index([motherId])
+  @@map("hbnc_schedules")
+}
+
+model LaborTimeline {
+  id                    String                 @id @default(uuid())
+  laborCaseId           String                 @map("labor_case_id")
+  status                String
+  description           String
+  actorName             String                 @map("actor_name")
+  actorRole             String                 @map("actor_role")
+
+  laborCase             LaborCase              @relation(fields: [laborCaseId], references: [id], onDelete: Cascade)
+
+  createdAt             DateTime               @default(now()) @map("created_at")
+
+  @@index([laborCaseId])
+  @@map("labor_timelines")
+}
+
+// Module 7: Postnatal Care, Infant Immunization & Child Health Engine Models
+
+model PncVisit {
+  id                    String                 @id @default(uuid())
+  motherId              String                 @map("mother_id")
+  visitNumber           Int                    @map("visit_number")
+  visitDate             DateTime               @default(now()) @map("visit_date")
+  maternalPulse         Int                    @map("maternal_pulse")
+  systolicBp            Int                    @map("systolic_bp")
+  diastolicBp           Int                    @map("diastolic_bp")
+  temperatureF          Float                  @map("temperature_f")
+  excessiveBleeding     Boolean                @default(false) @map("excessive_bleeding")
+  foulLochia            Boolean                @default(false) @map("foul_lochia")
+  breastfeedingStatus   String                 @default("EXCLUSIVE") @map("breastfeeding_status")
+  pphDangerSigns        String?                @map("pph_danger_signs")
+  
+  recordedByUserId      String                 @map("recorded_by_user_id")
+
+  mother                MotherProfile          @relation(fields: [motherId], references: [id], onDelete: Cascade)
+  recordedByUser        User                   @relation("RecordedPncVisits", fields: [recordedByUserId], references: [id])
+
+  createdAt             DateTime               @default(now()) @map("created_at")
+
+  @@index([motherId])
+  @@map("pnc_visits")
+}
+
+model ChildImmunizationRecord {
+  id                    String                 @id @default(uuid())
+  childId               String                 @map("child_id")
+  vaccineCode           String                 @map("vaccine_code")
+  vaccineName           String                 @map("vaccine_name")
+  dueAgeWeeks           Int                    @map("due_age_weeks")
+  givenDate             DateTime?              @map("given_date")
+  status                String                 @default("DUE") @map("status") // DUE | GIVEN | MISSED
+  batchNumber           String?                @map("batch_number")
+  
+  administeredByUserId  String?                @map("administered_by_user_id")
+
+  child                 ChildProfile           @relation(fields: [childId], references: [id], onDelete: Cascade)
+  administeredByUser    User?                  @relation("AdministeredVaccines", fields: [administeredByUserId], references: [id])
+
+  createdAt             DateTime               @default(now()) @map("created_at")
+
+  @@index([childId])
+  @@map("child_immunization_records")
+}
+
+model ChildGrowthRecord {
+  id                    String                 @id @default(uuid())
+  childId               String                 @map("child_id")
+  recordDate            DateTime               @default(now()) @map("record_date")
+  ageMonths             Int                    @map("age_months")
+  weightKg              Float                  @map("weight_kg")
+  heightCm              Float                  @map("height_cm")
+  muacCm                Float?                 @map("muac_cm")
+  
+  whoWeightForAgeZScore Float                  @map("who_weight_for_age_z_score")
+  malnutritionStatus    String                 @default("NORMAL") @map("malnutrition_status") // NORMAL | MAM | SAM
+  
+  recordedByUserId      String                 @map("recorded_by_user_id")
+
+  child                 ChildProfile           @relation(fields: [childId], references: [id], onDelete: Cascade)
+  recordedByUser        User                   @relation("RecordedGrowth", fields: [recordedByUserId], references: [id])
+
+  createdAt             DateTime               @default(now()) @map("created_at")
+
+  @@index([childId])
+  @@map("child_growth_records")
+}
