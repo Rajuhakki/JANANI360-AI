@@ -16,6 +16,13 @@ build/
 .env.test.local
 .env.production.local
 
+# Databases / local runtime artifacts
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
+*.sqlite-journal
+
 # Python / AI Service
 venv/
 **/venv/
