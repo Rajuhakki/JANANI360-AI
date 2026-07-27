@@ -23,10 +23,11 @@ export const DashboardRouter: React.FC = () => {
       return <Navigate to="/track" replace />;
     case 'AMBULANCE_DRIVER':
       return <Navigate to="/referrals" replace />;
-    case 'LAB_TECH':
-    case 'PHARMACIST':
     case 'ANM':
     case 'ASHA_WORKER':
+      return <Navigate to="/asha-entry" replace />;
+    case 'LAB_TECH':
+    case 'PHARMACIST':
     default:
       return <Navigate to="/mother-profile" replace />;
   }
