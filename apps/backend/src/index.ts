@@ -56,7 +56,6 @@ import analyticsRoutesPrisma from './routes/analyticsRoutes';
 app.use('/api/v1/master', masterDataRoutes);
 app.use('/api/v1/auth', authRoutesPrisma);
 app.use('/api/v1/maternal', maternalRoutes);
-app.use('/api/v1/patients', patientRoutes);
 app.use('/api/v1/referrals', referralRoutes);
 app.use('/api/v1/labor', laborRoutes);
 app.use('/api/v1/children', childRoutesPrisma);

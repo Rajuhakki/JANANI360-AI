@@ -8,11 +8,7 @@ export enum UserRole {
   DOCTOR = 'DOCTOR',
   ANM = 'ANM',
   ASHA_WORKER = 'ASHA_WORKER',
-  PATIENT = 'PATIENT',
-  FAMILY = 'FAMILY',
-  AMBULANCE_DRIVER = 'AMBULANCE_DRIVER',
-  LAB_TECH = 'LAB_TECH',
-  PHARMACIST = 'PHARMACIST'
+  PATIENT = 'PATIENT'
 }
 
 export interface UserProfile {
