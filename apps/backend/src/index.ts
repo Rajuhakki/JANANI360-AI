@@ -46,6 +46,7 @@ app.use('/api/', apiLimiter);
 import masterDataRoutes from './routes/masterDataRoutes';
 import authRoutesPrisma from './routes/authRoutesPrisma';
 import maternalRoutes from './routes/maternalRoutes';
+import ashaRoutes from './routes/ashaRoutes';
 import referralRoutes from './routes/referralRoutes';
 import laborRoutes from './routes/laborRoutes';
 import childRoutesPrisma from './routes/childRoutes';
@@ -56,6 +57,11 @@ import analyticsRoutesPrisma from './routes/analyticsRoutes';
 app.use('/api/v1/master', masterDataRoutes);
 app.use('/api/v1/auth', authRoutesPrisma);
 app.use('/api/v1/maternal', maternalRoutes);
+<<<<<<< HEAD
+app.use('/api/v1/asha', ashaRoutes);
+app.use('/api/v1/patients', patientRoutes);
+=======
+>>>>>>> 98f691a4ce6308c20c2fbffac910ce211489aab3
 app.use('/api/v1/referrals', referralRoutes);
 app.use('/api/v1/labor', laborRoutes);
 app.use('/api/v1/children', childRoutesPrisma);
