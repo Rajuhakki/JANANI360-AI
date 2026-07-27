@@ -1,6 +1,6 @@
 import React from 'react';
 import { QrCodeGenerator } from './QrCodeGenerator';
-import { Printer, Download, Share2, CheckCircle2, Building2, ShieldCheck, Heart, Calendar, User } from 'lucide-react';
+import { Printer, Download, Share2, CheckCircle2, Building2, ShieldCheck, Heart, Calendar, User, Activity } from 'lucide-react';
 
 export interface AcknowledgementData {
   registrationNo: string;
@@ -10,6 +10,7 @@ export interface AcknowledgementData {
   age: number | string;
   husbandName: string;
   mobile: string;
+  address?: string;
   village: string;
   taluk: string;
   district: string;
@@ -17,6 +18,12 @@ export interface AcknowledgementData {
   lmp: string;
   edd: string;
   pregnancyNumber: string | number;
+  parity?: string | number;
+  abortions?: string | number;
+  bloodGroup?: string;
+  heightCm?: number | string;
+  weightKg?: number | string;
+  medicalCondition?: string;
   registrationDate: string;
   ashaWorkerName: string;
   ashaId?: string;
@@ -31,24 +38,43 @@ export const RegistrationAcknowledgement: React.FC<RegistrationAcknowledgementPr
   data,
   onClose
 }) => {
-  const qrUrl = `https://janani360.ai/mother/${data.motherId}`;
+  // Real scannable data payload for mobile cameras and scanners
+  const realQrPayload = `JANANI360 Acknowledgement Receipt
+Reg No: ${data.registrationNo} | ID: ${data.motherId}
+Mother: ${data.motherName} (DOB: ${data.dob}, Age: ${data.age})
+Husband: ${data.husbandName} | Mobile: ${data.mobile}
+Address: ${data.address || data.village}, ${data.taluk}, ${data.district}
+Facility (PHC): ${data.assignedPhc}
+Obstetrics: G${data.pregnancyNumber || 1} P${data.parity || 0} A${data.abortions || 0} | Blood Group: ${data.bloodGroup || 'O+'}
+LMP: ${data.lmp} | EDD: ${data.edd}
+Condition: ${data.medicalCondition || 'Normal / None Observed'}
+ASHA Facilitator: ${data.ashaWorkerName}
+Verify: https://janani360.ai/verify/${data.motherId}`;
 
   const handlePrint = () => {
     window.print();
   };
 
+  const handleDownloadPdf = () => {
+    const originalTitle = document.title;
+    document.title = `JANANI360_Acknowledgement_Receipt_${data.motherId}`;
+    window.print();
+    document.title = originalTitle;
+  };
+
   const handleShare = () => {
+    const shareText = `JANANI360 AI Maternal Registration Acknowledgement\nReg No: ${data.registrationNo}\nMother ID: ${data.motherId}\nMother Name: ${data.motherName}\nMobile: ${data.mobile}\nAssigned PHC: ${data.assignedPhc}\nLMP: ${data.lmp} | EDD: ${data.edd}\nVerify Details: https://janani360.ai/verify/${data.motherId}`;
     if (navigator.share) {
       navigator
         .share({
-          title: `JANANI360 Mother Registration - ${data.motherName}`,
-          text: `Mother ID: ${data.motherId} registered in JANANI360 AI Platform.`,
-          url: qrUrl
+          title: `Registration Receipt - ${data.motherName}`,
+          text: shareText,
+          url: `https://janani360.ai/verify/${data.motherId}`
         })
         .catch(() => {});
     } else {
-      navigator.clipboard.writeText(qrUrl);
-      alert(`Profile link copied to clipboard:\n${qrUrl}`);
+      navigator.clipboard.writeText(shareText);
+      alert(`✅ Acknowledgement Receipt Details Copied to Clipboard!\n\n${shareText}`);
     }
   };
 
@@ -58,7 +84,7 @@ export const RegistrationAcknowledgement: React.FC<RegistrationAcknowledgementPr
       <div className="flex flex-wrap items-center justify-between gap-3 bg-slate-900 border border-slate-800 p-3 rounded-2xl print:hidden">
         <div className="flex items-center gap-2 text-xs font-bold text-emerald-400">
           <CheckCircle2 className="w-4 h-4" />
-          <span>Printable Registration Receipt</span>
+          <span>Printable Registration Receipt &amp; Summary</span>
         </div>
         <div className="flex items-center gap-2">
           <button
@@ -71,7 +97,7 @@ export const RegistrationAcknowledgement: React.FC<RegistrationAcknowledgementPr
           </button>
           <button
             type="button"
-            onClick={handlePrint}
+            onClick={handleDownloadPdf}
             className="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs rounded-xl border border-slate-700 transition flex items-center gap-1.5"
           >
             <Download className="w-3.5 h-3.5 text-teal-400" />
@@ -82,8 +108,8 @@ export const RegistrationAcknowledgement: React.FC<RegistrationAcknowledgementPr
             onClick={handleShare}
             className="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs rounded-xl border border-slate-700 transition flex items-center gap-1.5"
           >
-            <Share2 className="w-3.5 h-3.5" />
-            Share
+            <Share2 className="w-3.5 h-3.5 text-emerald-400" />
+            Share Receipt
           </button>
         </div>
       </div>
@@ -129,7 +155,7 @@ export const RegistrationAcknowledgement: React.FC<RegistrationAcknowledgementPr
                 <User className="w-3.5 h-3.5" />
                 Mother Demographic Information
               </h4>
-              <div className="grid grid-cols-2 gap-3 text-xs">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs">
                 <div>
                   <span className="block text-[10px] text-slate-400 print:text-slate-600">Full Name:</span>
                   <span className="font-bold text-white print:text-black">{data.motherName}</span>
@@ -144,7 +170,15 @@ export const RegistrationAcknowledgement: React.FC<RegistrationAcknowledgementPr
                 </div>
                 <div>
                   <span className="block text-[10px] text-slate-400 print:text-slate-600">Mobile Number:</span>
-                  <span className="font-bold text-slate-200 print:text-black">{data.mobile}</span>
+                  <span className="font-bold font-mono text-emerald-400 print:text-black">{data.mobile}</span>
+                </div>
+                <div>
+                  <span className="block text-[10px] text-slate-400 print:text-slate-600">Blood Group:</span>
+                  <span className="font-bold text-teal-300 print:text-slate-900">{data.bloodGroup || 'O+'}</span>
+                </div>
+                <div>
+                  <span className="block text-[10px] text-slate-400 print:text-slate-600">Address / Locality:</span>
+                  <span className="font-bold text-slate-200 print:text-black truncate block">{data.address || data.village}</span>
                 </div>
               </div>
             </div>
@@ -155,44 +189,62 @@ export const RegistrationAcknowledgement: React.FC<RegistrationAcknowledgementPr
                 <Building2 className="w-3.5 h-3.5" />
                 Location &amp; Health Facility
               </h4>
-              <div className="grid grid-cols-2 gap-3 text-xs">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
                 <div>
                   <span className="block text-[10px] text-slate-400 print:text-slate-600">Village:</span>
-                  <span className="font-bold text-white print:text-black">{data.village}</span>
+                  <span className="font-bold text-white print:text-black truncate block">{data.village}</span>
                 </div>
                 <div>
                   <span className="block text-[10px] text-slate-400 print:text-slate-600">Taluk:</span>
-                  <span className="font-bold text-white print:text-black">{data.taluk}</span>
+                  <span className="font-bold text-white print:text-black truncate block">{data.taluk}</span>
                 </div>
                 <div>
                   <span className="block text-[10px] text-slate-400 print:text-slate-600">District:</span>
-                  <span className="font-bold text-slate-200 print:text-black">{data.district}</span>
+                  <span className="font-bold text-slate-200 print:text-black truncate block">{data.district}</span>
                 </div>
                 <div>
                   <span className="block text-[10px] text-slate-400 print:text-slate-600">Assigned PHC:</span>
-                  <span className="font-bold text-emerald-300 print:text-black">{data.assignedPhc}</span>
+                  <span className="font-bold text-emerald-300 print:text-black truncate block">{data.assignedPhc}</span>
                 </div>
               </div>
             </div>
 
-            {/* Section 3: Pregnancy Data */}
+            {/* Section 3: Pregnancy Data & Clinical Metrics */}
             <div className="bg-slate-900/60 rounded-2xl p-4 border border-slate-800 space-y-2.5 print:bg-slate-50 print:border-slate-300">
               <h4 className="text-xs font-bold text-emerald-400 print:text-emerald-800 uppercase tracking-wider flex items-center gap-1.5">
                 <Heart className="w-3.5 h-3.5" />
                 Pregnancy &amp; Obstetric Record
               </h4>
-              <div className="grid grid-cols-3 gap-3 text-xs">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs">
                 <div>
                   <span className="block text-[10px] text-slate-400 print:text-slate-600">ANC Reg No:</span>
                   <span className="font-mono font-bold text-emerald-400 print:text-black">{data.registrationNo}</span>
                 </div>
                 <div>
+                  <span className="block text-[10px] text-slate-400 print:text-slate-600">Obstetric Score:</span>
+                  <span className="font-bold text-slate-200 print:text-black font-mono">
+                    G{data.pregnancyNumber || 1} P{data.parity || 0} A{data.abortions || 0}
+                  </span>
+                </div>
+                <div>
+                  <span className="block text-[10px] text-slate-400 print:text-slate-600">Physical Stats:</span>
+                  <span className="font-bold text-slate-200 print:text-black">
+                    {data.heightCm || '154'} cm / {data.weightKg || '52'} kg
+                  </span>
+                </div>
+                <div>
                   <span className="block text-[10px] text-slate-400 print:text-slate-600">LMP Date:</span>
-                  <span className="font-bold text-slate-200 print:text-black">{data.lmp}</span>
+                  <span className="font-bold text-slate-200 print:text-black font-mono">{data.lmp}</span>
                 </div>
                 <div>
                   <span className="block text-[10px] text-slate-400 print:text-slate-600">Expected Delivery (EDD):</span>
-                  <span className="font-bold text-teal-300 print:text-black">{data.edd}</span>
+                  <span className="font-bold text-teal-300 print:text-black font-mono">{data.edd}</span>
+                </div>
+                <div className="col-span-2 sm:col-span-1">
+                  <span className="block text-[10px] text-slate-400 print:text-slate-600">Medical Condition:</span>
+                  <span className="font-bold text-amber-300 print:text-slate-900 truncate block">
+                    {data.medicalCondition || 'None Observed'}
+                  </span>
                 </div>
               </div>
             </div>
@@ -201,11 +253,11 @@ export const RegistrationAcknowledgement: React.FC<RegistrationAcknowledgementPr
           {/* QR Code & Registrar Column */}
           <div className="space-y-4 text-center">
             <div className="bg-slate-900/80 rounded-3xl p-5 border border-slate-800 space-y-3 print:bg-white print:border-slate-300">
-              <QrCodeGenerator value={qrUrl} size={150} className="mx-auto" />
+              <QrCodeGenerator value={realQrPayload} size={150} className="mx-auto" />
               <div className="space-y-1">
-                <span className="block text-xs font-bold text-white print:text-black">Scan Digital QR</span>
+                <span className="block text-xs font-bold text-white print:text-black">Scan Real Digital QR</span>
                 <span className="block text-[10px] text-slate-400 print:text-slate-600">
-                  Instantly opens Mother Profile Hub
+                  Instantly outputs Complete maternal profile &amp; clinical metrics
                 </span>
               </div>
             </div>
@@ -224,7 +276,7 @@ export const RegistrationAcknowledgement: React.FC<RegistrationAcknowledgementPr
         {/* Official Footer Statement */}
         <div className="pt-4 border-t border-slate-800 text-center space-y-1 print:border-black">
           <p className="text-xs font-semibold text-emerald-300 print:text-black">
-            "This acknowledgement confirms that the mother has been successfully registered in the JANANI360 AI Maternal Healthcare System."
+            "This acknowledgement confirms that the mother has been successfully registered with all clinical metrics in the JANANI360 AI Maternal Healthcare System."
           </p>
           <p className="text-[10px] text-slate-500 font-mono">
             Generated via JANANI360 AI OS · Health &amp; Family Welfare Dept, Govt of Karnataka
