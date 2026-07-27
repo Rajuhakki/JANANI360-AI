@@ -16,17 +16,11 @@ export const DashboardRouter: React.FC = () => {
     case 'HOSPITAL_ADMIN':
       return <Navigate to="/casualty-radar" replace />;
     case 'DOCTOR':
-      return <Navigate to="/mother-profile" replace />;
+      return <Navigate to="/labor-dashboard" replace />;
     case 'PATIENT':
-      return <Navigate to="/mother-profile" replace />;
-    case 'FAMILY':
-      return <Navigate to="/track" replace />;
-    case 'AMBULANCE_DRIVER':
-      return <Navigate to="/referrals" replace />;
-    case 'LAB_TECH':
-    case 'PHARMACIST':
-    case 'ANM':
+      return <Navigate to="/child-profile" replace />;
     case 'ASHA_WORKER':
+    case 'ANM':
     default:
       return <Navigate to="/mother-profile" replace />;
   }

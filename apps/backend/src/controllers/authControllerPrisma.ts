@@ -79,33 +79,6 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     });
 
     if (!user) {
-      const demoUsers: Record<string, any> = {
-        'mother.lakshmi@gmail.com': { id: 'demo-mother-1', name: 'Lakshmi Devi', role: 'PATIENT', email: 'mother.lakshmi@gmail.com', phone: '+919845099000' },
-        'family.manjunath@gmail.com': { id: 'demo-family-1', name: 'Manjunath Gowda', role: 'FAMILY', email: 'family.manjunath@gmail.com', phone: '+919845099001' },
-        'asha.sanveeka@karnataka.gov.in': { id: 'demo-asha-1', name: 'Sanveeka Gowda (ASHA)', role: 'ASHA_WORKER', email: 'asha.sanveeka@karnataka.gov.in', phone: '+919845077889' },
-        'asha.manjula@karnataka.gov.in': { id: 'demo-asha-2', name: 'Manjula G. (ASHA)', role: 'ASHA_WORKER', email: 'asha.manjula@karnataka.gov.in', phone: '+919845077889' },
-        'anm.anusaya@karnataka.gov.in': { id: 'demo-anm-1', name: 'Anusaya Patil (ANM)', role: 'ANM', email: 'anm.anusaya@karnataka.gov.in', phone: '+919845033445' },
-        'doctor.ananth@karnataka.gov.in': { id: 'demo-doc-1', name: 'Dr. Ananth Viswanath', role: 'DOCTOR', email: 'doctor.ananth@karnataka.gov.in', phone: '+919845044556' },
-        'admin.suresh@karnataka.gov.in': { id: 'demo-admin-1', name: 'Dr. Suresh G.', role: 'HOSPITAL_ADMIN', email: 'admin.suresh@karnataka.gov.in', phone: '+919845022334' },
-        'driver.ramesh@karnataka.gov.in': { id: 'demo-driver-1', name: 'Ramesh (108 Driver)', role: 'AMBULANCE_DRIVER', email: 'driver.ramesh@karnataka.gov.in', phone: '+919845088108' },
-        'lab.kavitha@karnataka.gov.in': { id: 'demo-lab-1', name: 'Kavitha (Lab Tech)', role: 'LAB_TECH', email: 'lab.kavitha@karnataka.gov.in', phone: '+919845066778' },
-        'pharma.prakash@karnataka.gov.in': { id: 'demo-pharma-1', name: 'Prakash (Pharmacist)', role: 'PHARMACIST', email: 'pharma.prakash@karnataka.gov.in', phone: '+919845055667' },
-        'dho.ramesh@karnataka.gov.in': { id: 'demo-dho-1', name: 'Dr. Ramesh Kumar (DHO)', role: 'DISTRICT_OFFICER', email: 'dho.ramesh@karnataka.gov.in', phone: '+919845011223' },
-        'dho.mahesh@karnataka.gov.in': { id: 'demo-dho-2', name: 'Dr. Mahesh P. (DHO)', role: 'DISTRICT_OFFICER', email: 'dho.mahesh@karnataka.gov.in', phone: '+919845011223' }
-      };
-
-      const demo = email ? demoUsers[email] : null;
-      if (demo) {
-        const tokens = generateTokens(demo);
-        res.status(200).json({
-          success: true,
-          message: 'Demo authentication successful',
-          user: demo,
-          tokens
-        });
-        return;
-      }
-
       console.warn(`⚠️ Login attempt failed: User not found for email="${email}", phone="${phone}"`);
       res.status(401).json({
         success: false,
