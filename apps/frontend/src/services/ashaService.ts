@@ -4,6 +4,13 @@ export interface AshaVillageOption {
   id: string;
   nameEn: string;
   nameKn: string;
+  hobli?: {
+    nameEn: string;
+    taluk?: {
+      nameEn: string;
+      district?: { nameEn: string };
+    };
+  };
 }
 
 export interface AshaFacilityOption {
@@ -23,12 +30,20 @@ export interface AshaMotherListItem {
 
 export interface AshaRegisterMotherPayload {
   fullName: string;
+  husbandName: string;
   age: number;
   phone: string;
+  address?: string;
   villageId: string;
   facilityId: string;
   lmpDate: string;
   gravida: number;
+  parity?: number;
+  abortions?: number;
+  heightCm?: number;
+  weightKg?: number;
+  bloodGroup?: string;
+  medicalCondition?: string;
 }
 
 export interface AshaHomeVisitPayload {
@@ -37,6 +52,26 @@ export interface AshaHomeVisitPayload {
   dangerSigns: boolean;
   remarks?: string;
   nextVisitDate?: string;
+}
+
+export interface AshaOcrResult {
+  motherName?: string;
+  husbandName?: string;
+  age?: string;
+  mobile?: string;
+  address?: string;
+  village?: string;
+  taluk?: string;
+  district?: string;
+  lmp?: string;
+  edd?: string;
+  pregnancyNumber?: string;
+  parity?: string;
+  abortions?: string;
+  bloodGroup?: string;
+  height?: string;
+  weight?: string;
+  medicalCondition?: string;
 }
 
 export const ashaService = {
@@ -58,5 +93,15 @@ export const ashaService = {
   recordHomeVisit: async (payload: AshaHomeVisitPayload) => {
     const res = await api.post('/asha/home-visits', payload);
     return res.data;
+  },
+
+  scanAntenatalCard: async (imageBase64?: string, filename?: string) => {
+    const res = await api.post('/asha/ocr-scan', { imageBase64, filename });
+    return res.data as {
+      success: boolean;
+      data: AshaOcrResult;
+      confidenceScores: Record<string, number>;
+      message?: string;
+    };
   }
 };
