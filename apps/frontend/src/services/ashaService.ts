@@ -95,8 +95,8 @@ export const ashaService = {
     return res.data;
   },
 
-  scanAntenatalCard: async (imageBase64?: string, filename?: string) => {
-    const res = await api.post('/asha/ocr-scan', { imageBase64, filename });
+  scanAntenatalCard: async (imageBase64?: string, filename?: string, mimeType?: string) => {
+    const res = await api.post('/asha/ocr-scan', { imageBase64, filename, mimeType });
     return res.data as {
       success: boolean;
       data: AshaOcrResult;

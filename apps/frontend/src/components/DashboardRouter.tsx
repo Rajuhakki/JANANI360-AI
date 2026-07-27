@@ -21,7 +21,7 @@ export const DashboardRouter: React.FC = () => {
       return <Navigate to="/mother-profile" replace />;
     case 'ANM':
     case 'ASHA_WORKER':
-      return <Navigate to="/asha-entry" replace />;
+      return <Navigate to="/asha-dashboard" replace />;
     default:
       return <Navigate to="/mother-profile" replace />;
   }
