@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Navbar } from '../components/Navbar';
 import {
   UserPlus,
@@ -10,7 +11,8 @@ import {
   AlertCircle,
   Loader2,
   HeartHandshake,
-  BadgeCheck
+  BadgeCheck,
+  ArrowLeft
 } from 'lucide-react';
 import {
   ashaService,
@@ -42,7 +44,9 @@ const FieldError: React.FC<{ msg?: string }> = ({ msg }) =>
 
 export const AshaDataEntryPage: React.FC = () => {
   const { user } = useSelector((state: RootState) => state.auth);
-  const [activeTab, setActiveTab] = useState<TabKey>('register');
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState<TabKey>(((location.state as any)?.tab as TabKey) || 'register');
 
   // Dropdown data
   const [villages, setVillages] = useState<AshaVillageOption[]>([]);
@@ -226,6 +230,17 @@ export const AshaDataEntryPage: React.FC = () => {
       <Navbar />
 
       <main className="max-w-2xl mx-auto p-4 sm:p-6 space-y-5">
+        {/* Navigation back to Dashboard */}
+        <div>
+          <button
+            onClick={() => navigate('/asha-dashboard')}
+            className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-900 border border-slate-800 hover:border-emerald-500/50 text-slate-300 hover:text-white text-xs font-extrabold transition shadow-sm"
+          >
+            <ArrowLeft className="w-4 h-4 text-emerald-400" />
+            <span>Back to Field Dashboard</span>
+          </button>
+        </div>
+
         {/* Header */}
         <div className="flex items-center gap-3">
           <div className="w-11 h-11 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center">

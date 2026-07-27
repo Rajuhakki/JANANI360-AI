@@ -5,6 +5,7 @@ import { LandingPage } from './pages/LandingPage';
 import { LoginPage } from './pages/LoginPage';
 import { MotherProfileHub } from './pages/MotherProfileHub';
 import { AshaDataEntryPage } from './pages/AshaDataEntryPage';
+import { AshaDashboardPage } from './pages/AshaDashboardPage';
 import { CasualtyErRadarPage } from './pages/CasualtyErRadarPage';
 import { FamilyTrackingPage } from './pages/FamilyTrackingPage';
 import { LaborRoomDashboardPage } from './pages/LaborRoomDashboardPage';
@@ -51,6 +52,14 @@ export const App: React.FC = () => {
           element={
             <ProtectedRoute>
               <AshaDataEntryPage />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/asha-dashboard" 
+          element={
+            <ProtectedRoute>
+              <AshaDashboardPage />
             </ProtectedRoute>
           } 
         />

@@ -53,7 +53,6 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, initial
     setSelectedRole(role);
     dispatch(clearAuthError());
     switch (role) {
-<<<<<<< HEAD
       case UserRole.PATIENT:
         setEmail('mother.lakshmi@gmail.com');
         setPassword('Mother@12345');
@@ -65,33 +64,14 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, initial
       case UserRole.DOCTOR:
         setEmail('doctor.ananth@karnataka.gov.in');
         setPassword('Doctor@12345');
-=======
-      case UserRole.DISTRICT_OFFICER:
-        setEmail('dho.mahesh@karnataka.gov.in');
-        setPassword('Dho@12345');
->>>>>>> 98f691a4ce6308c20c2fbffac910ce211489aab3
         break;
       case UserRole.HOSPITAL_ADMIN:
         setEmail('admin.suresh@karnataka.gov.in');
         setPassword('Admin@12345');
         break;
-<<<<<<< HEAD
       case UserRole.DISTRICT_OFFICER:
         setEmail('dho.ramesh@karnataka.gov.in');
         setPassword('Dho@12345');
-=======
-      case UserRole.DOCTOR:
-        setEmail('doctor.ananth@karnataka.gov.in');
-        setPassword('Doctor@12345');
-        break;
-      case UserRole.ASHA_WORKER:
-        setEmail('asha.manjula@karnataka.gov.in');
-        setPassword('Asha@12345');
-        break;
-      case UserRole.PATIENT:
-        setEmail('mother.lakshmi@gmail.com');
-        setPassword('Mother@12345');
->>>>>>> 98f691a4ce6308c20c2fbffac910ce211489aab3
         break;
       default:
         setEmail('asha.manjula@karnataka.gov.in');
@@ -159,19 +139,11 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, initial
             {/* Quick 1-Click Role Switcher */}
             <div className="space-y-2">
               {[
-<<<<<<< HEAD
                 { role: UserRole.ASHA_WORKER, title: 'ASHA Worker', name: 'Sanveeka G.', icon: HeartHandshake },
                 { role: UserRole.DOCTOR, title: 'Primary Health Care (PHC)', name: 'Dr. Ananth V.', icon: Stethoscope },
                 { role: UserRole.HOSPITAL_ADMIN, title: 'Health Administrator', name: 'Dr. Suresh G.', icon: Building2 },
                 { role: UserRole.DISTRICT_OFFICER, title: 'DHO (District Health Officer)', name: 'Dr. Ramesh G.', icon: ShieldCheck },
                 { role: UserRole.PATIENT, title: 'Mother & Family Details', name: 'Lakshmi Devi', icon: UserCheck }
-=======
-                { role: UserRole.ASHA_WORKER, title: t('stakeholders.ashaRole'), name: 'Manjula G.', icon: HeartHandshake },
-                { role: UserRole.DOCTOR, title: t('stakeholders.moRole'), name: 'Dr. Ananth V.', icon: Stethoscope },
-                { role: UserRole.HOSPITAL_ADMIN, title: t('stakeholders.adminRole'), name: 'Dr. Suresh G.', icon: Building2 },
-                { role: UserRole.DISTRICT_OFFICER, title: t('stakeholders.dhoRole'), name: 'Dr. Mahesh P.', icon: Building2 },
-                { role: UserRole.PATIENT, title: t('stakeholders.motherRole'), name: 'Lakshmi Devi', icon: UserCheck }
->>>>>>> 98f691a4ce6308c20c2fbffac910ce211489aab3
               ].map((p) => {
                 const Icon = p.icon;
                 const isSelected = selectedRole === p.role;

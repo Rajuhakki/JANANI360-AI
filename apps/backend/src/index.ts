@@ -57,11 +57,8 @@ import analyticsRoutesPrisma from './routes/analyticsRoutes';
 app.use('/api/v1/master', masterDataRoutes);
 app.use('/api/v1/auth', authRoutesPrisma);
 app.use('/api/v1/maternal', maternalRoutes);
-<<<<<<< HEAD
 app.use('/api/v1/asha', ashaRoutes);
 app.use('/api/v1/patients', patientRoutes);
-=======
->>>>>>> 98f691a4ce6308c20c2fbffac910ce211489aab3
 app.use('/api/v1/referrals', referralRoutes);
 app.use('/api/v1/labor', laborRoutes);
 app.use('/api/v1/children', childRoutesPrisma);
@@ -182,7 +179,7 @@ io.on('connection', (socket) => {
   });
 });
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5001;
 
 connectDB().then(() => {
   seedDefaultData();
