@@ -108,6 +108,22 @@ export const App: React.FC = () => {
           } 
         />
         <Route 
+          path="/phc-dashboard" 
+          element={
+            <ProtectedRoute>
+              <LaborRoomDashboardPage />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/doctor-dashboard" 
+          element={
+            <ProtectedRoute>
+              <LaborRoomDashboardPage />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
           path="/child-profile/:id" 
           element={
             <ProtectedRoute>

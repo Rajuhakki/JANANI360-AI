@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { QrCodeGenerator } from './QrCodeGenerator';
-import { Printer, Download, Share2, CheckCircle2, Building2, ShieldCheck, Heart, Calendar, User, Activity } from 'lucide-react';
+import { Printer, Download, Share2, CheckCircle2, Building2, ShieldCheck, Heart, Calendar, User, Activity, Send, Sparkles } from 'lucide-react';
 
 export interface AcknowledgementData {
   registrationNo: string;
@@ -38,6 +38,18 @@ export const RegistrationAcknowledgement: React.FC<RegistrationAcknowledgementPr
   data,
   onClose
 }) => {
+  const [sentToPhc, setSentToPhc] = useState(false);
+  const [sending, setSending] = useState(false);
+
+  useEffect(() => {
+    // Check if already transmitted in this session
+    try {
+      const existing = JSON.parse(localStorage.getItem('janani360_phc_referrals') || '[]');
+      const found = existing.some((item: any) => item.id === data.motherId);
+      if (found) setSentToPhc(true);
+    } catch (e) {}
+  }, [data.motherId]);
+
   // Real scannable data payload for mobile cameras and scanners
   const realQrPayload = `JANANI360 Acknowledgement Receipt
 Reg No: ${data.registrationNo} | ID: ${data.motherId}
@@ -76,6 +88,54 @@ Verify: https://janani360.ai/verify/${data.motherId}`;
       navigator.clipboard.writeText(shareText);
       alert(`✅ Acknowledgement Receipt Details Copied to Clipboard!\n\n${shareText}`);
     }
+  };
+
+  const handleSendToPhc = () => {
+    setSending(true);
+    setTimeout(() => {
+      try {
+        const existing = JSON.parse(localStorage.getItem('janani360_phc_referrals') || '[]');
+        const isDuplicate = existing.some((item: any) => item.id === data.motherId);
+        
+        if (!isDuplicate) {
+          const newEntry = {
+            id: data.motherId,
+            ancNumber: data.registrationNo,
+            motherName: data.motherName,
+            dob: data.dob,
+            age: data.age,
+            husbandName: data.husbandName,
+            mobile: data.mobile,
+            address: data.address || data.village,
+            village: data.village,
+            taluk: data.taluk,
+            district: data.district,
+            assignedPhc: data.assignedPhc,
+            lmp: data.lmp,
+            edd: data.edd,
+            gravida: data.pregnancyNumber,
+            parity: data.parity || 0,
+            abortions: data.abortions || 0,
+            bloodGroup: data.bloodGroup || 'O+',
+            heightCm: data.heightCm || '154',
+            weightKg: data.weightKg || '52',
+            medicalCondition: data.medicalCondition || 'None Observed',
+            registrationDate: data.registrationDate,
+            ashaWorkerName: data.ashaWorkerName,
+            status: 'PENDING_DOCTOR_REVIEW',
+            sentAt: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+          };
+          existing.unshift(newEntry);
+          localStorage.setItem('janani360_phc_referrals', JSON.stringify(existing));
+        }
+        setSending(false);
+        setSentToPhc(true);
+        alert(`✅ SUCCESS: Maternal record transmitted to ${data.assignedPhc} Medical Officer!\n\nDoctor can now view ${data.motherName} (${data.motherId}) in their live Primary Health Care (PHC) queue.`);
+      } catch (err) {
+        console.error(err);
+        setSending(false);
+      }
+    }, 600);
   };
 
   return (
@@ -281,6 +341,69 @@ Verify: https://janani360.ai/verify/${data.motherId}`;
           <p className="text-[10px] text-slate-500 font-mono">
             Generated via JANANI360 AI OS · Health &amp; Family Welfare Dept, Govt of Karnataka
           </p>
+        </div>
+      </div>
+
+      {/* Send to Primary Health Care (PHC) Medical Action Card (Hidden in Print) */}
+      <div className="bg-gradient-to-r from-slate-900 via-emerald-950 to-slate-900 border-2 border-emerald-500/50 rounded-3xl p-5 sm:p-6 shadow-2xl flex flex-col sm:flex-row items-center justify-between gap-4 print:hidden">
+        <div className="flex items-center gap-4 text-center sm:text-left">
+          <div className="w-12 h-12 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400 shrink-0">
+            <Activity className="w-6 h-6 animate-pulse" />
+          </div>
+          <div>
+            <h3 className="text-base font-black text-white flex items-center gap-2 justify-center sm:justify-start">
+              Send to Primary Health Care (PHC)
+              <span className="bg-teal-500/20 text-teal-300 text-[10px] font-black px-2.5 py-0.5 rounded-full border border-teal-500/30 flex items-center gap-1">
+                <Sparkles className="w-3 h-3 text-emerald-400" />
+                Live Doctor Queue
+              </span>
+            </h3>
+            <p className="text-xs text-slate-300 mt-0.5">
+              Transmit this complete maternal case directly to the Primary Health Care (PHC) Model Medical Officer for doctor evaluation.
+            </p>
+          </div>
+        </div>
+
+        <div className="flex flex-col sm:flex-row items-center gap-2.5 w-full sm:w-auto">
+          <button
+            type="button"
+            onClick={handleSendToPhc}
+            disabled={sentToPhc || sending}
+            className={`px-6 py-3.5 rounded-2xl font-black text-xs uppercase tracking-wider shadow-xl transition flex items-center justify-center gap-2 shrink-0 w-full sm:w-auto ${
+              sentToPhc
+                ? 'bg-emerald-500 text-slate-950 cursor-default shadow-emerald-500/25'
+                : 'bg-gradient-to-r from-emerald-400 via-teal-400 to-emerald-500 hover:from-emerald-300 hover:to-teal-300 text-slate-950 shadow-emerald-500/20 active:scale-95'
+            }`}
+          >
+            {sending ? (
+              <>
+                <span className="w-4 h-4 border-2 border-slate-950 border-t-transparent rounded-full animate-spin" />
+                Sending to PHC...
+              </>
+            ) : sentToPhc ? (
+              <>
+                <CheckCircle2 className="w-5 h-5 text-slate-950" />
+                ✅ Sent to PHC Doctor
+              </>
+            ) : (
+              <>
+                <Send className="w-4 h-4 text-slate-950" />
+                Send to Primary Health Care (PHC)
+              </>
+            )}
+          </button>
+
+          {sentToPhc && (
+            <a
+              href="/phc-dashboard"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-5 py-3.5 bg-slate-800 hover:bg-slate-700 text-teal-300 border border-teal-500/40 rounded-2xl font-black text-xs transition flex items-center justify-center gap-2 w-full sm:w-auto shadow-lg hover:text-white"
+            >
+              <Activity className="w-4 h-4 text-emerald-400 animate-pulse" />
+              Open PHC Doctor Model ➜
+            </a>
+          )}
         </div>
       </div>
     </div>
