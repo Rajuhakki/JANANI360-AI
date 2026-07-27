@@ -2,6 +2,7 @@ import { Response } from 'express';
 import { prisma } from '../config/prisma';
 import { AuthenticatedRequest } from '../middleware/rbac';
 import { z } from 'zod';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
 // Zod Validation Schemas (Simple ASHA Field-Level Data Entry)
 const ashaRegisterMotherSchema = z.object({
@@ -322,52 +323,115 @@ export const recordHomeVisit = async (req: AuthenticatedRequest, res: Response):
  */
 export const scanAntenatalCard = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
-    const { imageBase64, filename } = req.body;
+    const { imageBase64, filename, mimeType } = req.body;
 
-    // Simulate AI Vision / OCR processing on Karnataka Antenatal Card
-    // In production, this integrates with Google Cloud Vision / Tesseract / Claude / Gemini Vision AI
-    const extractedData = {
-      motherName: 'Lakshmi Devi (ಲಕ್ಷ್ಮಿ ದೇವಿ)',
-      husbandName: 'Manjunath Gowda (ಮಂಜುನಾಥ್ ಗೌಡ)',
-      age: '24',
-      mobile: '9845012345',
-      address: 'Door #42, Main Road, Varthur',
-      village: 'Varthur',
-      taluk: 'Mahadevapura',
-      district: 'Bengaluru Urban',
-      lmp: new Date(Date.now() - 190 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // ~27 weeks gest
-      edd: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-      pregnancyNumber: '1',
-      parity: '0',
-      abortions: '0',
-      bloodGroup: 'O+',
-      height: '154',
-      weight: '52',
-      medicalCondition: 'None'
+    if (!imageBase64) {
+      res.status(400).json({
+        success: false,
+        error: 'MISSING_FILE',
+        message: 'No image or document data received. Please select an Antenatal Card image or PDF first.'
+      });
+      return;
+    }
+
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey || apiKey.trim() === '') {
+      res.status(500).json({
+        success: false,
+        error: 'MISSING_API_KEY',
+        message: 'GEMINI_API_KEY is not set in apps/backend/.env! Please configure your Google Gemini AI studio key to perform live document analysis.'
+      });
+      return;
+    }
+
+    // Initialize Google Gemini Multimodal AI Vision
+    const genAI = new GoogleGenerativeAI(apiKey);
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+
+    // Extract raw base64 data and mime type
+    let cleanBase64 = imageBase64;
+    let actualMimeType = mimeType || 'image/jpeg';
+
+    if (imageBase64.includes(';base64,')) {
+      const parts = imageBase64.split(';base64,');
+      const prefix = parts[0]; // e.g. "data:image/png" or "data:application/pdf"
+      const extractedType = prefix.replace('data:', '').trim();
+      if (extractedType) actualMimeType = extractedType;
+      cleanBase64 = parts[1];
+    }
+
+    const prompt = `You are JANANI360 AI, an official medical document and antenatal card OCR extraction assistant for National Health Mission Karnataka.
+Carefully inspect this uploaded image, PDF, or hospital document.
+Extract ONLY the REAL, original information contained in this file. Do NOT insert fake names, dummy phone numbers, or fabricated medical history.
+If a particular field is NOT explicitly mentioned or clearly visible on the document, set its value to an empty string "".
+
+Return ONLY a valid JSON object without any markdown formatting around it, adhering exactly to this schema:
+{
+  "motherName": "Mother's full name exactly as found",
+  "husbandName": "Husband or Father's full name if present",
+  "age": "Age in years as string numbers only (e.g. '24')",
+  "mobile": "10 digit mobile phone number if present",
+  "address": "Address or door number if found",
+  "village": "Village or locality name if found",
+  "taluk": "Taluk or block name if found",
+  "district": "District name if found",
+  "lmp": "Last Menstrual Period in YYYY-MM-DD format if present or calculable",
+  "edd": "Expected Date of Delivery in YYYY-MM-DD format if present or calculable",
+  "pregnancyNumber": "Gravida count as numeric string (e.g. '1', '2')",
+  "parity": "Parity count as numeric string (e.g. '0', '1')",
+  "abortions": "Abortions count as numeric string (e.g. '0')",
+  "bloodGroup": "Blood group if present (e.g. 'O+', 'A+', 'B+', 'AB+', 'O-')",
+  "height": "Height in cm as numeric string if found",
+  "weight": "Weight in kg as numeric string if found",
+  "medicalCondition": "Any observed medical condition, disease, or high risk sign (e.g. 'Anemia', 'Hypertension', or 'None' if none found)",
+  "confidenceScores": {
+    "motherName": 95,
+    "age": 90,
+    "mobile": 90,
+    "village": 90,
+    "lmp": 85,
+    "bloodGroup": 85
+  }
+}`;
+
+    const imagePart = {
+      inlineData: {
+        data: cleanBase64,
+        mimeType: actualMimeType
+      }
     };
 
-    const confidenceScores = {
-      motherName: 98,
-      husbandName: 96,
-      age: 95,
-      mobile: 99,
-      address: 90,
-      village: 94,
-      taluk: 97,
-      district: 99,
-      lmp: 97,
-      edd: 97,
-      pregnancyNumber: 92,
-      bloodGroup: 99,
-      height: 91,
-      weight: 93,
-      medicalCondition: 98
+    console.log(`[Gemini AI] Analyzing Antenatal Card (${filename || 'upload'}, type: ${actualMimeType})...`);
+    const result = await model.generateContent([prompt, imagePart]);
+    let responseText = result.response.text().trim();
+
+    // Clean any accidental markdown syntax around JSON
+    if (responseText.startsWith('```')) {
+      const match = responseText.match(/```(?:json)?\s*([\s\S]*?)```/);
+      if (match && match[1]) {
+        responseText = match[1].trim();
+      } else {
+        responseText = responseText.replace(/^```[a-z]*\n?/i, '').replace(/\n?```$/, '').trim();
+      }
+    }
+
+    const parsedJson = JSON.parse(responseText);
+    const confidenceScores = parsedJson.confidenceScores || {
+      motherName: 90,
+      age: 85,
+      mobile: 90,
+      village: 90,
+      lmp: 85,
+      bloodGroup: 85
     };
+    delete parsedJson.confidenceScores;
+
+    console.log(`[Gemini AI] Real document extraction successful:`, JSON.stringify(parsedJson, null, 2));
 
     res.status(200).json({
       success: true,
-      message: 'Antenatal Card OCR processed successfully',
-      data: extractedData,
+      message: 'AI Vision OCR scan completed successfully with original data extraction',
+      data: parsedJson,
       confidenceScores
     });
   } catch (error: any) {
@@ -375,7 +439,7 @@ export const scanAntenatalCard = async (req: AuthenticatedRequest, res: Response
     res.status(500).json({
       success: false,
       error: 'OCR_PROCESSING_FAILED',
-      message: 'Unable to extract all information. Please complete the missing fields manually.'
+      message: error.message || 'Unable to extract information with AI. Please check file format or verify GEMINI_API_KEY.'
     });
   }
 };

@@ -529,6 +529,7 @@ export const RegisterMotherForm: React.FC<RegisterMotherFormProps> = ({
             husbandName: form.husbandName,
             age: form.age,
             phone: form.phone,
+            address: form.address,
             village: selectedVillageInfo.taluk ? (villages.find((v) => v.id === form.villageId)?.nameEn || 'Varthur') : 'Varthur',
             taluk: selectedVillageInfo.taluk || 'Mahadevapura',
             district: selectedVillageInfo.district || 'Bengaluru Urban',
@@ -536,7 +537,12 @@ export const RegisterMotherForm: React.FC<RegisterMotherFormProps> = ({
             lmpDate: form.lmpDate,
             eddDate: calculatedEdd,
             gravida: form.gravida,
+            parity: form.parity,
+            abortions: form.abortions,
             bloodGroup: form.bloodGroup,
+            heightCm: form.heightCm,
+            weightKg: form.weightKg,
+            medicalCondition: form.medicalCondition,
             ashaWorkerName: user?.name
           }}
           onClose={() => setSuccessData(null)}
