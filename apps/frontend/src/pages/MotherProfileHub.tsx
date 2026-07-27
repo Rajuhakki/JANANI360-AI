@@ -3,8 +3,6 @@ import {
   User, Heart, Activity, Calendar, ShieldAlert, FileText, Phone, MapPin, Plus, RefreshCw, AlertTriangle, CheckCircle2, Clock, Ambulance, ChevronRight
 } from 'lucide-react';
 import { Navbar } from '../components/Navbar';
-import { UniversalSearchBar } from '../components/UniversalSearchBar';
-import { NotificationCenter } from '../components/NotificationCenter';
 import { NextRecommendedActionCard } from '../components/NextRecommendedActionCard';
 import { ActionableWorkQueue } from '../components/ActionableWorkQueue';
 import { SmartRegistrationWizard } from '../components/SmartRegistrationWizard';
@@ -16,7 +14,7 @@ export const MotherProfileHub: React.FC = () => {
   const [motherData, setMotherData] = useState<any>(null);
   const [workQueueData, setWorkQueueData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [language, setLanguage] = useState<'kn' | 'en'>('kn');
+  const [language] = useState<'kn' | 'en'>('kn');
   const [activeTab, setActiveTab] = useState<'timeline' | 'ai' | 'referral' | 'documents'>('timeline');
   const [showRegisterWizard, setShowRegisterWizard] = useState(false);
 
@@ -102,53 +100,7 @@ export const MotherProfileHub: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 font-sans">
-      {/* Official Navigation Bar with Logout */}
       <Navbar />
-
-      {/* Main Top Header */}
-      <header className="border-b border-slate-800 bg-slate-900/60 sticky top-0 z-40 backdrop-blur-md px-4 py-3">
-        <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center font-black text-slate-950 text-base shadow-lg shadow-emerald-500/20">
-              J
-            </div>
-            <div>
-              <h1 className="text-base font-bold text-slate-100 flex items-center gap-2">
-                JANANI360 AI <span className="text-emerald-400 text-xs font-mono">v3.0</span>
-              </h1>
-              <p className="text-[11px] text-slate-400">
-                {language === 'kn' ? 'ಕರ್ನಾಟಕ ತಾಯಂದಿರ ಮತ್ತು ಶಿಶು ಆರೈಕೆ ವ್ಯವಸ್ಥೆ' : 'Karnataka Maternal Case Management OS'}
-              </p>
-            </div>
-          </div>
-
-          {/* Universal Search Bar */}
-          <UniversalSearchBar
-            language={language}
-            onSelectMother={(id) => fetchMotherProfile(id)}
-          />
-
-          {/* Controls & Notification Center */}
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => setLanguage(language === 'kn' ? 'en' : 'kn')}
-              className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-xs font-semibold border border-slate-700 transition"
-            >
-              {language === 'kn' ? 'English' : 'ಕನ್ನಡ'}
-            </button>
-
-            <NotificationCenter language={language} />
-
-            <button
-              onClick={() => setShowRegisterWizard(true)}
-              className="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-lg shadow-emerald-600/30 transition"
-            >
-              <Plus className="w-4 h-4" />
-              {language === 'kn' ? 'ಹೊಸ ತಾಯಿ ನೋಂದಣಿ' : 'Register Mother'}
-            </button>
-          </div>
-        </div>
-      </header>
 
       {/* Main Container */}
       <main className="max-w-7xl mx-auto p-4 sm:p-6 space-y-6">

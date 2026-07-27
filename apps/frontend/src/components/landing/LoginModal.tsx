@@ -53,28 +53,48 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, initial
     setSelectedRole(role);
     dispatch(clearAuthError());
     switch (role) {
-      case UserRole.DISTRICT_OFFICER:
-        setEmail('dho.mahesh@karnataka.gov.in');
-        setPassword('Dho@12345');
+      case UserRole.PATIENT:
+        setEmail('mother.lakshmi@gmail.com');
+        setPassword('Mother@12345');
         break;
-      case UserRole.HOSPITAL_ADMIN:
-        setEmail('admin.suresh@karnataka.gov.in');
-        setPassword('Admin@12345');
+      case UserRole.FAMILY:
+        setEmail('family.manjunath@gmail.com');
+        setPassword('Family@12345');
+        break;
+      case UserRole.ASHA_WORKER:
+        setEmail('asha.sanveeka@karnataka.gov.in');
+        setPassword('Asha@12345');
+        break;
+      case UserRole.ANM:
+        setEmail('anm.anusaya@karnataka.gov.in');
+        setPassword('Anm@12345');
         break;
       case UserRole.DOCTOR:
         setEmail('doctor.ananth@karnataka.gov.in');
         setPassword('Doctor@12345');
         break;
-      case UserRole.ASHA_WORKER:
-        setEmail('asha.manjula@karnataka.gov.in');
-        setPassword('Asha@12345');
+      case UserRole.HOSPITAL_ADMIN:
+        setEmail('admin.suresh@karnataka.gov.in');
+        setPassword('Admin@12345');
         break;
-      case UserRole.PATIENT:
-        setEmail('mother.lakshmi@gmail.com');
-        setPassword('Mother@12345');
+      case UserRole.AMBULANCE_DRIVER:
+        setEmail('driver.ramesh@karnataka.gov.in');
+        setPassword('Driver@12345');
+        break;
+      case UserRole.LAB_TECH:
+        setEmail('lab.kavitha@karnataka.gov.in');
+        setPassword('Lab@12345');
+        break;
+      case UserRole.PHARMACIST:
+        setEmail('pharma.prakash@karnataka.gov.in');
+        setPassword('Pharma@12345');
+        break;
+      case UserRole.DISTRICT_OFFICER:
+        setEmail('dho.ramesh@karnataka.gov.in');
+        setPassword('Dho@12345');
         break;
       default:
-        setEmail('asha.manjula@karnataka.gov.in');
+        setEmail('asha.sanveeka@karnataka.gov.in');
         setPassword('Asha@12345');
     }
   };
@@ -137,13 +157,18 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, initial
             </div>
 
             {/* Quick 1-Click Role Switcher */}
-            <div className="space-y-2">
+            <div className="space-y-1.5 max-h-[340px] overflow-y-auto pr-1 custom-scrollbar">
               {[
-                { role: UserRole.ASHA_WORKER, title: t('stakeholders.ashaRole'), name: 'Manjula G.', icon: HeartHandshake },
-                { role: UserRole.DOCTOR, title: t('stakeholders.moRole'), name: 'Dr. Ananth V.', icon: Stethoscope },
-                { role: UserRole.HOSPITAL_ADMIN, title: t('stakeholders.adminRole'), name: 'Dr. Suresh G.', icon: Building2 },
-                { role: UserRole.DISTRICT_OFFICER, title: t('stakeholders.dhoRole'), name: 'Dr. Mahesh P.', icon: Building2 },
-                { role: UserRole.PATIENT, title: t('stakeholders.motherRole'), name: 'Lakshmi Devi', icon: UserCheck }
+                { role: UserRole.PATIENT, title: 'Pregnant Mother', name: 'Lakshmi Devi', icon: UserCheck },
+                { role: UserRole.FAMILY, title: 'Family Member', name: 'Manjunath G.', icon: User },
+                { role: UserRole.ASHA_WORKER, title: 'ASHA Facilitator', name: 'Sanveeka G.', icon: HeartHandshake },
+                { role: UserRole.ANM, title: 'ANM Nurse Midwife', name: 'Anusaya P.', icon: ShieldCheck },
+                { role: UserRole.DOCTOR, title: 'PHC / Obstetric Doctor', name: 'Dr. Ananth V.', icon: Stethoscope },
+                { role: UserRole.HOSPITAL_ADMIN, title: 'Hospital Admin', name: 'Dr. Suresh G.', icon: Building2 },
+                { role: UserRole.AMBULANCE_DRIVER, title: '108 Ambulance Driver', name: 'Ramesh Driver', icon: User },
+                { role: UserRole.LAB_TECH, title: 'Lab Technician', name: 'Kavitha Lab', icon: User },
+                { role: UserRole.PHARMACIST, title: 'Pharmacist', name: 'Prakash Pharma', icon: User },
+                { role: UserRole.DISTRICT_OFFICER, title: 'District Health Officer', name: 'Dr. Ramesh Kumar', icon: Building2 }
               ].map((p) => {
                 const Icon = p.icon;
                 const isSelected = selectedRole === p.role;
@@ -152,17 +177,17 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, initial
                     key={p.role}
                     type="button"
                     onClick={() => handleRoleQuickSelect(p.role)}
-                    className={`w-full p-2.5 rounded-xl border text-left transition flex items-center justify-between ${
+                    className={`w-full p-2 rounded-xl border text-left transition flex items-center justify-between ${
                       isSelected 
                         ? 'bg-emerald-500/15 border-emerald-500 text-white shadow-md' 
                         : 'bg-slate-900/60 border-slate-800 text-slate-300 hover:border-slate-700'
                     }`}
                   >
-                    <div className="flex items-center space-x-3 space-x-reverse">
-                      <Icon className={`w-4 h-4 ${isSelected ? 'text-emerald-400' : 'text-slate-400'}`} />
+                    <div className="flex items-center space-x-2.5">
+                      <Icon className={`w-3.5 h-3.5 ${isSelected ? 'text-emerald-400' : 'text-slate-400'}`} />
                       <div>
-                        <p className="text-xs font-bold">{p.title}</p>
-                        <p className="text-[10px] text-slate-400">{p.name}</p>
+                        <p className="text-xs font-bold leading-tight">{p.title}</p>
+                        <p className="text-[10px] text-slate-400 leading-tight">{p.name}</p>
                       </div>
                     </div>
                     {isSelected && <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />}
