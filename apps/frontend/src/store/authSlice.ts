@@ -30,11 +30,13 @@ interface AuthState {
   error: string | null;
 }
 
+const tokenInStorage = localStorage.getItem('janani_access_token');
+
 const initialState: AuthState = {
   user: null,
-  token: localStorage.getItem('janani_access_token'),
-  isAuthenticated: !!localStorage.getItem('janani_access_token'),
-  isLoading: false,
+  token: tokenInStorage,
+  isAuthenticated: !!tokenInStorage,
+  isLoading: !!tokenInStorage,
   error: null
 };
 
@@ -81,6 +83,7 @@ const authSlice = createSlice({
       state.user = null;
       state.token = null;
       state.isAuthenticated = false;
+      state.isLoading = false;
       state.error = null;
     },
     clearAuthError: (state) => {
@@ -117,11 +120,16 @@ const authSlice = createSlice({
         state.isLoading = false;
         state.error = action.payload as string;
       })
+      .addCase(fetchCurrentUser.pending, (state) => {
+        state.isLoading = true;
+      })
       .addCase(fetchCurrentUser.fulfilled, (state, action) => {
+        state.isLoading = false;
         state.user = action.payload;
         state.isAuthenticated = true;
       })
       .addCase(fetchCurrentUser.rejected, (state) => {
+        state.isLoading = false;
         state.user = null;
         state.token = null;
         state.isAuthenticated = false;
