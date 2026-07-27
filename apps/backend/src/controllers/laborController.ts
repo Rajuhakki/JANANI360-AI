@@ -291,7 +291,17 @@ export const getLaborRoomDashboard = async (req: AuthenticatedRequest, res: Resp
         laborStatus: { in: ['ADMITTED', 'ACTIVE_LABOR', 'DELIVERY_IN_PROGRESS', 'POSTPARTUM_OBSERVATION'] }
       },
       include: {
-        mother: { select: { fullName: true, rchId: true, age: true, phone: true } },
+        mother: {
+          select: {
+            id: true,
+            fullName: true,
+            rchId: true,
+            age: true,
+            phone: true,
+            registeredByUser: { select: { id: true, name: true, phone: true, staffId: true } },
+            village: { select: { nameEn: true } }
+          }
+        },
         partographEntries: { orderBy: { observationDateTime: 'desc' }, take: 5 },
         deliveryRecord: { include: { childProfiles: true } },
         timelineEvents: { orderBy: { createdAt: 'desc' } }

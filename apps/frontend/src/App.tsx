@@ -12,6 +12,7 @@ import { ChildProfileHubPage } from './pages/ChildProfileHubPage';
 import { DistrictCommandCenterPage } from './pages/DistrictCommandCenterPage';
 import { MotherPublicProfilePage } from './pages/MotherPublicProfilePage';
 import { QrScannerPage } from './pages/QrScannerPage';
+import { PhcDoctorModulePage } from './pages/PhcDoctorModulePage';
 import { LogoutPage } from './pages/LogoutPage';
 import { UnauthorizedPage } from './pages/UnauthorizedPage';
 import { SessionExpiredPage } from './pages/SessionExpiredPage';
@@ -42,6 +43,22 @@ export const App: React.FC = () => {
         <Route path="/track" element={<FamilyTrackingPage />} />
         <Route path="/mother/:id" element={<MotherPublicProfilePage />} />
         <Route path="/scan-qr" element={<QrScannerPage />} />
+        <Route 
+          path="/phc-doctor" 
+          element={
+            <ProtectedRoute>
+              <PhcDoctorModulePage />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/doctor-checkup" 
+          element={
+            <ProtectedRoute>
+              <PhcDoctorModulePage />
+            </ProtectedRoute>
+          } 
+        />
         <Route 
           path="/dashboard" 
           element={

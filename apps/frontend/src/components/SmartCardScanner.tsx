@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 import {
   Camera,
   Upload,
@@ -10,9 +10,8 @@ import {
   AlertCircle,
   Scan,
   FileCheck,
-  Eye,
-  Image as ImageIcon,
-  Loader2
+  Trash2,
+  Image as ImageIcon
 } from 'lucide-react';
 import { ashaService, AshaOcrResult } from '../services/ashaService';
 
@@ -25,7 +24,6 @@ export const SmartCardScanner: React.FC<SmartCardScannerProps> = ({
   onScanComplete,
   onScanError
 }) => {
-  const [activeMode, setActiveMode] = useState<'scan' | 'photo' | 'document'>('scan');
   const [isDragOver, setIsDragOver] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -44,7 +42,83 @@ export const SmartCardScanner: React.FC<SmartCardScannerProps> = ({
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  // Handle Drag & Drop
+  const formatFileSize = (bytes?: number): string => {
+    if (!bytes) return '0 B';
+    const k = 1024;
+    const sizes = ['B', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return `${parseFloat((bytes / Math.pow(k, i)).toFixed(1))} ${sizes[i]}`;
+  };
+
+  // Run AI OCR Processing immediately
+  const triggerAiAnalysis = async (url?: string, fileObj?: File) => {
+    const targetUrl = url || previewUrl;
+    const targetFile = fileObj || selectedFile;
+
+    if (!targetUrl && !targetFile) return;
+
+    setIsAnalyzing(true);
+    setErrorMessage(null);
+    setScanSuccess(false);
+
+    try {
+      setAnalysisStep('Analyzing Antenatal Card...');
+      await new Promise((r) => setTimeout(r, 600));
+
+      setAnalysisStep('Reading Kannada & English...');
+      await new Promise((r) => setTimeout(r, 600));
+
+      setAnalysisStep('Extracting Information...');
+      await new Promise((r) => setTimeout(r, 500));
+
+      const res = await ashaService.scanAntenatalCard(
+        targetUrl && targetUrl !== 'pdf-placeholder' ? targetUrl : undefined,
+        targetFile?.name
+      );
+
+      if (res.success && res.data) {
+        setScanSuccess(true);
+        onScanComplete(res.data, res.confidenceScores || {});
+      } else {
+        const msg =
+          res.message ||
+          'Unable to extract all information. Please complete the missing fields manually.';
+        setErrorMessage(msg);
+        if (onScanError) onScanError(msg);
+      }
+    } catch (err: any) {
+      const msg =
+        err.response?.data?.message ||
+        'Unable to extract all information. Please complete the missing fields manually.';
+      setErrorMessage(msg);
+      if (onScanError) onScanError(msg);
+    } finally {
+      setIsAnalyzing(false);
+      setAnalysisStep('');
+    }
+  };
+
+  const processFile = (file: File) => {
+    setErrorMessage(null);
+    setScanSuccess(false);
+    setSelectedFile(file);
+
+    let url = 'pdf-placeholder';
+    if (file.type.startsWith('image/')) {
+      url = URL.createObjectURL(file);
+      setPreviewUrl(url);
+    } else if (file.type === 'application/pdf') {
+      setPreviewUrl('pdf-placeholder');
+    } else {
+      setErrorMessage('Unsupported file format. Please upload JPG, JPEG, PNG, or PDF.');
+      return;
+    }
+
+    // Automatically trigger AI OCR analysis immediately!
+    triggerAiAnalysis(url, file);
+  };
+
+  // Drag & Drop Handlers
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -55,23 +129,6 @@ export const SmartCardScanner: React.FC<SmartCardScannerProps> = ({
     e.preventDefault();
     e.stopPropagation();
     setIsDragOver(false);
-  };
-
-  const processFile = (file: File) => {
-    setErrorMessage(null);
-    setScanSuccess(false);
-    setSelectedFile(file);
-
-    if (file.type.startsWith('image/')) {
-      const url = URL.createObjectURL(file);
-      setPreviewUrl(url);
-    } else if (file.type === 'application/pdf') {
-      // PDF placeholder preview
-      setPreviewUrl('pdf-placeholder');
-    } else {
-      setErrorMessage('Unsupported file format. Please upload JPG, JPEG, PNG, or PDF.');
-      return;
-    }
   };
 
   const handleDrop = (e: React.DragEvent) => {
@@ -104,7 +161,7 @@ export const SmartCardScanner: React.FC<SmartCardScannerProps> = ({
     } catch (err: any) {
       console.error('Camera access error:', err);
       setCameraError(
-        'Unable to access device camera. Please check browser permissions or use the Upload Photo option.'
+        'Unable to access device camera. Please check browser permissions or use the Choose File option.'
       );
     }
   };
@@ -128,68 +185,18 @@ export const SmartCardScanner: React.FC<SmartCardScannerProps> = ({
       const dataUrl = canvas.toDataURL('image/jpeg');
       setPreviewUrl(dataUrl);
 
-      // Convert dataUrl to File
-      fetch(dataUrl)
-        .then((res) => res.blob())
-        .then((blob) => {
-          const file = new File([blob], 'captured_antenatal_card.jpg', { type: 'image/jpeg' });
-          setSelectedFile(file);
-        });
+      const file = new File([dataUrl], 'captured_antenatal_card.jpg', { type: 'image/jpeg' });
+      setSelectedFile(file);
 
+      // Automatically close camera modal after capture
       stopCamera();
+
+      // Automatically start AI OCR analysis immediately!
+      triggerAiAnalysis(dataUrl, file);
     }
   };
 
-  // Run AI OCR Processing
-  const runAiAnalysis = async () => {
-    if (!previewUrl && !selectedFile) {
-      setErrorMessage('Please capture or select an Antenatal Card image first.');
-      return;
-    }
-
-    setIsAnalyzing(true);
-    setErrorMessage(null);
-    setScanSuccess(false);
-
-    try {
-      setAnalysisStep('Detecting printed and handwritten Kannada & English text...');
-      await new Promise((r) => setTimeout(r, 600));
-
-      setAnalysisStep('Parsing Karnataka Antenatal Card sections...');
-      await new Promise((r) => setTimeout(r, 600));
-
-      setAnalysisStep('Extracting demographic & ANC metrics...');
-      await new Promise((r) => setTimeout(r, 500));
-
-      setAnalysisStep('Calculating AI confidence scores...');
-      const res = await ashaService.scanAntenatalCard(
-        previewUrl && previewUrl !== 'pdf-placeholder' ? previewUrl : undefined,
-        selectedFile?.name
-      );
-
-      if (res.success && res.data) {
-        setScanSuccess(true);
-        onScanComplete(res.data, res.confidenceScores || {});
-      } else {
-        const msg =
-          res.message ||
-          'Unable to extract all information. Please complete the missing fields manually.';
-        setErrorMessage(msg);
-        if (onScanError) onScanError(msg);
-      }
-    } catch (err: any) {
-      const msg =
-        err.response?.data?.message ||
-        'Unable to extract all information. Please complete the missing fields manually.';
-      setErrorMessage(msg);
-      if (onScanError) onScanError(msg);
-    } finally {
-      setIsAnalyzing(false);
-      setAnalysisStep('');
-    }
-  };
-
-  const handleResetScan = () => {
+  const handleCancelImage = () => {
     setPreviewUrl(null);
     setSelectedFile(null);
     setScanSuccess(false);
@@ -200,64 +207,24 @@ export const SmartCardScanner: React.FC<SmartCardScannerProps> = ({
   };
 
   return (
-    <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-5 sm:p-6 shadow-xl space-y-4">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-3 border-b border-slate-800">
+    <div className="bg-slate-900/90 border border-slate-800 rounded-[20px] p-5 sm:p-6 shadow-xl space-y-4">
+      {/* Top Main Smart Registration Card */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-4 border-b border-slate-800">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
             <Scan className="w-5 h-5 animate-pulse" />
           </div>
           <div>
-            <h3 className="text-sm font-bold text-white flex items-center gap-2">
-              Smart Antenatal Card AI OCR
-              <span className="text-[10px] font-black uppercase tracking-wider bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded-full">
-                AI Vision
+            <h3 className="text-base font-black text-white flex items-center gap-2">
+              Smart Registration
+              <span className="text-[10px] font-black uppercase tracking-wider bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2.5 py-0.5 rounded-full">
+                AI Vision OCR
               </span>
             </h3>
             <p className="text-xs text-slate-400">
-              Scan or upload the Karnataka Antenatal Card to auto-fill registration fields
+              Scan or upload the Karnataka Antenatal Card to automatically extract &amp; fill mother details.
             </p>
           </div>
-        </div>
-
-        {/* Scan Mode Tabs */}
-        <div className="flex bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs w-full sm:w-auto">
-          <button
-            type="button"
-            onClick={() => setActiveMode('scan')}
-            className={`flex-1 sm:flex-initial px-3 py-1.5 rounded-lg font-semibold transition flex items-center justify-center gap-1.5 ${
-              activeMode === 'scan'
-                ? 'bg-emerald-500 text-slate-950 shadow-md font-bold'
-                : 'text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            <Camera className="w-3.5 h-3.5" />
-            Scan Card
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveMode('photo')}
-            className={`flex-1 sm:flex-initial px-3 py-1.5 rounded-lg font-semibold transition flex items-center justify-center gap-1.5 ${
-              activeMode === 'photo'
-                ? 'bg-emerald-500 text-slate-950 shadow-md font-bold'
-                : 'text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            <ImageIcon className="w-3.5 h-3.5" />
-            Upload Photo
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveMode('document')}
-            className={`flex-1 sm:flex-initial px-3 py-1.5 rounded-lg font-semibold transition flex items-center justify-center gap-1.5 ${
-              activeMode === 'document'
-                ? 'bg-emerald-500 text-slate-950 shadow-md font-bold'
-                : 'text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            <FileText className="w-3.5 h-3.5" />
-            Image/PDF
-          </button>
         </div>
       </div>
 
@@ -273,11 +240,11 @@ export const SmartCardScanner: React.FC<SmartCardScannerProps> = ({
       {/* Camera Live Stream Modal */}
       {showCameraModal && (
         <div className="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 flex items-center justify-center p-4">
-          <div className="bg-slate-900 border border-slate-800 rounded-3xl max-w-lg w-full p-5 space-y-4 shadow-2xl relative">
+          <div className="bg-slate-900 border border-slate-800 rounded-[20px] max-w-lg w-full p-5 space-y-4 shadow-2xl relative">
             <div className="flex justify-between items-center pb-2 border-b border-slate-800">
               <h4 className="text-sm font-bold text-white flex items-center gap-2">
                 <Camera className="w-4 h-4 text-emerald-400" />
-                Capture Karnataka Antenatal Card
+                Scan Karnataka Antenatal Card
               </h4>
               <button
                 type="button"
@@ -294,16 +261,18 @@ export const SmartCardScanner: React.FC<SmartCardScannerProps> = ({
                 <p>{cameraError}</p>
                 <button
                   type="button"
-                  onClick={() => fileInputRef.current?.click()}
+                  onClick={() => {
+                    stopCamera();
+                    fileInputRef.current?.click();
+                  }}
                   className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-white rounded-lg font-bold"
                 >
-                  Upload Saved Photo Instead
+                  Choose Saved File Instead
                 </button>
               </div>
             ) : (
               <div className="relative rounded-2xl overflow-hidden bg-black aspect-video border border-emerald-500/30 shadow-inner flex items-center justify-center">
                 <video ref={videoRef} autoPlay playsInline className="w-full h-full object-cover" />
-                {/* Antenatal Card Frame Guide Overlay */}
                 <div className="absolute inset-4 border-2 border-dashed border-emerald-400/80 rounded-xl pointer-events-none flex items-center justify-center">
                   <span className="bg-slate-950/70 text-emerald-300 text-[10px] font-bold px-2 py-1 rounded-md">
                     Align Antenatal Card Here
@@ -335,12 +304,12 @@ export const SmartCardScanner: React.FC<SmartCardScannerProps> = ({
         </div>
       )}
 
-      {/* Main Upload & Dropzone Card */}
+      {/* Main Upload Dropzone or Preview */}
       <div
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
-        className={`relative border-2 border-dashed rounded-3xl p-6 transition-all text-center flex flex-col items-center justify-center min-h-[220px] ${
+        className={`relative border-2 border-dashed rounded-[20px] p-5 transition-all text-center flex flex-col items-center justify-center min-h-[220px] ${
           isDragOver
             ? 'border-emerald-400 bg-emerald-500/10 scale-[1.01]'
             : previewUrl
@@ -348,128 +317,149 @@ export const SmartCardScanner: React.FC<SmartCardScannerProps> = ({
             : 'border-slate-800 hover:border-emerald-500/50 bg-slate-950/40'
         }`}
       >
-        {/* Loading Overlay when AI Analyzing */}
+        {/* Animated Loading Overlay during Automatic AI OCR */}
         {isAnalyzing && (
-          <div className="absolute inset-0 bg-slate-950/90 backdrop-blur-md rounded-3xl z-30 flex flex-col items-center justify-center p-6 space-y-4">
+          <div className="absolute inset-0 bg-slate-950/90 backdrop-blur-md rounded-[20px] z-30 flex flex-col items-center justify-center p-6 space-y-4">
             <div className="relative">
               <div className="w-16 h-16 rounded-full border-4 border-emerald-500/20 border-t-emerald-400 animate-spin" />
               <Sparkles className="w-7 h-7 text-emerald-400 absolute inset-0 m-auto animate-pulse" />
             </div>
             <div className="text-center space-y-1">
-              <h4 className="text-base font-black text-white">Analyzing Antenatal Card...</h4>
-              <p className="text-xs text-emerald-400 font-semibold">{analysisStep}</p>
-              <p className="text-[11px] text-slate-400">
-                Detecting handwritten &amp; printed Kannada and English OCR entries
+              <h4 className="text-base font-black text-white">{analysisStep}</h4>
+              <p className="text-xs text-emerald-400 font-semibold">
+                Extracting printed &amp; handwritten Kannada &amp; English entries
               </p>
             </div>
           </div>
         )}
 
-        {/* Display Preview if available */}
+        {/* Display Preview if file/camera image selected */}
         {previewUrl ? (
           <div className="w-full space-y-4">
-            <div className="relative max-h-56 overflow-hidden rounded-2xl border border-slate-800 bg-black/60 flex items-center justify-center">
+            <div className="relative max-h-56 overflow-hidden rounded-2xl border border-slate-800 bg-black/60 flex items-center justify-center p-2">
               {previewUrl === 'pdf-placeholder' ? (
                 <div className="p-8 text-center space-y-2">
                   <FileText className="w-12 h-12 text-emerald-400 mx-auto" />
                   <span className="block text-xs font-bold text-slate-200">{selectedFile?.name}</span>
-                  <span className="text-[10px] text-slate-400">PDF Document Ready for OCR</span>
+                  <span className="text-[10px] text-slate-400 font-mono">
+                    PDF Document ({formatFileSize(selectedFile?.size)})
+                  </span>
                 </div>
               ) : (
                 <img
                   src={previewUrl}
                   alt="Antenatal Card Preview"
-                  className="max-h-56 object-contain rounded-xl"
+                  className="max-h-52 object-contain rounded-xl"
                 />
               )}
 
               {/* Status Badge */}
               <div className="absolute top-3 left-3 bg-slate-950/80 backdrop-blur border border-emerald-500/40 rounded-full px-3 py-1 text-[11px] font-bold text-emerald-300 flex items-center gap-1.5">
                 <FileCheck className="w-3.5 h-3.5 text-emerald-400" />
-                {scanSuccess ? 'OCR Extraction Complete' : 'Card Loaded'}
+                {scanSuccess ? 'AI Extraction Complete' : 'Card Loaded'}
               </div>
             </div>
 
-            {/* Action Bar inside Preview */}
-            <div className="flex flex-wrap gap-2 justify-center">
+            {/* Filename & File Size Info */}
+            <div className="flex flex-wrap items-center justify-between text-xs bg-slate-950 p-2.5 rounded-xl border border-slate-800 text-slate-400 font-mono">
+              <span className="truncate max-w-xs text-slate-200">
+                📄 {selectedFile?.name || 'captured_antenatal_card.jpg'}
+              </span>
+              <span>Size: {formatFileSize(selectedFile?.size || 245000)}</span>
+            </div>
+
+            {/* Three Preview Action Buttons */}
+            <div className="flex flex-wrap gap-2.5 justify-center">
+              {/* Button 1: Analyze Again */}
               <button
                 type="button"
                 data-ocr-trigger="true"
-                onClick={runAiAnalysis}
+                onClick={() => triggerAiAnalysis()}
                 disabled={isAnalyzing}
-                className="px-5 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-black text-xs uppercase tracking-wider rounded-xl shadow-md flex items-center gap-2"
+                className="px-4 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-black text-xs uppercase tracking-wider rounded-xl shadow-md flex items-center gap-2"
               >
                 <Sparkles className="w-4 h-4" />
-                {scanSuccess ? 'Re-Analyze Card with AI' : 'Analyze Card with AI'}
+                Analyze Again
               </button>
 
+              {/* Button 2: Replace Image */}
               <button
                 type="button"
-                onClick={startCamera}
+                onClick={() => fileInputRef.current?.click()}
                 disabled={isAnalyzing}
                 className="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs rounded-xl border border-slate-700 flex items-center gap-2"
               >
                 <RefreshCw className="w-3.5 h-3.5" />
-                Retake Photo
+                Replace Image
               </button>
 
+              {/* Button 3: Cancel Image */}
               <button
                 type="button"
-                onClick={handleResetScan}
+                onClick={handleCancelImage}
                 disabled={isAnalyzing}
-                className="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs rounded-xl border border-slate-700 flex items-center gap-2"
+                className="px-4 py-2.5 bg-red-500/20 hover:bg-red-500/30 text-red-300 font-bold text-xs rounded-xl border border-red-500/40 flex items-center gap-2"
               >
-                <Upload className="w-3.5 h-3.5" />
-                Upload Another Card
+                <Trash2 className="w-3.5 h-3.5 text-red-400" />
+                Cancel Image
               </button>
             </div>
           </div>
         ) : (
-          /* Placeholder state before upload */
-          <div className="space-y-4 max-w-sm">
-            <div className="flex items-center justify-center gap-3">
-              <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
-                <Camera className="w-6 h-6" />
+          /* Two Options Side by Side */
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full text-left">
+            {/* OPTION 1: Scan Antenatal Card */}
+            <div className="bg-slate-950/70 border border-slate-800 hover:border-emerald-500/40 rounded-[20px] p-5 space-y-3 transition group flex flex-col justify-between">
+              <div className="space-y-2">
+                <div className="w-10 h-10 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 group-hover:scale-110 transition-transform">
+                  <Camera className="w-5 h-5" />
+                </div>
+                <div>
+                  <h4 className="text-sm font-black text-white flex items-center gap-1.5">
+                    Scan Antenatal Card
+                  </h4>
+                  <p className="text-xs text-slate-400 mt-1">
+                    Use your device camera to scan the Karnataka Antenatal Card.
+                  </p>
+                </div>
               </div>
-              <div className="w-12 h-12 rounded-2xl bg-teal-500/10 border border-teal-500/30 flex items-center justify-center text-teal-400">
-                <Upload className="w-6 h-6" />
-              </div>
-            </div>
 
-            <div>
-              <h4 className="text-base font-black text-white flex items-center justify-center gap-2">
-                <span>Scan Antenatal Card</span>
-                <span className="text-slate-500 font-normal text-xs">OR</span>
-                <span className="text-emerald-400">Upload Card Image</span>
-              </h4>
-              <p className="text-xs text-slate-400 mt-1">
-                AI will automatically read handwritten &amp; printed Kannada/English text and fill the form below.
-              </p>
-              <p className="text-[11px] text-slate-500 mt-0.5">
-                Supports Camera Access, JPG, JPEG, PNG, PDF &amp; Drag &amp; Drop
-              </p>
-            </div>
-
-            {/* Two Primary Action Buttons */}
-            <div className="flex flex-col sm:flex-row gap-3 pt-1">
-              {/* Button 1: Open Camera */}
               <button
                 type="button"
                 onClick={startCamera}
-                className="flex-1 py-3.5 px-4 bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-black text-xs uppercase tracking-wider rounded-xl shadow-lg shadow-emerald-500/20 transition flex items-center justify-center gap-2"
+                className="w-full py-3 bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-black text-xs uppercase tracking-wider rounded-xl shadow-lg shadow-emerald-500/20 transition flex items-center justify-center gap-2"
               >
                 <Camera className="w-4 h-4" />
                 Open Camera
               </button>
+            </div>
 
-              {/* Button 2: Upload Image */}
+            {/* OPTION 2: Upload Image / File */}
+            <div className="bg-slate-950/70 border border-slate-800 hover:border-teal-500/40 rounded-[20px] p-5 space-y-3 transition group flex flex-col justify-between">
+              <div className="space-y-2">
+                <div className="w-10 h-10 rounded-2xl bg-teal-500/10 border border-teal-500/30 flex items-center justify-center text-teal-400 group-hover:scale-110 transition-transform">
+                  <Upload className="w-5 h-5" />
+                </div>
+                <div>
+                  <h4 className="text-sm font-black text-white flex items-center gap-1.5">
+                    Upload Image / File
+                  </h4>
+                  <p className="text-xs text-slate-400 mt-1">
+                    Upload an Antenatal Card file from your device.
+                  </p>
+                  <span className="inline-block mt-1.5 text-[10px] font-mono text-slate-500 bg-slate-900 border border-slate-800 px-2 py-0.5 rounded-md">
+                    Formats: JPG, JPEG, PNG, PDF
+                  </span>
+                </div>
+              </div>
+
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                className="flex-1 py-3.5 px-4 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs rounded-xl border border-slate-700 transition flex items-center justify-center gap-2"
+                className="w-full py-3 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs rounded-xl border border-slate-700 transition flex items-center justify-center gap-2"
               >
                 <Upload className="w-4 h-4 text-emerald-400" />
-                Upload Image
+                Choose File
               </button>
             </div>
           </div>

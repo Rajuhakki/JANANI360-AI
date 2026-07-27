@@ -52,12 +52,14 @@ import laborRoutes from './routes/laborRoutes';
 import childRoutesPrisma from './routes/childRoutes';
 
 import analyticsRoutesPrisma from './routes/analyticsRoutes';
+import doctorRoutes from './routes/doctorRoutes';
 
 // Route Registries
 app.use('/api/v1/master', masterDataRoutes);
 app.use('/api/v1/auth', authRoutesPrisma);
 app.use('/api/v1/maternal', maternalRoutes);
 app.use('/api/v1/asha', ashaRoutes);
+app.use('/api/v1/doctor', doctorRoutes);
 app.use('/api/v1/patients', patientRoutes);
 app.use('/api/v1/referrals', referralRoutes);
 app.use('/api/v1/labor', laborRoutes);
