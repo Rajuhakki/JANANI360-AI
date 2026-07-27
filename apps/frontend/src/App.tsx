@@ -11,6 +11,8 @@ import { FamilyTrackingPage } from './pages/FamilyTrackingPage';
 import { LaborRoomDashboardPage } from './pages/LaborRoomDashboardPage';
 import { ChildProfileHubPage } from './pages/ChildProfileHubPage';
 import { DistrictCommandCenterPage } from './pages/DistrictCommandCenterPage';
+import { MotherPublicProfilePage } from './pages/MotherPublicProfilePage';
+import { QrScannerPage } from './pages/QrScannerPage';
 import { LogoutPage } from './pages/LogoutPage';
 import { UnauthorizedPage } from './pages/UnauthorizedPage';
 import { SessionExpiredPage } from './pages/SessionExpiredPage';
@@ -39,6 +41,8 @@ export const App: React.FC = () => {
         <Route path="/session-expired" element={<SessionExpiredPage />} />
         <Route path="/track/:code" element={<FamilyTrackingPage />} />
         <Route path="/track" element={<FamilyTrackingPage />} />
+        <Route path="/mother/:id" element={<MotherPublicProfilePage />} />
+        <Route path="/scan-qr" element={<QrScannerPage />} />
         <Route 
           path="/dashboard" 
           element={
@@ -60,6 +64,22 @@ export const App: React.FC = () => {
           element={
             <ProtectedRoute>
               <AshaDashboardPage />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/register-mother" 
+          element={
+            <ProtectedRoute>
+              <AshaDataEntryPage />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/register-mother/new" 
+          element={
+            <ProtectedRoute>
+              <AshaDataEntryPage />
             </ProtectedRoute>
           } 
         />

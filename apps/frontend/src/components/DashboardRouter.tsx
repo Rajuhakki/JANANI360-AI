@@ -19,10 +19,6 @@ export const DashboardRouter: React.FC = () => {
       return <Navigate to="/labor-dashboard" replace />;
     case 'PATIENT':
       return <Navigate to="/mother-profile" replace />;
-    case 'FAMILY':
-      return <Navigate to="/track" replace />;
-    case 'AMBULANCE_DRIVER':
-      return <Navigate to="/referrals" replace />;
     case 'ANM':
     case 'ASHA_WORKER':
       return <Navigate to="/asha-dashboard" replace />;

@@ -21,6 +21,7 @@ import {
   AshaMotherListItem
 } from '../services/ashaService';
 import { RootState } from '../store';
+import { RegisterMotherForm } from '../components/RegisterMotherForm';
 
 type TabKey = 'register' | 'home-visit';
 
@@ -54,20 +55,6 @@ export const AshaDataEntryPage: React.FC = () => {
   const [mothers, setMothers] = useState<AshaMotherListItem[]>([]);
   const [optionsLoading, setOptionsLoading] = useState(true);
 
-  // Register Mother form state
-  const [regForm, setRegForm] = useState({
-    fullName: '',
-    age: '',
-    phone: '',
-    villageId: '',
-    facilityId: '',
-    lmpDate: '',
-    gravida: '1'
-  });
-  const [regErrors, setRegErrors] = useState<Record<string, string>>({});
-  const [regBanner, setRegBanner] = useState<Banner | null>(null);
-  const [regSaving, setRegSaving] = useState(false);
-
   // Home Visit form state
   const [visitForm, setVisitForm] = useState({
     motherId: '',
@@ -97,67 +84,13 @@ export const AshaDataEntryPage: React.FC = () => {
         setVillages(opts.villages);
         setFacilities(opts.facilities);
       } catch {
-        setRegBanner({ type: 'error', text: 'Failed to load villages / PHC list. Check your connection.' });
+        // Handle error if needed
       } finally {
         setOptionsLoading(false);
       }
       loadMothers();
     })();
   }, []);
-
-  // ---------- Register Mother ----------
-  const validateRegister = (): boolean => {
-    const errs: Record<string, string> = {};
-    if (!regForm.fullName.trim() || regForm.fullName.trim().length < 2) errs.fullName = 'Full name is required';
-    const age = Number(regForm.age);
-    if (!regForm.age || isNaN(age) || age < 12 || age > 60) errs.age = 'Enter a valid age (12–60)';
-    if (!/^\d{10}$/.test(regForm.phone.trim())) errs.phone = 'Enter a valid 10-digit mobile number';
-    if (!regForm.villageId) errs.villageId = 'Select a village';
-    if (!regForm.facilityId) errs.facilityId = 'Select the assigned PHC';
-    if (!regForm.lmpDate) errs.lmpDate = 'LMP date is required';
-    else if (new Date(regForm.lmpDate) > new Date()) errs.lmpDate = 'LMP date cannot be in the future';
-    setRegErrors(errs);
-    return Object.keys(errs).length === 0;
-  };
-
-  const resetRegister = () => {
-    setRegForm({ fullName: '', age: '', phone: '', villageId: '', facilityId: '', lmpDate: '', gravida: '1' });
-    setRegErrors({});
-    setRegBanner(null);
-  };
-
-  const handleRegisterSave = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setRegBanner(null);
-    if (!validateRegister()) return;
-
-    setRegSaving(true);
-    try {
-      const res = await ashaService.registerMother({
-        fullName: regForm.fullName.trim(),
-        age: Number(regForm.age),
-        phone: regForm.phone.trim(),
-        villageId: regForm.villageId,
-        facilityId: regForm.facilityId,
-        lmpDate: regForm.lmpDate,
-        gravida: Number(regForm.gravida)
-      });
-      setRegBanner({
-        type: 'success',
-        text: `Mother registered successfully. Mother ID: ${res.motherId}`
-      });
-      setRegForm({ fullName: '', age: '', phone: '', villageId: '', facilityId: '', lmpDate: '', gravida: '1' });
-      setRegErrors({});
-      loadMothers();
-    } catch (err: any) {
-      setRegBanner({
-        type: 'error',
-        text: err.response?.data?.message || 'Failed to register mother. Please try again.'
-      });
-    } finally {
-      setRegSaving(false);
-    }
-  };
 
   // ---------- Home Visit ----------
   const validateVisit = (): boolean => {
@@ -282,142 +215,14 @@ export const AshaDataEntryPage: React.FC = () => {
           </button>
         </div>
 
-        {/* ---------- Form 1: Register Mother ---------- */}
+        {/* ---------- Form 1: Register Mother (Karnataka Antenatal Card) ---------- */}
         {activeTab === 'register' && (
-          <form
-            onSubmit={handleRegisterSave}
-            className="bg-slate-900/60 border border-slate-800 rounded-3xl p-5 sm:p-6 space-y-4 shadow-xl"
-            noValidate
-          >
-            <BannerView banner={regBanner} />
-
-            <div>
-              <label className={labelClass}>Full Name *</label>
-              <input
-                type="text"
-                value={regForm.fullName}
-                onChange={(e) => setRegForm({ ...regForm, fullName: e.target.value })}
-                placeholder="e.g. Savitha Kumari"
-                className={inputClass}
-              />
-              <FieldError msg={regErrors.fullName} />
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className={labelClass}>Age *</label>
-                <input
-                  type="number"
-                  inputMode="numeric"
-                  min={12}
-                  max={60}
-                  value={regForm.age}
-                  onChange={(e) => setRegForm({ ...regForm, age: e.target.value })}
-                  placeholder="e.g. 24"
-                  className={inputClass}
-                />
-                <FieldError msg={regErrors.age} />
-              </div>
-              <div>
-                <label className={labelClass}>Mobile Number *</label>
-                <input
-                  type="tel"
-                  inputMode="tel"
-                  maxLength={10}
-                  value={regForm.phone}
-                  onChange={(e) => setRegForm({ ...regForm, phone: e.target.value.replace(/\D/g, '') })}
-                  placeholder="10-digit number"
-                  className={inputClass}
-                />
-                <FieldError msg={regErrors.phone} />
-              </div>
-            </div>
-
-            <div>
-              <label className={labelClass}>Village *</label>
-              <select
-                value={regForm.villageId}
-                onChange={(e) => setRegForm({ ...regForm, villageId: e.target.value })}
-                className={inputClass}
-                disabled={optionsLoading}
-              >
-                <option value="">{optionsLoading ? 'Loading villages…' : 'Select village'}</option>
-                {villages.map((v) => (
-                  <option key={v.id} value={v.id}>
-                    {v.nameEn} ({v.nameKn})
-                  </option>
-                ))}
-              </select>
-              <FieldError msg={regErrors.villageId} />
-            </div>
-
-            <div>
-              <label className={labelClass}>Assigned PHC *</label>
-              <select
-                value={regForm.facilityId}
-                onChange={(e) => setRegForm({ ...regForm, facilityId: e.target.value })}
-                className={inputClass}
-                disabled={optionsLoading}
-              >
-                <option value="">{optionsLoading ? 'Loading PHCs…' : 'Select PHC'}</option>
-                {facilities.map((f) => (
-                  <option key={f.id} value={f.id}>
-                    {f.nameEn}
-                  </option>
-                ))}
-              </select>
-              <FieldError msg={regErrors.facilityId} />
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className={labelClass}>Last Menstrual Period (LMP) *</label>
-                <input
-                  type="date"
-                  value={regForm.lmpDate}
-                  max={new Date().toISOString().split('T')[0]}
-                  onChange={(e) => setRegForm({ ...regForm, lmpDate: e.target.value })}
-                  className={inputClass}
-                />
-                <FieldError msg={regErrors.lmpDate} />
-              </div>
-              <div>
-                <label className={labelClass}>Pregnancy Number *</label>
-                <select
-                  value={regForm.gravida}
-                  onChange={(e) => setRegForm({ ...regForm, gravida: e.target.value })}
-                  className={inputClass}
-                >
-                  {[1, 2, 3, 4, 5, 6, 7, 8].map((g) => (
-                    <option key={g} value={g}>
-                      G{g}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
-            {/* Actions */}
-            <div className="flex gap-3 pt-2">
-              <button
-                type="submit"
-                disabled={regSaving}
-                className="flex-1 py-3.5 bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-black text-xs rounded-xl shadow-lg shadow-emerald-500/25 transition flex items-center justify-center gap-2 disabled:opacity-50"
-              >
-                {regSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-                {regSaving ? 'Saving…' : 'Save'}
-              </button>
-              <button
-                type="button"
-                onClick={resetRegister}
-                disabled={regSaving}
-                className="px-6 py-3.5 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs rounded-xl border border-slate-700 transition flex items-center justify-center gap-2 disabled:opacity-50"
-              >
-                <X className="w-4 h-4" />
-                Cancel
-              </button>
-            </div>
-          </form>
+          <RegisterMotherForm
+            villages={villages}
+            facilities={facilities}
+            loadingOptions={optionsLoading}
+            onSuccess={loadMothers}
+          />
         )}
 
         {/* ---------- Form 2: Home Visit ---------- */}

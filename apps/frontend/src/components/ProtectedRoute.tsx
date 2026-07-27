@@ -10,14 +10,14 @@ interface ProtectedRouteProps {
 }
 
 export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, allowedRoles }) => {
-  const { isAuthenticated, user, isLoading } = useSelector((state: RootState) => state.auth);
+  const { isAuthenticated, user, isLoading, token } = useSelector((state: RootState) => state.auth);
   const location = useLocation();
 
-  if (isLoading || (isAuthenticated && !user)) {
+  if (isLoading || ((isAuthenticated || token) && !user)) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#0b0f19]">
         <div className="flex flex-col items-center space-y-4">
-          <div className="w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+          <div className="w-12 h-12 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
           <p className="text-sm font-medium text-slate-400">Authenticating JANANI360 Credentials...</p>
         </div>
       </div>
