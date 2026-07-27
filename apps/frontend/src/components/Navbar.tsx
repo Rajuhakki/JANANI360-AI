@@ -42,78 +42,67 @@ export const Navbar: React.FC = () => {
           </div>
         </div>
 
-        {/* Dynamic Role-Scoped Navigation Links */}
+        {/* Dynamic Navigation Links */}
         <nav className="flex items-center gap-1 text-xs">
-          {(() => {
-            const role = user?.role;
-            let navs = [
-              { path: '/mother-profile', label: 'Maternal Clinical Care', icon: Heart, color: 'text-emerald-400' },
-              { path: '/casualty-radar', label: 'Casualty Triage', icon: Ambulance, color: 'text-red-400' },
-              { path: '/labor-dashboard', label: 'Labor Room Care', icon: Baby, color: 'text-amber-400' },
-              { path: '/child-profile', label: 'Child Immunization', icon: ShieldCheck, color: 'text-teal-400' },
-              { path: '/command-center', label: 'District Command Center', icon: LayoutDashboard, color: 'text-indigo-400' }
-            ];
+          <button
+            onClick={() => navigate('/dashboard')}
+            className={`px-3 py-2 rounded-xl font-semibold transition flex items-center gap-1.5 ${
+              isActive('/dashboard') || isActive('/mother-profile')
+                ? 'bg-slate-800 text-emerald-400 border border-emerald-500/40'
+                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
+            }`}
+          >
+            <Heart className="w-3.5 h-3.5 text-emerald-400" />
+            {t('common.motherHub')}
+          </button>
 
-            if (role === 'PATIENT') {
-              navs = [{ path: '/mother-profile', label: 'My Maternal & Child Passbook', icon: Heart, color: 'text-rose-400' }];
-            } else if (role === 'FAMILY') {
-              navs = [{ path: '/track', label: 'Family Care Tracker', icon: Heart, color: 'text-rose-400' }];
-            } else if (role === 'ASHA_WORKER') {
-              navs = [
-                { path: '/mother-profile', label: 'Community Field Care', icon: Heart, color: 'text-emerald-400' },
-                { path: '/referrals', label: 'Emergency 108 Dispatch', icon: Ambulance, color: 'text-red-400' }
-              ];
-            } else if (role === 'ANM') {
-              navs = [
-                { path: '/mother-profile', label: 'Sub-Center Clinical Care', icon: Heart, color: 'text-indigo-400' },
-                { path: '/child-profile', label: 'Immunization Drive', icon: ShieldCheck, color: 'text-teal-400' },
-                { path: '/referrals', label: 'Emergency Referrals', icon: Ambulance, color: 'text-red-400' }
-              ];
-            } else if (role === 'DOCTOR') {
-              navs = [
-                { path: '/mother-profile', label: 'Obstetric Clinical Care', icon: Heart, color: 'text-indigo-400' },
-                { path: '/labor-dashboard', label: 'Labor Room & Delivery', icon: Baby, color: 'text-amber-400' },
-                { path: '/casualty-radar', label: 'Casualty Emergency Triage', icon: Ambulance, color: 'text-red-400' },
-                { path: '/child-profile', label: 'Child Health Hub', icon: ShieldCheck, color: 'text-emerald-400' }
-              ];
-            } else if (role === 'HOSPITAL_ADMIN') {
-              navs = [
-                { path: '/casualty-radar', label: 'Casualty & Bed Triage', icon: Ambulance, color: 'text-red-400' },
-                { path: '/labor-dashboard', label: 'Labor Room Capacity', icon: Baby, color: 'text-amber-400' }
-              ];
-            } else if (role === 'AMBULANCE_DRIVER') {
-              navs = [{ path: '/referrals', label: '108 Emergency Navigation', icon: Ambulance, color: 'text-red-400' }];
-            } else if (role === 'LAB_TECH') {
-              navs = [{ path: '/mother-profile', label: 'Clinical Diagnostics & Lab', icon: Heart, color: 'text-teal-400' }];
-            } else if (role === 'PHARMACIST') {
-              navs = [{ path: '/mother-profile', label: 'Medication Dispensing', icon: Heart, color: 'text-indigo-400' }];
-            } else if (role === 'DISTRICT_OFFICER') {
-              navs = [
-                { path: '/command-center', label: 'District Health Command Center', icon: LayoutDashboard, color: 'text-teal-400' },
-                { path: '/mother-profile', label: 'Maternal Risk Overview', icon: Heart, color: 'text-indigo-400' },
-                { path: '/casualty-radar', label: 'Casualty & Emergency Triage', icon: Ambulance, color: 'text-red-400' }
-              ];
-            }
+          <button
+            onClick={() => navigate('/casualty-radar')}
+            className={`px-3 py-2 rounded-xl font-semibold transition flex items-center gap-1.5 ${
+              isActive('/casualty-radar')
+                ? 'bg-slate-800 text-red-400 border border-red-500/40'
+                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
+            }`}
+          >
+            <Ambulance className="w-3.5 h-3.5 text-red-400" />
+            {t('common.erRadar')}
+          </button>
 
-            return navs.map((n) => {
-              const Icon = n.icon;
-              const active = isActive(n.path);
-              return (
-                <button
-                  key={n.path}
-                  onClick={() => navigate(n.path)}
-                  className={`px-3 py-2 rounded-xl font-semibold transition flex items-center gap-1.5 ${
-                    active
-                      ? 'bg-slate-800 text-white border border-slate-700 shadow-md'
-                      : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
-                  }`}
-                >
-                  <Icon className={`w-3.5 h-3.5 ${n.color}`} />
-                  <span>{n.label}</span>
-                </button>
-              );
-            });
-          })()}
+          <button
+            onClick={() => navigate('/labor-dashboard')}
+            className={`px-3 py-2 rounded-xl font-semibold transition flex items-center gap-1.5 ${
+              isActive('/labor-dashboard')
+                ? 'bg-slate-800 text-amber-400 border border-amber-500/40'
+                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
+            }`}
+          >
+            <Baby className="w-3.5 h-3.5 text-amber-400" />
+            {t('common.laborWard')}
+          </button>
+
+          <button
+            onClick={() => navigate('/child-profile')}
+            className={`px-3 py-2 rounded-xl font-semibold transition flex items-center gap-1.5 ${
+              isActive('/child-profile')
+                ? 'bg-slate-800 text-emerald-400 border border-emerald-500/40'
+                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
+            }`}
+          >
+            <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+            {t('common.childHealth')}
+          </button>
+
+          <button
+            onClick={() => navigate('/command-center')}
+            className={`px-3 py-2 rounded-xl font-semibold transition flex items-center gap-1.5 ${
+              isActive('/command-center')
+                ? 'bg-slate-800 text-teal-300 border border-teal-500/40'
+                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
+            }`}
+          >
+            <LayoutDashboard className="w-3.5 h-3.5 text-teal-400" />
+            {t('common.commandCenter')}
+          </button>
         </nav>
 
         {/* Global Language Selector & User Profile & Logout */}
