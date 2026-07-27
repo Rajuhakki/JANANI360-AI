@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import {
   User, Heart, Activity, Calendar, ShieldAlert, FileText, Phone, MapPin, Plus, RefreshCw, AlertTriangle, CheckCircle2, Clock, Ambulance, ChevronRight
 } from 'lucide-react';
@@ -11,6 +12,9 @@ import { RiskTrendGraph } from '../components/RiskTrendGraph';
 import { maternalService } from '../services/maternalService';
 
 export const MotherProfileHub: React.FC = () => {
+  const [searchParams] = useSearchParams();
+  const urlMotherId = searchParams.get('id') || searchParams.get('rchId');
+
   const [motherData, setMotherData] = useState<any>(null);
   const [workQueueData, setWorkQueueData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -32,10 +36,11 @@ export const MotherProfileHub: React.FC = () => {
   });
   const [ancSubmitting, setAncSubmitting] = useState(false);
 
-  const fetchMotherProfile = async (idOrRch = '129004812749') => {
+  const fetchMotherProfile = async (idOrRch?: string) => {
+    const targetId = idOrRch || urlMotherId || '129004812749';
     setLoading(true);
     try {
-      const res = await maternalService.getMotherProfile(idOrRch);
+      const res = await maternalService.getMotherProfile(targetId);
       if (res.success) {
         setMotherData(res);
       }
@@ -51,8 +56,8 @@ export const MotherProfileHub: React.FC = () => {
   };
 
   useEffect(() => {
-    fetchMotherProfile();
-  }, []);
+    fetchMotherProfile(urlMotherId || undefined);
+  }, [urlMotherId]);
 
   const handleRecordAncVisit = async () => {
     if (!motherData?.mother) return;
