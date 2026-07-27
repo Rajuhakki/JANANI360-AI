@@ -140,7 +140,7 @@ export const SmartCardScanner: React.FC<SmartCardScannerProps> = ({
     }
   };
 
-  // Run AI OCR Processing
+  // Run AI OCR Processing with Real Gemini Multimodal Vision
   const runAiAnalysis = async () => {
     if (!previewUrl && !selectedFile) {
       setErrorMessage('Please capture or select an Antenatal Card image first.');
@@ -152,35 +152,51 @@ export const SmartCardScanner: React.FC<SmartCardScannerProps> = ({
     setScanSuccess(false);
 
     try {
-      setAnalysisStep('Detecting printed and handwritten Kannada & English text...');
-      await new Promise((r) => setTimeout(r, 600));
+      setAnalysisStep('Reading file data & preparing AI vision stream...');
+      let base64Data: string | undefined = undefined;
+      let mimeType: string | undefined = undefined;
 
-      setAnalysisStep('Parsing Karnataka Antenatal Card sections...');
-      await new Promise((r) => setTimeout(r, 600));
+      if (selectedFile) {
+        mimeType = selectedFile.type || 'image/jpeg';
+        base64Data = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result as string);
+          reader.onerror = (error) => reject(error);
+          reader.readAsDataURL(selectedFile!);
+        });
+      } else if (previewUrl && previewUrl.startsWith('data:')) {
+        base64Data = previewUrl;
+        const matches = previewUrl.match(/^data:([a-zA-Z0-9]+\/[a-zA-Z0-9-.+]+);base64,/);
+        if (matches && matches[1]) mimeType = matches[1];
+      }
 
-      setAnalysisStep('Extracting demographic & ANC metrics...');
-      await new Promise((r) => setTimeout(r, 500));
+      if (!base64Data) {
+        throw new Error('Could not convert image to read format. Please try re-uploading the file.');
+      }
 
-      setAnalysisStep('Calculating AI confidence scores...');
+      setAnalysisStep('Sending document to Google Gemini Multimodal AI...');
       const res = await ashaService.scanAntenatalCard(
-        previewUrl && previewUrl !== 'pdf-placeholder' ? previewUrl : undefined,
-        selectedFile?.name
+        base64Data,
+        selectedFile?.name || 'captured_card.jpg',
+        mimeType
       );
 
+      setAnalysisStep('Extracting authentic demographic & clinical metrics...');
       if (res.success && res.data) {
         setScanSuccess(true);
         onScanComplete(res.data, res.confidenceScores || {});
       } else {
         const msg =
           res.message ||
-          'Unable to extract all information. Please complete the missing fields manually.';
+          'Unable to extract information from document. Please verify image quality.';
         setErrorMessage(msg);
         if (onScanError) onScanError(msg);
       }
     } catch (err: any) {
       const msg =
         err.response?.data?.message ||
-        'Unable to extract all information. Please complete the missing fields manually.';
+        err.message ||
+        'Unable to complete AI extraction. Please verify your GEMINI_API_KEY or complete fields manually.';
       setErrorMessage(msg);
       if (onScanError) onScanError(msg);
     } finally {
