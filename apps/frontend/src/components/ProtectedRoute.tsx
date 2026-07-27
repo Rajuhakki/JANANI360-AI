@@ -13,7 +13,10 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, allowe
   const { isAuthenticated, user, isLoading, token } = useSelector((state: RootState) => state.auth);
   const location = useLocation();
 
-  if (isLoading || ((isAuthenticated || token) && !user)) {
+  if (isLoading || !user) {
+    if (!isAuthenticated && !token) {
+      return <Navigate to="/login" state={{ from: location }} replace />;
+    }
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#0b0f19]">
         <div className="flex flex-col items-center space-y-4">
