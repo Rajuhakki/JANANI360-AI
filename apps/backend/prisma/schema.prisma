@@ -213,6 +213,7 @@ model User {
   recordedPncVisits   PncVisit[]               @relation("RecordedPncVisits")
   administeredVaccines ChildImmunizationRecord[] @relation("AdministeredVaccines")
   recordedGrowth      ChildGrowthRecord[]      @relation("RecordedGrowth")
+  recordedHomeVisits  HomeVisit[]              @relation("RecordedHomeVisits")
 
   createdAt           DateTime                 @default(now()) @map("created_at")
   updatedAt           DateTime                 @updatedAt @map("updated_at")
@@ -318,6 +319,7 @@ model MotherProfile {
   referralCases       ReferralCase[]
   laborCases          LaborCase[]
   deliveryRecords     DeliveryRecord[]
+  homeVisits          HomeVisit[]
   childProfiles       ChildProfile[]
   hbncSchedules       HbncSchedule[]
   pncVisits           PncVisit[]
@@ -395,6 +397,25 @@ model AncVisit {
 
   @@index([pregnancyId])
   @@map("anc_visits")
+}
+
+model HomeVisit {
+  id               String        @id @default(uuid())
+  motherId         String        @map("mother_id")
+  visitDate        DateTime      @map("visit_date")
+  dangerSigns      Boolean       @default(false) @map("danger_signs")
+  remarks          String?
+  nextVisitDate    DateTime?     @map("next_visit_date")
+
+  recordedByUserId String        @map("recorded_by_user_id")
+
+  mother           MotherProfile @relation(fields: [motherId], references: [id], onDelete: Cascade)
+  recordedByUser   User          @relation("RecordedHomeVisits", fields: [recordedByUserId], references: [id])
+
+  createdAt        DateTime      @default(now()) @map("created_at")
+
+  @@index([motherId])
+  @@map("home_visits")
 }
 
 model LabReport {
