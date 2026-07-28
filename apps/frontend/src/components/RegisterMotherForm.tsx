@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import {
@@ -120,6 +121,7 @@ export const RegisterMotherForm: React.FC<RegisterMotherFormProps> = ({
   onSuccess,
   onCancel
 }) => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { user } = useSelector((state: RootState) => state.auth);
 

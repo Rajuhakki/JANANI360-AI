@@ -29,7 +29,7 @@ import {
 } from 'lucide-react';
 import { ashaService, AshaMotherListItem } from '../services/ashaService';
 import { RootState } from '../store';
-import { ashaTranslations } from './ashaDashboardTranslations';
+
 
 interface VisitLogEntry {
   id: string;
@@ -38,13 +38,13 @@ interface VisitLogEntry {
 }
 
 export const AshaDashboardPage: React.FC = () => {
+  const { t } = useTranslation();
   const { user } = useSelector((state: RootState) => state.auth);
   const navigate = useNavigate();
   const { i18n } = useTranslation();
 
   // Dynamic language text resolution based on Navbar selection
-  const currentLang = (i18n.language || 'en').substring(0, 2);
-  const texts = ashaTranslations[currentLang] || ashaTranslations.en;
+  
 
   // Registered Mothers Data
   const [mothers, setMothers] = useState<AshaMotherListItem[]>([]);
@@ -118,7 +118,7 @@ export const AshaDashboardPage: React.FC = () => {
     const newEntry: VisitLogEntry = {
       id: Date.now().toString(),
       timestamp: `Today, ${timeStr}`,
-      note: `Quick-Tap home visit recorded in assigned village catchment (${currentLang.toUpperCase()})`
+      note: `Quick-Tap home visit recorded in assigned village catchment (${(i18n.language || 'en').toUpperCase()})`
     };
 
     setVisitLogs(prev => [newEntry, ...prev]);
@@ -168,13 +168,13 @@ export const AshaDashboardPage: React.FC = () => {
             <div className="space-y-2">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 text-xs font-bold uppercase tracking-wider">
                 <ShieldCheck className="w-4 h-4" />
-                <span>{texts.commandCenter}</span>
+                <span>{t('ashaDashboard.commandCenter')}</span>
               </div>
               <h1 className="text-2xl sm:text-4xl font-black text-white tracking-tight flex items-center gap-3">
-                <span>{texts.greeting}{user?.name || 'Sanveeka Gowda'}</span>
+                <span>{t('ashaDashboard.greeting')}{user?.name || 'Sanveeka Gowda'}</span>
               </h1>
               <p className="text-sm text-slate-300 max-w-2xl">
-                {texts.subtitle}
+                {t('ashaDashboard.subtitle')}
               </p>
               <div className="flex flex-wrap items-center gap-4 pt-2 text-xs text-slate-400">
                 <span className="flex items-center gap-1.5 font-semibold text-teal-300">
@@ -221,15 +221,15 @@ export const AshaDashboardPage: React.FC = () => {
               </div>
 
               <h2 className="text-sm font-extrabold text-slate-200 uppercase tracking-wide">
-                {texts.completedVisits}
+                {t('ashaDashboard.completedVisits')}
               </h2>
               <p className="text-xs text-slate-400 mb-6">
-                {texts.visitDesc}
+                {t('ashaDashboard.visitDesc')}
               </p>
 
               <div className="bg-slate-950/80 rounded-2xl p-4 border border-slate-800 flex items-center justify-between mb-6">
                 <div>
-                  <span className="text-xs font-bold text-slate-400 block mb-1">{texts.currentTally}</span>
+                  <span className="text-xs font-bold text-slate-400 block mb-1">{t('ashaDashboard.currentTally')}</span>
                   {isEditingCount ? (
                     <div className="flex items-center gap-2 mt-1">
                       <input
@@ -260,7 +260,7 @@ export const AshaDashboardPage: React.FC = () => {
                       <span className="text-4xl font-black text-emerald-400 tracking-tight">
                         {visitCount}
                       </span>
-                      <span className="text-xs font-semibold text-slate-500">{texts.visitsLogged}</span>
+                      <span className="text-xs font-semibold text-slate-500">{t('ashaDashboard.visitsLogged')}</span>
                     </div>
                   )}
                 </div>
@@ -272,7 +272,7 @@ export const AshaDashboardPage: React.FC = () => {
                     title="Edit Tally"
                   >
                     <Edit3 className="w-4 h-4 text-emerald-400" />
-                    <span>{texts.edit}</span>
+                    <span>{t('ashaDashboard.edit')}</span>
                   </button>
                 )}
               </div>
@@ -283,7 +283,7 @@ export const AshaDashboardPage: React.FC = () => {
               className="w-full py-4 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-black text-base shadow-xl shadow-emerald-500/25 transition transform active:scale-95 flex items-center justify-center gap-3 group"
             >
               <PlusCircle className="w-6 h-6 group-hover:rotate-90 transition-transform duration-200" />
-              <span>{texts.quickTapBtn}</span>
+              <span>{t('ashaDashboard.quickTapBtn')}</span>
             </button>
           </div>
 
@@ -295,24 +295,24 @@ export const AshaDashboardPage: React.FC = () => {
                   <Users className="w-6 h-6" />
                 </div>
                 <span className="text-[11px] font-bold bg-indigo-500/20 text-indigo-300 px-3 py-1 rounded-full border border-indigo-500/30">
-                  {texts.activeCatchment}
+                  {t('ashaDashboard.activeCatchment')}
                 </span>
               </div>
               <h2 className="text-sm font-extrabold text-slate-200 uppercase tracking-wide">
-                {texts.registeredMothers}
+                {t('ashaDashboard.registeredMothers')}
               </h2>
               <p className="text-xs text-slate-400 mb-6">
-                {texts.mothersDesc}
+                {t('ashaDashboard.mothersDesc')}
               </p>
 
               <div className="bg-slate-950/80 rounded-2xl p-5 border border-slate-800 flex items-center justify-between mb-6">
                 <div>
-                  <span className="text-xs font-bold text-slate-400 block mb-1">{texts.totalEnrollment}</span>
+                  <span className="text-xs font-bold text-slate-400 block mb-1">{t('ashaDashboard.totalEnrollment')}</span>
                   <div className="flex items-baseline gap-2">
                     <span className="text-4xl font-black text-indigo-400">
                       {loadingMothers ? '...' : (mothers.length || 12)}
                     </span>
-                    <span className="text-xs font-semibold text-slate-500">{texts.mothers}</span>
+                    <span className="text-xs font-semibold text-slate-500">{t('ashaDashboard.mothers')}</span>
                   </div>
                 </div>
                 <div className="text-right">
@@ -327,7 +327,7 @@ export const AshaDashboardPage: React.FC = () => {
               className="w-full py-3.5 rounded-xl bg-slate-800 hover:bg-indigo-600/30 hover:border-indigo-500 text-slate-200 hover:text-white font-extrabold text-sm border border-slate-700 transition flex items-center justify-center gap-2 shadow-md"
             >
               <UserPlus className="w-4 h-4 text-indigo-400" />
-              <span>{texts.registerBtn}</span>
+              <span>{t('ashaDashboard.registerBtn')}</span>
             </button>
           </div>
 
@@ -343,20 +343,20 @@ export const AshaDashboardPage: React.FC = () => {
                 </span>
               </div>
               <h2 className="text-sm font-extrabold text-slate-200 uppercase tracking-wide">
-                {texts.ifaTitle}
+                {t('ashaDashboard.ifaTitle')}
               </h2>
               <p className="text-xs text-slate-400 mb-6">
-                {texts.ifaDesc}
+                {t('ashaDashboard.ifaDesc')}
               </p>
 
               <div className="bg-slate-950/80 rounded-2xl p-5 border border-slate-800 flex items-center justify-between mb-6">
                 <div>
-                  <span className="text-xs font-bold text-slate-400 block mb-1">{texts.tabletsDispensed}</span>
+                  <span className="text-xs font-bold text-slate-400 block mb-1">{t('ashaDashboard.tabletsDispensed')}</span>
                   <div className="flex items-baseline gap-2">
                     <span className="text-4xl font-black text-amber-400">
                       {ifaCount}
                     </span>
-                    <span className="text-xs font-semibold text-slate-500">{texts.stock}</span>
+                    <span className="text-xs font-semibold text-slate-500">{t('ashaDashboard.stock')}</span>
                   </div>
                 </div>
                 <div className="w-20 bg-slate-800 h-3 rounded-full overflow-hidden">
@@ -370,13 +370,13 @@ export const AshaDashboardPage: React.FC = () => {
                 onClick={() => handleDispenseIfa(10)}
                 className="flex-1 py-3 bg-slate-800 hover:bg-amber-500/20 hover:border-amber-500 text-slate-200 border border-slate-700 font-bold text-xs rounded-xl transition"
               >
-                {texts.plus10}
+                {t('ashaDashboard.plus10')}
               </button>
               <button
                 onClick={() => handleDispenseIfa(30)}
                 className="flex-1 py-3 bg-slate-800 hover:bg-amber-500/20 hover:border-amber-500 text-slate-200 border border-slate-700 font-bold text-xs rounded-xl transition"
               >
-                {texts.plus30}
+                {t('ashaDashboard.plus30')}
               </button>
             </div>
           </div>
@@ -386,7 +386,7 @@ export const AshaDashboardPage: React.FC = () => {
         <div className="space-y-4">
           <h2 className="text-lg font-black text-white flex items-center gap-2">
             <Activity className="w-5 h-5 text-emerald-400" />
-            <span>{texts.shortcutsTitle}</span>
+            <span>{t('ashaDashboard.shortcutsTitle')}</span>
           </h2>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -398,8 +398,8 @@ export const AshaDashboardPage: React.FC = () => {
                 <UserPlus className="w-6 h-6" />
               </div>
               <div>
-                <h3 className="text-sm font-black text-slate-100 group-hover:text-emerald-400 transition">{texts.formRegTitle}</h3>
-                <p className="text-[11px] text-slate-400 mt-1">{texts.formRegDesc}</p>
+                <h3 className="text-sm font-black text-slate-100 group-hover:text-emerald-400 transition">{t('ashaDashboard.formRegTitle')}</h3>
+                <p className="text-[11px] text-slate-400 mt-1">{t('ashaDashboard.formRegDesc')}</p>
               </div>
             </button>
 
@@ -411,8 +411,8 @@ export const AshaDashboardPage: React.FC = () => {
                 <FileText className="w-6 h-6" />
               </div>
               <div>
-                <h3 className="text-sm font-black text-slate-100 group-hover:text-teal-400 transition">{texts.visitFormTitle}</h3>
-                <p className="text-[11px] text-slate-400 mt-1">{texts.visitFormDesc}</p>
+                <h3 className="text-sm font-black text-slate-100 group-hover:text-teal-400 transition">{t('ashaDashboard.visitFormTitle')}</h3>
+                <p className="text-[11px] text-slate-400 mt-1">{t('ashaDashboard.visitFormDesc')}</p>
               </div>
             </button>
 
@@ -424,8 +424,8 @@ export const AshaDashboardPage: React.FC = () => {
                 <Calendar className="w-6 h-6" />
               </div>
               <div>
-                <h3 className="text-sm font-black text-slate-100 group-hover:text-violet-400 transition">{texts.hbncTitle}</h3>
-                <p className="text-[11px] text-slate-400 mt-1">{texts.hbncDesc}</p>
+                <h3 className="text-sm font-black text-slate-100 group-hover:text-violet-400 transition">{t('ashaDashboard.hbncTitle')}</h3>
+                <p className="text-[11px] text-slate-400 mt-1">{t('ashaDashboard.hbncDesc')}</p>
               </div>
             </button>
 
@@ -437,8 +437,8 @@ export const AshaDashboardPage: React.FC = () => {
                 <MessageSquare className="w-6 h-6" />
               </div>
               <div>
-                <h3 className="text-sm font-black text-slate-100 group-hover:text-pink-400 transition">{texts.smsTitle}</h3>
-                <p className="text-[11px] text-slate-400 mt-1">{texts.smsDesc}</p>
+                <h3 className="text-sm font-black text-slate-100 group-hover:text-pink-400 transition">{t('ashaDashboard.smsTitle')}</h3>
+                <p className="text-[11px] text-slate-400 mt-1">{t('ashaDashboard.smsDesc')}</p>
               </div>
             </button>
           </div>
@@ -452,16 +452,16 @@ export const AshaDashboardPage: React.FC = () => {
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-black text-white flex items-center gap-2">
                 <HeartPulse className="w-5 h-5 text-rose-400 animate-pulse" />
-                <span>{texts.radarTitle}</span>
+                <span>{t('ashaDashboard.radarTitle')}</span>
               </h2>
               <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-rose-500/20 text-rose-400 border border-rose-500/30">
-                {texts.urgentCases}
+                {t('ashaDashboard.urgentCases')}
               </span>
             </div>
 
             <div className="bg-slate-900/90 rounded-3xl p-6 border border-slate-800 shadow-xl space-y-4">
               <p className="text-xs text-slate-400">
-                {texts.radarDesc}
+                {t('ashaDashboard.radarDesc')}
               </p>
 
               <div className="space-y-3">
@@ -529,16 +529,16 @@ export const AshaDashboardPage: React.FC = () => {
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-black text-white flex items-center gap-2">
                 <History className="w-5 h-5 text-teal-400" />
-                <span>{texts.historyTitle}</span>
+                <span>{t('ashaDashboard.historyTitle')}</span>
               </h2>
               <span className="text-[11px] font-semibold text-slate-400">
-                {visitLogs.length} {texts.entries}
+                {visitLogs.length} {t('ashaDashboard.entries')}
               </span>
             </div>
 
             <div className="bg-slate-900/90 rounded-3xl p-6 border border-slate-800 shadow-xl space-y-4 max-h-[500px] overflow-y-auto custom-scrollbar">
               <p className="text-xs text-slate-400">
-                {texts.historyDesc}
+                {t('ashaDashboard.historyDesc')}
               </p>
 
               {visitLogs.length === 0 ? (

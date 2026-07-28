@@ -1,4 +1,5 @@
 import React, { useState, useRef, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import {
   QrCode,
@@ -14,6 +15,7 @@ import {
 import { Navbar } from '../components/Navbar';
 
 export const QrScannerPage: React.FC = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   const [activeTab, setActiveTab] = useState<'camera' | 'upload'>('camera');

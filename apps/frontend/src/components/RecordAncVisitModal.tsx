@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Activity, Cpu, AlertTriangle, CheckCircle, ShieldAlert, Sparkles } from 'lucide-react';
 import api from '../services/api';
@@ -18,6 +19,7 @@ export const RecordAncVisitModal: React.FC<RecordAncVisitModalProps> = ({
   onClose,
   onSuccess
 }) => {
+  const { t } = useTranslation();
   if (!isOpen || !patient || !pregnancy) return null;
 
   const [visitNumber, setVisitNumber] = useState(1);

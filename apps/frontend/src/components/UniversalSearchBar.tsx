@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Search, User, MapPin, Phone, ShieldAlert, Loader2 } from 'lucide-react';
 import { maternalService } from '../services/maternalService';
 
@@ -8,6 +9,7 @@ interface Props {
 }
 
 export const UniversalSearchBar: React.FC<Props> = ({ onSelectMother, language = 'kn' }) => {
+  const { t } = useTranslation();
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);

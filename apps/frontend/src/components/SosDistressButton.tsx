@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Siren, AlertTriangle, X, CheckCircle2, ShieldAlert } from 'lucide-react';
 import api from '../services/api';
@@ -9,6 +10,7 @@ interface SosDistressButtonProps {
 }
 
 export const SosDistressButton: React.FC<SosDistressButtonProps> = ({ patientId, onSuccess }) => {
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const [distressType, setDistressType] = useState<'ECLAMPSIA_SEIZURE' | 'POSTPARTUM_HEMORRHAGE' | 'SEVERE_HYPERTENSION' | 'OBSTRUCTED_LABOR' | 'GENERAL_DISTRESS'>('ECLAMPSIA_SEIZURE');
   const [notes, setNotes] = useState('');

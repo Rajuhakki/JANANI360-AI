@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { QrCodeGenerator } from './QrCodeGenerator';
 import { Printer, Download, Share2, CheckCircle2, Building2, ShieldCheck, Heart, Calendar, User, Activity, Send, Sparkles } from 'lucide-react';
 
@@ -38,6 +39,7 @@ export const RegistrationAcknowledgement: React.FC<RegistrationAcknowledgementPr
   data,
   onClose
 }) => {
+  const { t } = useTranslation();
   const [sentToPhc, setSentToPhc] = useState(false);
   const [sending, setSending] = useState(false);
 

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { CheckCircle2, ChevronRight, ChevronLeft, User, Heart, Calendar, MapPin, FileCheck, X } from 'lucide-react';
 import { LocationHierarchyPicker } from './LocationHierarchyPicker';
 import { maternalService } from '../services/maternalService';
@@ -16,6 +17,7 @@ export const SmartRegistrationWizard: React.FC<Props> = ({
   onSuccess,
   language = 'kn'
 }) => {
+  const { t } = useTranslation();
   const [step, setStep] = useState(1);
   const [submitting, setSubmitting] = useState(false);
 

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Save, Activity, ShieldAlert } from 'lucide-react';
 import { HospitalData } from './HospitalCard';
@@ -11,6 +12,7 @@ interface UpdateCapacityModalProps {
 }
 
 export const UpdateCapacityModal: React.FC<UpdateCapacityModalProps> = ({ hospital, onClose, onSuccess }) => {
+  const { t } = useTranslation();
   if (!hospital) return null;
 
   const [availableMaternityBeds, setAvailableMaternityBeds] = useState(hospital.availableMaternityBeds);

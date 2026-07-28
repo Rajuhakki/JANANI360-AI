@@ -24,6 +24,10 @@ import {
   Check
 } from 'lucide-react';
 import { useParams, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
+import { Baby, Syringe, Activity, ShieldCheck, Heart, User, Calendar, Plus, RefreshCw, X, CheckCircle2, Clock } from 'lucide-react';
+import { useParams } from 'react-router-dom';
 import { childService } from '../services/childService';
 import { Navbar } from '../components/Navbar';
 
@@ -36,6 +40,7 @@ interface ChatMessage {
 }
 
 export const ChildProfileHubPage: React.FC = () => {
+  const { t } = useTranslation();
   const { id = '129004812749-C1' } = useParams();
   const navigate = useNavigate();
 
@@ -322,6 +327,8 @@ I have logged your clinical query regarding **${data?.child?.fullName || 'the be
               </h1>
               <p className="text-xs text-slate-400 font-medium">
                 Mother: <strong className="text-emerald-300 font-semibold">{mother.fullName || 'Lakshmi Devi'}</strong> (RCH: <span className="font-mono text-slate-300">{mother.rchId || 'RCH-882190'}</span>) · Village: <strong className="text-slate-300">{mother?.village?.nameEn || 'Shiggaon Agri Sector'}</strong>
+              <p className="text-xs text-slate-400">
+                {t('childHealth.motherName')}: <strong className="text-slate-200">{mother?.fullName}</strong> (RCH: {mother?.rchId})
               </p>
             </div>
           </div>
@@ -364,6 +371,10 @@ I have logged your clinical query regarding **${data?.child?.fullName || 'the be
                 </>
               )}
             </button>
+          <div className="flex items-center gap-3 font-mono">
+            <span className="bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-xs font-bold px-3 py-1 rounded-full uppercase">
+              {t('childHealth.childRchId')}: {child.childRchId}
+            </span>
           </div>
         </div>
       </header>

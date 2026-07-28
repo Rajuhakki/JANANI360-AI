@@ -1,8 +1,10 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Clock, LogIn } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 export const SessionExpiredPage: React.FC = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   return (

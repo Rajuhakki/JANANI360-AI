@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Bell, AlertTriangle, ShieldCheck, CheckCircle2, Clock, X } from 'lucide-react';
 
 export interface SystemNotification {
@@ -17,6 +18,7 @@ interface NotificationCenterProps {
 }
 
 export const NotificationCenter: React.FC<NotificationCenterProps> = ({ language = 'kn' }) => {
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const [notifications, setNotifications] = useState<SystemNotification[]>([
     {

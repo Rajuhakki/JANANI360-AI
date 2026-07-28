@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { TrendingDown, TrendingUp, AlertTriangle } from 'lucide-react';
 
 interface AncPoint {
@@ -16,6 +17,7 @@ interface Props {
 }
 
 export const RiskTrendGraph: React.FC<Props> = ({ visits, language = 'kn' }) => {
+  const { t } = useTranslation();
   if (!visits || visits.length === 0) return null;
 
   const latestScore = visits[visits.length - 1]?.safetyScore || 100;

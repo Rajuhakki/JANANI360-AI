@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { 
   Building2, 
   MapPin, 
@@ -50,6 +51,7 @@ export const LocationHierarchyPicker: React.FC<LocationHierarchyPickerProps> = (
   language = 'kn',
   className = ''
 }) => {
+  const { t } = useTranslation();
   const [lang, setLang] = useState<'kn' | 'en'>(language);
 
   // Dynamic Lists from Backend APIs

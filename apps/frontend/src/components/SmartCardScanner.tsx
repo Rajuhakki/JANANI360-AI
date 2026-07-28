@@ -1,4 +1,5 @@
 import React, { useState, useRef, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Camera,
   Upload,
@@ -25,6 +26,7 @@ export const SmartCardScanner: React.FC<SmartCardScannerProps> = ({
   onScanComplete,
   onScanError
 }) => {
+  const { t } = useTranslation();
   const [activeMode, setActiveMode] = useState<'scan' | 'photo' | 'document'>('scan');
   const [isDragOver, setIsDragOver] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);

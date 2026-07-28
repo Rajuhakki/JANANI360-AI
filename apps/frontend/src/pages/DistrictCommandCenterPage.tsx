@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { 
   LayoutDashboard, 
   MapPin, 
@@ -183,6 +184,7 @@ const TALUK_NODES: TalukGisNode[] = [
 ];
 
 export const DistrictCommandCenterPage: React.FC = () => {
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<'escalations_sync' | 'gis_heatmap' | 'fleet_resources' | 'staff_audit' | 'policy_sdg'>('escalations_sync');
   const [escalations, setEscalations] = useState<DhoEscalation[]>([]);
   const [hospitalTransfersCount, setHospitalTransfersCount] = useState<number>(3);
