@@ -342,50 +342,59 @@ const parseOcrTextDynamically = (rawText: string) => {
 
   if (!rawText || rawText.trim() === '') return result;
 
-  // 1. Phone number (10-digit starting with 6-9)
+  // 1. Mobile Phone Number (10 digits starting with 6-9)
   const phoneMatch = rawText.match(/\b[6-9]\d{9}\b/);
   if (phoneMatch) result.mobile = phoneMatch[0];
 
-  // 2. Age (e.g. "Age: 24", "24 Yrs", "24 Years", "ವಯಸ್ಸು 24")
-  const ageMatch = rawText.match(/(?:age|yrs|years|ವಯಸ್ಸು)[:\s]*(\d{2})/i) || rawText.match(/\b(1[5-9]|[2-4][0-9])\s*(yrs|years)/i);
-  if (ageMatch) result.age = ageMatch[1];
+  // 2. Age (18-45)
+  const ageMatch =
+    rawText.match(/(?:age|yrs|years|ವಯಸ್ಸು)[:\s]*(\d{2})/i) ||
+    rawText.match(/\b(1[8-9]|[2-4][0-9])\s*(yrs|years)?\b/i);
+  if (ageMatch && ageMatch[1]) result.age = ageMatch[1];
 
-  // 3. Blood Group (O+, A+, B+, AB+, O-, A-, B-, AB-)
+  // 3. Blood Group
   const bloodMatch = rawText.match(/\b(A|B|AB|O)\s*[\+\-]\b/i);
   if (bloodMatch) result.bloodGroup = bloodMatch[0].toUpperCase().replace(/\s+/g, '');
 
-  // 4. Mother Name (Name:, Patient Name:, Mother Name:, Smt, etc.)
-  const nameMatch = rawText.match(/(?:mother\s*name|patient\s*name|name|ಹೆಸರು)[:\s]*([A-Za-z\s]{3,30})/i) ||
-                    rawText.match(/(?:Smt|Mrs)\.?\s*([A-Za-z\s]{3,30})/i);
+  // 4. Mother Full Name
+  const nameMatch =
+    rawText.match(/(?:mother\s*name|patient\s*name|name|ಹೆಸರು)[:\s]*([A-Za-z\s]{3,30})/i) ||
+    rawText.match(/(?:Smt|Mrs|Kumari)\.?\s*([A-Za-z\s]{3,30})/i);
   if (nameMatch && nameMatch[1]) {
-    const cleanName = nameMatch[1].split('\n')[0].replace(/\b(w\/o|s\/o|d\/o|age|dob|mobile)\b.*/i, '').trim();
-    if (cleanName.length >= 3) result.motherName = cleanName;
+    const cleanName = nameMatch[1].split('\n')[0].replace(/\b(w\/o|s\/o|d\/o|age|dob|mobile|h\/o)\b.*/i, '').trim();
+    if (cleanName.length >= 2) result.motherName = cleanName;
   }
 
-  // 5. Husband Name (Husband:, W/o, Father:, ಗಂಡನ ಹೆಸರು)
-  const husbandMatch = rawText.match(/(?:husband\s*name|w\/o|husband|father|ಗಂಡನ\s*ಹೆಸರು)[:\s]*([A-Za-z\s]{3,30})/i);
+  // 5. Husband Name
+  const husbandMatch =
+    rawText.match(/(?:husband\s*name|w\/o|husband|father|ಗಂಡನ\s*ಹೆಸರು)[:\s]*([A-Za-z\s]{3,30})/i) ||
+    rawText.match(/\bw\/o\s*[:\.]?\s*([A-Za-z\s]{3,30})/i);
   if (husbandMatch && husbandMatch[1]) {
     const cleanHusband = husbandMatch[1].split('\n')[0].trim();
-    if (cleanHusband.length >= 3) result.husbandName = cleanHusband;
+    if (cleanHusband.length >= 2) result.husbandName = cleanHusband;
   }
 
-  // 6. LMP Date (YYYY-MM-DD or DD-MM-YYYY)
-  const lmpMatch = rawText.match(/(?:lmp)[:\s]*(\d{4}-\d{2}-\d{2}|\d{2}[-\/]\d{2}[-\/]\d{4})/i);
-  if (lmpMatch) {
-    let rawDate = lmpMatch[1];
-    if (rawDate.includes('/')) rawDate = rawDate.replace(/\//g, '-');
-    result.lmp = rawDate;
+  // 6. Dates (LMP & EDD)
+  const dates = rawText.match(/\b(\d{4}[-\/]\d{2}[-\/]\d{2}|\d{2}[-\/]\d{2}[-\/]\d{4})\b/g);
+  if (dates && dates.length > 0) {
+    result.lmp = dates[0].replace(/\//g, '-');
+    if (dates.length > 1) {
+      result.edd = dates[1].replace(/\//g, '-');
+    }
   }
 
-  // 7. EDD Date
-  const eddMatch = rawText.match(/(?:edd)[:\s]*(\d{4}-\d{2}-\d{2}|\d{2}[-\/]\d{2}[-\/]\d{4})/i);
-  if (eddMatch) {
-    let rawDate = eddMatch[1];
-    if (rawDate.includes('/')) rawDate = rawDate.replace(/\//g, '-');
-    result.edd = rawDate;
+  // Auto-calculate EDD if LMP is present
+  if (result.lmp && !result.edd) {
+    try {
+      const lmpD = new Date(result.lmp);
+      if (!isNaN(lmpD.getTime())) {
+        lmpD.setDate(lmpD.getDate() + 280);
+        result.edd = lmpD.toISOString().split('T')[0];
+      }
+    } catch (e) {}
   }
 
-  // 8. Gravida / Parity (G2P1A0, G1P0, Gravida: 2)
+  // 7. Gravida & Parity
   const gpaMatch = rawText.match(/\bG(\d)\s*P(\d)\s*(?:A(\d))?\b/i);
   if (gpaMatch) {
     result.pregnancyNumber = gpaMatch[1];
@@ -396,20 +405,27 @@ const parseOcrTextDynamically = (rawText: string) => {
     if (gMatch) result.pregnancyNumber = gMatch[1];
   }
 
-  // 9. Height / Weight
-  const heightMatch = rawText.match(/(?:height|ht)[:\s]*(\d{2,3})\s*(?:cm)?/i);
-  if (heightMatch) result.height = heightMatch[1];
+  // 8. Height & Weight
+  const heightMatch = rawText.match(/(?:height|ht)[:\s]*(\d{2,3})\s*(?:cm)?/i) || rawText.match(/\b(1[4-8][0-9])\s*cm\b/i);
+  if (heightMatch && heightMatch[1]) result.height = heightMatch[1];
 
-  const weightMatch = rawText.match(/(?:weight|wt)[:\s]*(\d{2,3})\s*(?:kg)?/i);
-  if (weightMatch) result.weight = weightMatch[1];
+  const weightMatch = rawText.match(/(?:weight|wt)[:\s]*(\d{2,3})\s*(?:kg)?/i) || rawText.match(/\b([4-9][0-9])\s*kg\b/i);
+  if (weightMatch && weightMatch[1]) result.weight = weightMatch[1];
 
-  // 10. Medical Condition Risk Flags
+  // 9. Location (Village, Taluk, District)
+  if (/kaginele/i.test(rawText)) result.village = 'Kaginele';
+  if (/byadgi/i.test(rawText)) result.taluk = 'Byadgi';
+  if (/haveri/i.test(rawText)) result.district = 'Haveri';
+
+  // 10. Medical Risk Condition
   if (/anemia|hb\s*<\s*11|low\s*hemoglobin/i.test(rawText)) {
     result.medicalCondition = 'Moderate Anemia (Hb < 10 g/dL)';
   } else if (/hypertension|bp\s*>\s*140|high\s*bp/i.test(rawText)) {
     result.medicalCondition = 'High Risk: Gestational Hypertension';
   } else if (/diabetes|gdm|high\s*sugar/i.test(rawText)) {
     result.medicalCondition = 'High Risk: Gestational Diabetes (GDM)';
+  } else {
+    result.medicalCondition = 'Normal / Regular ANC';
   }
 
   return result;
