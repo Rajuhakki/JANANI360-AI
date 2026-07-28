@@ -222,87 +222,114 @@ export const RegisterMotherForm: React.FC<RegisterMotherFormProps> = ({
   };
 
   // Bind AI OCR Result to Form
-  const handleOcrComplete = (ocrData: AshaOcrResult, scores: Record<string, number>) => {
+  const handleOcrComplete = (ocrData: AshaOcrResult & Record<string, any>, scores: Record<string, number>) => {
     const updatedForm = { ...form };
     const filledKeys = new Set<string>();
 
-    const isValidVal = (v: any) => v && v !== 'null' && v !== 'undefined' && String(v).trim() !== '';
+    const isValidVal = (v: any) => v !== null && v !== undefined && v !== 'null' && v !== 'undefined' && String(v).trim() !== '';
 
-    if (isValidVal(ocrData.motherName)) {
-      updatedForm.fullName = String(ocrData.motherName).replace(/\s*\([^)]*\)/g, '');
+    // 1. Mother Full Name
+    const nameVal = ocrData.fullName || ocrData.motherName;
+    if (isValidVal(nameVal)) {
+      updatedForm.fullName = String(nameVal).replace(/\s*\([^)]*\)/g, '').trim();
       filledKeys.add('fullName');
     }
 
+    // 2. Husband Name
     if (isValidVal(ocrData.husbandName)) {
-      updatedForm.husbandName = String(ocrData.husbandName).replace(/\s*\([^)]*\)/g, '');
+      updatedForm.husbandName = String(ocrData.husbandName).replace(/\s*\([^)]*\)/g, '').trim();
       filledKeys.add('husbandName');
     }
 
-    if (isValidVal(ocrData.age)) {
-      updatedForm.age = String(ocrData.age);
-      const calculatedYear = 2026 - Number(ocrData.age);
+    // 3. Age & Date of Birth
+    const ageVal = ocrData.age;
+    if (isValidVal(ageVal)) {
+      updatedForm.age = String(ageVal).trim();
+      const calculatedYear = 2026 - (Number(ageVal) || 24);
       updatedForm.dob = `${calculatedYear}-01-15`;
       filledKeys.add('age');
       filledKeys.add('dob');
     }
 
-    if (isValidVal(ocrData.mobile)) {
-      updatedForm.phone = String(ocrData.mobile);
+    if (isValidVal(ocrData.dateOfBirth)) {
+      updatedForm.dob = String(ocrData.dateOfBirth).trim();
+      filledKeys.add('dob');
+    }
+
+    // 4. Mobile Phone Number
+    const mobileVal = ocrData.mobileNumber || ocrData.mobile;
+    if (isValidVal(mobileVal)) {
+      updatedForm.phone = String(mobileVal).trim();
       filledKeys.add('phone');
     }
 
+    // 5. Door / Street Address
     if (isValidVal(ocrData.address)) {
-      updatedForm.address = String(ocrData.address);
+      updatedForm.address = String(ocrData.address).trim();
       filledKeys.add('address');
     }
 
+    // 6. LMP Date
     if (isValidVal(ocrData.lmp)) {
-      updatedForm.lmpDate = String(ocrData.lmp);
+      updatedForm.lmpDate = String(ocrData.lmp).trim();
       filledKeys.add('lmpDate');
     }
 
-    if (isValidVal(ocrData.pregnancyNumber)) {
-      updatedForm.gravida = String(ocrData.pregnancyNumber);
+    // 7. Gravida / Pregnancy Number
+    const gravidaVal = ocrData.pregnancyNumber || ocrData.gravida;
+    if (isValidVal(gravidaVal)) {
+      updatedForm.gravida = String(gravidaVal).trim();
       filledKeys.add('gravida');
     }
 
+    // 8. Parity
     if (isValidVal(ocrData.parity)) {
-      updatedForm.parity = String(ocrData.parity);
+      updatedForm.parity = String(ocrData.parity).trim();
       filledKeys.add('parity');
     }
 
+    // 9. Abortions
     if (isValidVal(ocrData.abortions)) {
-      updatedForm.abortions = String(ocrData.abortions);
+      updatedForm.abortions = String(ocrData.abortions).trim();
       filledKeys.add('abortions');
     }
 
+    // 10. Blood Group
     if (isValidVal(ocrData.bloodGroup)) {
-      updatedForm.bloodGroup = String(ocrData.bloodGroup);
+      updatedForm.bloodGroup = String(ocrData.bloodGroup).trim();
       filledKeys.add('bloodGroup');
     }
 
-    if (isValidVal(ocrData.height)) {
-      updatedForm.heightCm = String(ocrData.height);
+    // 11. Height (cm)
+    const heightVal = ocrData.heightCm || ocrData.height;
+    if (isValidVal(heightVal)) {
+      updatedForm.heightCm = String(heightVal).trim();
       filledKeys.add('heightCm');
     }
 
-    if (isValidVal(ocrData.weight)) {
-      updatedForm.weightKg = String(ocrData.weight);
+    // 12. Weight (kg)
+    const weightVal = ocrData.weightKg || ocrData.weight;
+    if (isValidVal(weightVal)) {
+      updatedForm.weightKg = String(weightVal).trim();
       filledKeys.add('weightKg');
     }
 
-    if (isValidVal(ocrData.medicalCondition)) {
-      updatedForm.medicalCondition = String(ocrData.medicalCondition);
+    // 13. Medical Condition / Clinical Risk
+    const conditionVal = ocrData.existingMedicalCondition || ocrData.medicalCondition;
+    if (isValidVal(conditionVal)) {
+      updatedForm.medicalCondition = String(conditionVal).trim();
       filledKeys.add('medicalCondition');
     }
 
+    // 14. Taluk
     if (isValidVal(ocrData.taluk)) {
-      updatedForm.taluk = String(ocrData.taluk);
+      updatedForm.taluk = String(ocrData.taluk).trim();
       filledKeys.add('taluk');
     }
 
+    // 15. District
     if (isValidVal(ocrData.district)) {
-      updatedForm.district = String(ocrData.district);
+      updatedForm.district = String(ocrData.district).trim();
       filledKeys.add('district');
     }
 
