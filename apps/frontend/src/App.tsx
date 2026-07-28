@@ -11,9 +11,11 @@ import { CasualtyErRadarPage } from './pages/CasualtyErRadarPage';
 import { FamilyTrackingPage } from './pages/FamilyTrackingPage';
 import { LaborRoomDashboardPage } from './pages/LaborRoomDashboardPage';
 import { ChildProfileHubPage } from './pages/ChildProfileHubPage';
+import { GovernmentChildWelfareHubPage } from './pages/GovernmentChildWelfareHubPage';
 import { DistrictCommandCenterPage } from './pages/DistrictCommandCenterPage';
 import { MotherPublicProfilePage } from './pages/MotherPublicProfilePage';
 import { QrScannerPage } from './pages/QrScannerPage';
+import { VerifyCardPage } from './pages/VerifyCardPage';
 import { PhcDoctorModulePage } from './pages/PhcDoctorModulePage';
 import { LogoutPage } from './pages/LogoutPage';
 import { UnauthorizedPage } from './pages/UnauthorizedPage';
@@ -45,6 +47,9 @@ export const App: React.FC = () => {
         <Route path="/track" element={<FamilyTrackingPage />} />
         <Route path="/mother/:id" element={<MotherPublicProfilePage />} />
         <Route path="/scan-qr" element={<QrScannerPage />} />
+        <Route path="/verify-card" element={<VerifyCardPage />} />
+        <Route path="/verify/:id" element={<VerifyCardPage />} />
+        <Route path="/verify" element={<VerifyCardPage />} />
         <Route 
           path="/phc-doctor" 
           element={
@@ -170,6 +175,22 @@ export const App: React.FC = () => {
           element={
             <ProtectedRoute>
               <ChildProfileHubPage />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/child-welfare-hub/:id" 
+          element={
+            <ProtectedRoute>
+              <GovernmentChildWelfareHubPage />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/child-welfare-hub" 
+          element={
+            <ProtectedRoute>
+              <GovernmentChildWelfareHubPage />
             </ProtectedRoute>
           } 
         />

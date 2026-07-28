@@ -29,15 +29,9 @@ export const DigitalMotherCard: React.FC<DigitalMotherCardProps> = ({ data, clas
   const formattedIssueDate = data.issueDate || new Date().toISOString().split('T')[0];
   const calculatedDob = data.dob || `${2026 - Number(data.age || 24)}-01-15`;
 
-  // Real QR Code Payload containing complete actual maternal and acknowledgement details
-  const realQrPayload = `JANANI360 Maternal ID: ${data.motherId}
-Name: ${data.fullName}
-DOB: ${calculatedDob} (${data.age} yrs)
-Mobile: ${data.phone}
-Assigned PHC: ${data.assignedPhc}
-Village: ${data.village}
-Blood Group: ${data.bloodGroup || 'O+'}
-Verify: https://janani360.ai/verify/${data.motherId}`;
+  // Real Scannable Web Data URL that loads complete actual maternal telemetry and triggers automatic PDF Acknowledgement download
+  const baseUrl = typeof window !== 'undefined' && window.location.origin ? window.location.origin : 'http://localhost:5173';
+  const realQrPayload = `${baseUrl}/verify-card?id=${encodeURIComponent(data.motherId)}&name=${encodeURIComponent(data.fullName)}&husband=${encodeURIComponent(data.husbandName || 'N/A')}&age=${encodeURIComponent(String(data.age))}&phone=${encodeURIComponent(data.phone)}&village=${encodeURIComponent(data.village)}&phc=${encodeURIComponent(data.assignedPhc)}&blood=${encodeURIComponent(data.bloodGroup || 'O+')}&download_pdf=true`;
 
   const handleDownload = () => {
     const originalTitle = document.title;
@@ -192,14 +186,27 @@ Verify: https://janani360.ai/verify/${data.motherId}`;
             </div>
           </div>
 
-          {/* Right Side: Real QR Code & Verification */}
-          <div className="col-span-4 flex flex-col items-center justify-center space-y-1.5 pl-2 border-l border-slate-800 print:border-slate-300">
-            <QrCodeGenerator value={realQrPayload} size={110} />
-            <div className="text-center space-y-0.5">
-              <span className="block text-[9px] font-bold text-slate-300 print:text-slate-800 leading-tight">
-                Scan Real QR Code
+          {/* Right Side: Real Interactive QR Code & Verification Link */}
+          <div className="col-span-4 flex flex-col items-center justify-center space-y-2 pl-2 border-l border-slate-800 print:border-slate-300">
+            <a
+              href={realQrPayload}
+              target="_blank"
+              rel="noopener noreferrer"
+              title="Click or scan with camera to view live maternal telemetry & download PDF acknowledgement"
+              className="group relative transition-transform hover:scale-105 cursor-pointer block"
+            >
+              <QrCodeGenerator value={realQrPayload} size={110} />
+              <span className="absolute -top-2 -right-2 bg-emerald-500 text-slate-950 font-black text-[9px] px-1.5 py-0.5 rounded-full shadow print:hidden animate-pulse">
+                LIVE
               </span>
-              <span className="block text-[8px] text-slate-400">Shows Real Maternal &amp; Ack Data</span>
+            </a>
+            <div className="text-center space-y-1">
+              <span className="inline-block bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 px-2 py-0.5 rounded text-[8.5px] font-extrabold print:text-black print:bg-transparent print:border-none">
+                📲 Scan or Click QR
+              </span>
+              <span className="block text-[8px] text-slate-300 print:text-slate-800 leading-tight font-bold">
+                View Live Telemetry &amp; Auto-Download PDF
+              </span>
               <span className="block text-[8px] text-slate-500 font-mono">Issued: {formattedIssueDate}</span>
             </div>
           </div>
