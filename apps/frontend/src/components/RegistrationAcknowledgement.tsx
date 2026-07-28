@@ -50,18 +50,9 @@ export const RegistrationAcknowledgement: React.FC<RegistrationAcknowledgementPr
     } catch (e) {}
   }, [data.motherId]);
 
-  // Real scannable data payload for mobile cameras and scanners
-  const realQrPayload = `JANANI360 Acknowledgement Receipt
-Reg No: ${data.registrationNo} | ID: ${data.motherId}
-Mother: ${data.motherName} (DOB: ${data.dob}, Age: ${data.age})
-Husband: ${data.husbandName} | Mobile: ${data.mobile}
-Address: ${data.address || data.village}, ${data.taluk}, ${data.district}
-Facility (PHC): ${data.assignedPhc}
-Obstetrics: G${data.pregnancyNumber || 1} P${data.parity || 0} A${data.abortions || 0} | Blood Group: ${data.bloodGroup || 'O+'}
-LMP: ${data.lmp} | EDD: ${data.edd}
-Condition: ${data.medicalCondition || 'Normal / None Observed'}
-ASHA Facilitator: ${data.ashaWorkerName}
-Verify: https://janani360.ai/verify/${data.motherId}`;
+  // Real Scannable Web Data URL for mobile cameras and scanners to display patient profile and auto-download PDF
+  const baseUrl = typeof window !== 'undefined' && window.location.origin ? window.location.origin : 'http://localhost:5173';
+  const realQrPayload = `${baseUrl}/verify-card?id=${encodeURIComponent(data.motherId)}&name=${encodeURIComponent(data.motherName)}&husband=${encodeURIComponent(data.husbandName)}&age=${encodeURIComponent(String(data.age))}&phone=${encodeURIComponent(data.mobile)}&village=${encodeURIComponent(data.village)}&phc=${encodeURIComponent(data.assignedPhc)}&blood=${encodeURIComponent(data.bloodGroup || 'O+')}&edd=${encodeURIComponent(data.edd || '2026-11-15')}&download_pdf=true`;
 
   const handlePrint = () => {
     window.print();
@@ -313,11 +304,21 @@ Verify: https://janani360.ai/verify/${data.motherId}`;
           {/* QR Code & Registrar Column */}
           <div className="space-y-4 text-center">
             <div className="bg-slate-900/80 rounded-3xl p-5 border border-slate-800 space-y-3 print:bg-white print:border-slate-300">
-              <QrCodeGenerator value={realQrPayload} size={150} className="mx-auto" />
+              <a
+                href={realQrPayload}
+                target="_blank"
+                rel="noopener noreferrer"
+                title="Click or scan QR with camera to verify clinical profile and download PDF receipt"
+                className="group inline-block transition-transform hover:scale-105 cursor-pointer"
+              >
+                <QrCodeGenerator value={realQrPayload} size={150} className="mx-auto" />
+              </a>
               <div className="space-y-1">
-                <span className="block text-xs font-bold text-white print:text-black">Scan Real Digital QR</span>
-                <span className="block text-[10px] text-slate-400 print:text-slate-600">
-                  Instantly outputs Complete maternal profile &amp; clinical metrics
+                <span className="inline-block px-2.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-xs font-black print:text-black print:bg-transparent print:border-none">
+                  📲 Scan or Click QR
+                </span>
+                <span className="block text-[11px] font-bold text-slate-200 print:text-black">
+                  Shows Real Maternal Profile &amp; Auto-Downloads PDF
                 </span>
               </div>
             </div>

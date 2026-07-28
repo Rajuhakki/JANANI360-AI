@@ -26,6 +26,11 @@ export interface GrowthPayload {
 }
 
 export const childService = {
+  listChildren: async () => {
+    const res = await api.get('/children/list');
+    return res.data;
+  },
+
   recordPncVisit: async (payload: PncVisitPayload) => {
     const res = await api.post('/children/pnc-visits', payload);
     return res.data;
