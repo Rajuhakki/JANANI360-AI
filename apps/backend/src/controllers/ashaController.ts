@@ -518,10 +518,10 @@ export const scanAntenatalCard = async (req: AuthenticatedRequest, res: Response
     }
 
     // STEP 2: Use Google Gemini AI for Vision & Text Structuring if available
-    const geminiKey = process.env.GEMINI_API_KEY;
-    if (geminiKey && geminiKey.trim() !== '') {
+    const geminiKey = process.env.GEMINI_API_KEY ? process.env.GEMINI_API_KEY.replace(/\s+/g, '').trim() : '';
+    if (geminiKey) {
       try {
-        const genAI = new GoogleGenerativeAI(geminiKey.trim());
+        const genAI = new GoogleGenerativeAI(geminiKey);
         const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
         const prompt = `You are JANANI360 AI, an expert OCR and document understanding assistant for Karnataka RCH Antenatal Cards.
