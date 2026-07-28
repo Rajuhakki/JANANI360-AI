@@ -403,6 +403,34 @@ export const scanAntenatalCard = async (req: AuthenticatedRequest, res: Response
       }
     }
 
+    // STEP 1B: Tesseract OCR Engine (OCR.Space API)
+    const tesseractKey = process.env.TESSERACT_OCR_API_KEY || process.env.OCR_SPACE_API_KEY || 'a4a-TvVyrkh0vQJ4B0LPAoGnnIo6YX0BIW7r';
+    if (!extractedText && tesseractKey) {
+      try {
+        console.log(`[Tesseract OCR Engine] Scanning Antenatal Card document image...`);
+        const formData = new URLSearchParams();
+        formData.append('apikey', tesseractKey.trim());
+        formData.append('base64Image', `data:${actualMimeType};base64,${cleanBase64}`);
+        formData.append('language', 'eng');
+        formData.append('isOverlayRequired', 'false');
+        formData.append('OCREngine', '2');
+
+        const tessRes = await fetch('https://api.ocr.space/parse/image', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: formData.toString()
+        });
+
+        const tessData: any = await tessRes.json();
+        if (tessData.ParsedResults && tessData.ParsedResults.length > 0) {
+          extractedText = tessData.ParsedResults[0].ParsedText || '';
+          console.log(`[Tesseract OCR Engine] Successfully extracted ${extractedText.length} characters of raw text.`);
+        }
+      } catch (tessErr: any) {
+        console.warn('[Tesseract OCR Engine] Processing note:', tessErr.message);
+      }
+    }
+
     // STEP 2: Use Google Gemini AI for Vision & Text Structuring if available
     const geminiKey = process.env.GEMINI_API_KEY;
     if (geminiKey && geminiKey.trim() !== '') {
