@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { 
   Heart, 
@@ -201,6 +202,7 @@ const DEFAULT_PROFILES: CitizenProfile[] = [
 ];
 
 export const MotherPortalPage: React.FC = () => {
+  const { t } = useTranslation();
   const { user } = useSelector((state: RootState) => state.auth);
   const [activeTab, setActiveTab] = useState<'passbook' | 'ai_chatgpt' | 'anc_schedule' | 'nutrition_ai' | 'smart_id_dbt' | 'family_guardians'>('passbook');
   const [availableProfiles, setAvailableProfiles] = useState<CitizenProfile[]>(DEFAULT_PROFILES);

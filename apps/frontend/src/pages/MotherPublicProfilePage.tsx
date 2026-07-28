@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   ShieldCheck,
@@ -21,6 +22,7 @@ import { QrCodeGenerator } from '../components/QrCodeGenerator';
 import api from '../services/api';
 
 export const MotherPublicProfilePage: React.FC = () => {
+  const { t } = useTranslation();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 

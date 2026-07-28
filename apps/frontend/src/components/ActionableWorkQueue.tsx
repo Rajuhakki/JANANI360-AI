@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { AlertCircle, Clock, ChevronRight, Activity, ShieldAlert } from 'lucide-react';
 
 export interface WorkQueueItem {
@@ -25,6 +26,7 @@ export const ActionableWorkQueue: React.FC<Props> = ({
   onSelectQueueItem,
   language = 'kn'
 }) => {
+  const { t } = useTranslation();
   return (
     <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl">
       <div className="flex items-center justify-between mb-4 border-b border-slate-800 pb-3">

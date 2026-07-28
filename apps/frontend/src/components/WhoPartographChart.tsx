@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Activity, AlertTriangle, TrendingUp } from 'lucide-react';
 
 interface PartographPoint {
@@ -14,6 +15,7 @@ interface Props {
 }
 
 export const WhoPartographChart: React.FC<Props> = ({ observations, language = 'kn' }) => {
+  const { t } = useTranslation();
   if (!observations || observations.length === 0) return null;
 
   const sortedObs = [...observations].reverse();

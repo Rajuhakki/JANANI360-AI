@@ -16,11 +16,34 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const currentLangCode = i18n.language ? i18n.language.substring(0, 2) : 'en';
+  // Determine current active language (checking cookie or i18n)
+  let currentLangCode = i18n.language ? i18n.language.substring(0, 2) : 'en';
+  const cookieMatch = document.cookie.match(/googtrans=\/en\/([a-z]{2})/);
+  if (cookieMatch && cookieMatch[1]) {
+    currentLangCode = cookieMatch[1];
+  }
+
   const currentLang = SUPPORTED_LANGUAGES.find(l => l.code === currentLangCode) || SUPPORTED_LANGUAGES[0];
 
-  const handleLanguageChange = (lang: LanguageOption) => {
+  const handleLanguageChange = (e: React.MouseEvent, lang: LanguageOption) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    // 1. Update i18next language
     i18n.changeLanguage(lang.code);
+
+    // 2. Set Google Translate cookie
+    const domain = window.location.hostname;
+    document.cookie = `googtrans=/en/${lang.code}; path=/; domain=${domain}`;
+    document.cookie = `googtrans=/en/${lang.code}; path=/`;
+
+    // 3. Instantly trigger Google Translate combo change in-place (NO PAGE RELOAD & NO NAVIGATE!)
+    const googleSelect = document.querySelector('.goog-te-combo') as HTMLSelectElement;
+    if (googleSelect) {
+      googleSelect.value = lang.code;
+      googleSelect.dispatchEvent(new Event('change'));
+    }
+
     setIsOpen(false);
   };
 
@@ -36,10 +59,21 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
   }, []);
 
   return (
-    <div className={`relative inline-block text-left ${className}`} ref={dropdownRef}>
+    <div 
+      className={`relative inline-block text-left ${className}`} 
+      ref={dropdownRef}
+      onClick={(e) => e.stopPropagation()}
+    >
+      {/* Hidden container for official Google Translate script mount */}
+      <div id="google_translate_element" className="hidden" />
+
       <button
         type="button"
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          setIsOpen(prev => !prev);
+        }}
         aria-expanded={isOpen}
         aria-label="Select Language"
         className={`flex items-center gap-2 rounded-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 ${
@@ -59,9 +93,12 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-56 rounded-2xl bg-slate-900/95 border border-slate-700 shadow-2xl backdrop-blur-xl z-50 py-2 ring-1 ring-black/5 animate-in fade-in zoom-in-95 duration-150">
+        <div 
+          className="absolute right-0 mt-2 w-56 rounded-2xl bg-slate-900/95 border border-slate-700 shadow-2xl backdrop-blur-xl z-50 py-2 ring-1 ring-black/5 animate-in fade-in zoom-in-95 duration-150"
+          onClick={(e) => e.stopPropagation()}
+        >
           <div className="px-3 py-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-800 flex justify-between items-center">
-            <span>Select Portal Language</span>
+            <span>Select Language</span>
             <span className="text-emerald-400 font-normal">9 Languages</span>
           </div>
 
@@ -72,7 +109,7 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
                 <button
                   key={lang.code}
                   type="button"
-                  onClick={() => handleLanguageChange(lang)}
+                  onClick={(e) => handleLanguageChange(e, lang)}
                   className={`w-full px-3 py-2 text-left text-xs flex items-center justify-between transition-colors ${
                     isSelected
                       ? 'bg-emerald-500/15 text-emerald-300 font-bold border-l-2 border-emerald-500'

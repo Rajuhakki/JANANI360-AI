@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import {
   CheckCircle2,
@@ -44,6 +45,7 @@ export const RegistrationSuccessModal: React.FC<RegistrationSuccessModalProps> =
   motherData,
   onClose
 }) => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<'card' | 'receipt'>('card');
 

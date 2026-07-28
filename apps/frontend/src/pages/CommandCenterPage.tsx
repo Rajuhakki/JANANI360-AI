@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { 
   Building2, 
   Activity, 
@@ -18,6 +19,7 @@ import { KARNATAKA_MASTER_DATABASE } from '../data/karnatakaMasterDatabase';
 import api from '../services/api';
 
 export const CommandCenterPage: React.FC = () => {
+  const { t } = useTranslation();
   const [selectedDistrict, setSelectedDistrict] = useState('Bengaluru Urban');
   const [data, setData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { 
   ShieldAlert, 
   Ambulance, 
@@ -197,6 +198,7 @@ const INITIAL_BEDS: BedResource[] = [
 ];
 
 export const CasualtyErRadarPage: React.FC = () => {
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<'referrals_radar' | 'bed_matrix' | 'blood_bank' | 'audit_analytics'>('referrals_radar');
   const [transfers, setTransfers] = useState<HospitalTransfer[]>([]);
   const [beds, setBeds] = useState<BedResource[]>(INITIAL_BEDS);
@@ -340,11 +342,11 @@ export const CasualtyErRadarPage: React.FC = () => {
               className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 font-bold text-xs transition flex items-center gap-2 shadow-md active:scale-95"
             >
               <RefreshCw className={`w-4 h-4 text-emerald-400 ${isRefreshing ? 'animate-spin' : ''}`} />
-              <span>Sync PHC Telemetry</span>
+              <span>{t('casualtyEr.syncPhcBtn')}</span>
             </button>
             <span className="bg-red-500/20 text-red-300 border border-red-500/40 text-xs font-black px-3.5 py-2 rounded-xl uppercase tracking-wider flex items-center gap-2 shadow-sm">
               <span className="w-2.5 h-2.5 rounded-full bg-red-400 animate-ping" />
-              Live ER Command Active
+              {t('casualtyEr.liveErCommandActive')}
             </span>
           </div>
         </div>
@@ -355,7 +357,7 @@ export const CasualtyErRadarPage: React.FC = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="bg-gradient-to-b from-slate-900 via-slate-900/90 to-slate-950 p-5 rounded-2xl border border-red-500/35 shadow-xl flex items-center justify-between">
             <div className="space-y-1">
-              <span className="text-[11px] font-extrabold text-slate-400 uppercase tracking-wider block">Active PHC Referrals En Route</span>
+              <span className="text-[11px] font-extrabold text-slate-400 uppercase tracking-wider block">{t('casualtyEr.activeEnRoute')}</span>
               <div className="text-3xl font-black text-white">{activeEnRouteCount} <span className="text-xs text-red-400 font-bold">Priority 1 &amp; 2</span></div>
               <p className="text-[10px] text-slate-400">Direct transmission from ASHA &amp; PHC Doctors</p>
             </div>
@@ -377,7 +379,7 @@ export const CasualtyErRadarPage: React.FC = () => {
 
           <div className="bg-gradient-to-b from-slate-900 via-slate-900/90 to-slate-950 p-5 rounded-2xl border border-cyan-500/35 shadow-xl flex items-center justify-between">
             <div className="space-y-1">
-              <span className="text-[11px] font-extrabold text-slate-400 uppercase tracking-wider block">Blood Bank Reserve Depot</span>
+              <span className="text-[11px] font-extrabold text-slate-400 uppercase tracking-wider block">{t('casualtyEr.bloodBankReserve')}</span>
               <div className="text-3xl font-black text-white">48 Units <span className="text-xs text-cyan-400 font-bold">Ready</span></div>
               <p className="text-[10px] text-slate-400">O- &amp; PRBC reserves unlocked for hemorrhage</p>
             </div>
@@ -388,7 +390,7 @@ export const CasualtyErRadarPage: React.FC = () => {
 
           <div className="bg-gradient-to-b from-slate-900 via-slate-900/90 to-slate-950 p-5 rounded-2xl border border-amber-500/35 shadow-xl flex items-center justify-between">
             <div className="space-y-1">
-              <span className="text-[11px] font-extrabold text-slate-400 uppercase tracking-wider block">Door-to-Triage Velocity</span>
+              <span className="text-[11px] font-extrabold text-slate-400 uppercase tracking-wider block">{t('casualtyEr.doorToTriage')}</span>
               <div className="text-3xl font-black text-white font-mono">&lt; 5.2m <span className="text-xs text-amber-400 font-bold">Avg</span></div>
               <p className="text-[10px] text-emerald-400 font-bold">✓ Zero-Delay WHO 3-Delay Target Achieved</p>
             </div>
@@ -412,7 +414,7 @@ export const CasualtyErRadarPage: React.FC = () => {
               }`}
             >
               <Ambulance className="w-4 h-4 text-white animate-bounce" />
-              <span>1. Live PHC Referral Radar ({transfers.length})</span>
+              <span>{t('casualtyEr.tabReferralRadar')} ({transfers.length})</span>
             </button>
             <button
               onClick={() => setActiveTab('bed_matrix')}
@@ -445,7 +447,7 @@ export const CasualtyErRadarPage: React.FC = () => {
 
           <div className="flex items-center gap-2 px-2 text-xs font-mono text-emerald-400 font-bold">
             <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
-            <span>ABDM National Interoperability Ready</span>
+            <span>{t('casualtyEr.interoperabilityReady')}</span>
           </div>
         </div>
 
@@ -456,10 +458,10 @@ export const CasualtyErRadarPage: React.FC = () => {
               <div>
                 <h2 className="text-lg font-black text-white flex items-center gap-2.5">
                   <Ambulance className="w-6 h-6 text-red-400 animate-pulse" />
-                  <span>Incoming 108 Emergency Referrals from Primary Health Centers (PHCs)</span>
+                  <span>{t('casualtyEr.incomingReferralsTitle')}</span>
                 </h2>
                 <p className="text-xs text-slate-400 mt-1 font-medium">
-                  Bi-directional synchronization with ASHA field workers and PHC Medical Officers. Accept transfers to lock ER beds instantly.
+                  {t('casualtyEr.incomingReferralsSub')}
                 </p>
               </div>
 
@@ -469,7 +471,7 @@ export const CasualtyErRadarPage: React.FC = () => {
                   <Search className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
                   <input
                     type="text"
-                    placeholder="Search patient, PHC, village..."
+                    placeholder={t('casualtyEr.searchPlaceholder')}
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-9 pr-4 py-2 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-red-500 transition shadow-inner"
@@ -482,9 +484,9 @@ export const CasualtyErRadarPage: React.FC = () => {
                   onChange={(e) => setFilterPriority(e.target.value)}
                   className="bg-slate-950 border border-slate-800 text-xs font-bold text-slate-300 rounded-xl px-3.5 py-2 focus:outline-none focus:border-red-500 transition shadow-inner"
                 >
-                  <option value="ALL">All Triage Priorities</option>
-                  <option value="PRIORITY_1_EMERGENCY">Priority 1 (High Risk Emergency)</option>
-                  <option value="PRIORITY_2_OBSERVATION">Priority 2 (Obstetric Observation)</option>
+                  <option value="ALL">{t('casualtyEr.allPriorities')}</option>
+                  <option value="PRIORITY_1_EMERGENCY">{t('casualtyEr.priority1Emergency')}</option>
+                  <option value="PRIORITY_2_OBSERVATION">{t('casualtyEr.priority2Observation')}</option>
                 </select>
               </div>
             </div>
@@ -492,9 +494,9 @@ export const CasualtyErRadarPage: React.FC = () => {
             {filteredTransfers.length === 0 ? (
               <div className="p-12 text-center bg-slate-950/60 rounded-2xl border border-slate-800/80 space-y-3">
                 <CheckCircle2 className="w-10 h-10 text-emerald-400 mx-auto opacity-80" />
-                <h3 className="text-base font-bold text-slate-200">No matching PHC referral transfers currently en route</h3>
+                <h3 className="text-base font-bold text-slate-200">{t('casualtyEr.noReferralsEnRoute')}</h3>
                 <p className="text-xs text-slate-400 max-w-md mx-auto">
-                  When a PHC Medical Officer clicks "Transfer to Hospital Admin (108 ER Command)", the patient records immediately synchronize into this live administrative queue.
+                  {t('casualtyEr.noReferralsSub')}
                 </p>
               </div>
             ) : (
@@ -547,13 +549,13 @@ export const CasualtyErRadarPage: React.FC = () => {
                         {/* Status & ETA Badge */}
                         <div className="flex items-center gap-4 text-right">
                           <div className="bg-slate-950 p-3 rounded-2xl border border-slate-800 shadow-inner">
-                            <div className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">108 Ambulance ETA</div>
+                            <div className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">{t('casualtyEr.ambulanceEta')}</div>
                             <div className="text-2xl font-black text-amber-400 font-mono flex items-center gap-1.5 justify-end">
                               <Clock className="w-5 h-5 text-amber-400 animate-spin" />
                               <span>{item.etaMinutes || 15} Mins</span>
                             </div>
                             <div className="text-[11px] font-bold text-emerald-400 mt-0.5">
-                              Assigned Ward: {item.reservedBed?.bedNumber || 'HDU-01'}
+                              {t('casualtyEr.assignedWard')}: {item.reservedBed?.bedNumber || 'HDU-01'}
                             </div>
                           </div>
                         </div>
@@ -564,36 +566,36 @@ export const CasualtyErRadarPage: React.FC = () => {
                         <div className="lg:col-span-6 space-y-2">
                           <div className="flex items-center gap-2 text-xs font-bold text-red-300">
                             <AlertTriangle className="w-4 h-4 text-red-400 shrink-0" />
-                            <span>Clinical Diagnosis &amp; Emergency Trigger:</span>
+                            <span>{t('casualtyEr.diagnosisTrigger')}</span>
                           </div>
                           <p className="text-sm font-extrabold text-white leading-snug">
                             {item.clinicalReason}
                           </p>
                           <div className="text-xs text-slate-300 italic leading-relaxed pt-1 border-t border-slate-850">
-                            <span className="font-bold text-teal-300 not-italic">PHC Doctor Evaluation Note: </span>
+                            <span className="font-bold text-teal-300 not-italic">{t('casualtyEr.doctorNote')} </span>
                             "{item.doctorNotes}"
                           </div>
                         </div>
 
                         <div className="lg:col-span-6 space-y-2.5 text-xs text-slate-300 border-t lg:border-t-0 lg:border-l border-slate-800 pt-3 lg:pt-0 lg:pl-5">
                           <div className="flex justify-between items-center pb-1 border-b border-slate-850">
-                            <span className="text-slate-400 font-medium">Origin PHC Medical Facility:</span>
+                            <span className="text-slate-400 font-medium">{t('casualtyEr.originPhc')}</span>
                             <span className="font-bold text-cyan-300 text-right">{item.originPhc}</span>
                           </div>
                           <div className="flex justify-between items-center pb-1 border-b border-slate-850">
-                            <span className="text-slate-400 font-medium">Referring ASHA Worker:</span>
+                            <span className="text-slate-400 font-medium">{t('casualtyEr.referringAsha')}</span>
                             <span className="font-bold text-white text-right">{item.ashaWorkerName}</span>
                           </div>
                           <div className="flex justify-between items-center pb-1 border-b border-slate-850">
-                            <span className="text-slate-400 font-medium">108 Ambulance Vehicle &amp; Driver:</span>
+                            <span className="text-slate-400 font-medium">{t('casualtyEr.ambulanceVehicle')}</span>
                             <span className="font-bold font-mono text-emerald-400 text-right">
                               {item.ambulanceUnit.vehicleNumber} ({item.ambulanceUnit.driverName})
                             </span>
                           </div>
                           <div className="flex justify-between items-center">
-                            <span className="text-slate-400 font-medium">In-Transit Oxygen &amp; Vitals Telemetry:</span>
+                            <span className="text-slate-400 font-medium">{t('casualtyEr.oxygenTelemetry')}</span>
                             <span className={`font-black uppercase px-2 py-0.5 rounded text-[10px] ${item.ambulanceUnit.oxygenActive ? 'bg-red-500/20 text-red-300 border border-red-500/35 animate-pulse' : 'bg-slate-800 text-slate-300'}`}>
-                              {item.ambulanceUnit.oxygenActive ? '🔥 O2 & IV Drip Active' : 'Normal Transit Vitals'}
+                              {item.ambulanceUnit.oxygenActive ? '🔥 O2 & IV Drip Active' : t('casualtyEr.normalTransit')}
                             </span>
                           </div>
                         </div>

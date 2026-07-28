@@ -38,7 +38,7 @@ export const GovernmentHeader: React.FC<GovernmentHeaderProps> = ({ onOpenLogin 
             </div>
           </div>
 
-          {/* Right Header Actions: Emergency Helpline & Language Switcher */}
+          {/* Right Header Actions: Emergency Helpline & Language Switcher & Google Translate */}
           <div className="flex items-center gap-3 sm:gap-4">
             <div className="hidden md:flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-red-950/70 border border-red-500/30 text-red-300 font-bold text-[10px] shadow-sm">
               <PhoneCall className="w-3 h-3 text-red-400 animate-bounce shrink-0" />

@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { QrCodeGenerator } from './QrCodeGenerator';
 import { ShieldCheck, Heart, Building2, MapPin, Calendar, CheckCircle2, User, Printer, Download, Share2 } from 'lucide-react';
 
@@ -24,6 +25,7 @@ interface DigitalMotherCardProps {
 }
 
 export const DigitalMotherCard: React.FC<DigitalMotherCardProps> = ({ data, className = '' }) => {
+  const { t } = useTranslation();
   const formattedIssueDate = data.issueDate || new Date().toISOString().split('T')[0];
   const calculatedDob = data.dob || `${2026 - Number(data.age || 24)}-01-15`;
 

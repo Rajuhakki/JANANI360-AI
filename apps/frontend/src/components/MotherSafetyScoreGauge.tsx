@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { ShieldAlert, ShieldCheck, AlertTriangle } from 'lucide-react';
 
 interface MotherSafetyScoreGaugeProps {
@@ -14,6 +15,7 @@ export const MotherSafetyScoreGauge: React.FC<MotherSafetyScoreGaugeProps> = ({
   preeclampsiaRisk,
   anemiaSeverity
 }) => {
+  const { t } = useTranslation();
   const getTheme = (s: number) => {
     if (s < 40) return { color: 'text-red-400', bg: 'bg-red-500/10 border-red-500/30', label: 'CRITICAL RISK', icon: ShieldAlert };
     if (s < 60) return { color: 'text-orange-400', bg: 'bg-orange-500/10 border-orange-500/30', label: 'HIGH RISK', icon: AlertTriangle };

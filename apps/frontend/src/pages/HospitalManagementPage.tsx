@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { 
   Building2, 
@@ -18,6 +19,7 @@ import { RootState } from '../store';
 import api from '../services/api';
 
 export const HospitalManagementPage: React.FC = () => {
+  const { t } = useTranslation();
   const { user } = useSelector((state: RootState) => state.auth);
   const [hospitals, setHospitals] = useState<HospitalData[]>([]);
   const [isLoading, setIsLoading] = useState(true);

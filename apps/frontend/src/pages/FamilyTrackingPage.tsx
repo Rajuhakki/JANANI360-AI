@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Ambulance, MapPin, Phone, Building2, Clock, ShieldCheck, Heart, User } from 'lucide-react';
 import { useParams } from 'react-router-dom';
 import { referralService } from '../services/referralService';
 
 export const FamilyTrackingPage: React.FC = () => {
+  const { t } = useTranslation();
   const { code = 'REF-HAV-8849' } = useParams();
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);

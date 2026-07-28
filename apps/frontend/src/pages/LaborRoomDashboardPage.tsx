@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Baby,
   Activity,
@@ -140,6 +141,7 @@ const INITIAL_PHC_REFERRALS: PhcReferral[] = [
 ];
 
 export const LaborRoomDashboardPage: React.FC = () => {
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<'phc_model' | 'labor_ward'>('phc_model');
   const [phcList, setPhcList] = useState<PhcReferral[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -350,14 +352,14 @@ export const LaborRoomDashboardPage: React.FC = () => {
             <div>
               <div className="flex items-center gap-2">
                 <span className="text-[10px] font-black uppercase tracking-widest bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2.5 py-0.5 rounded-full">
-                  Government of Karnataka · RCH Clinical Hub
+                  {t('laborWard.govBadge')}
                 </span>
               </div>
               <h1 className="text-lg sm:text-2xl font-black text-white tracking-tight flex items-center gap-2 mt-0.5">
-                Primary Health Care (PHC) Medical Officer Model
+                {t('laborWard.headerTitle')}
               </h1>
               <p className="text-xs text-slate-400 font-medium">
-                Real-time synchronized queue of pregnant mothers registered and transmitted by ASHA Workers line by line.
+                {t('laborWard.headerSubtitle')}
               </p>
             </div>
           </div>
@@ -374,7 +376,7 @@ export const LaborRoomDashboardPage: React.FC = () => {
               }`}
             >
               <Activity className="w-4 h-4" />
-              1. PHC Doctor Model ({phcList.length} Mothers)
+              {t('laborWard.tabPhcModel')} ({phcList.length} Mothers)
             </button>
             <button
               type="button"
@@ -403,7 +405,7 @@ export const LaborRoomDashboardPage: React.FC = () => {
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
               <div className="bg-slate-900/80 border border-slate-800 p-5 rounded-3xl shadow-xl flex items-center justify-between">
                 <div className="space-y-1">
-                  <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Total ASHA Referrals</span>
+                  <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">{t('laborWard.totalAshaReferrals')}</span>
                   <div className="text-2xl font-black text-white">{phcList.length}</div>
                   <span className="text-[10px] text-emerald-400 font-medium">⚡ Live sync via ASHA Acknowledgement</span>
                 </div>
@@ -414,7 +416,7 @@ export const LaborRoomDashboardPage: React.FC = () => {
 
               <div className="bg-slate-900/80 border border-slate-800 p-5 rounded-3xl shadow-xl flex items-center justify-between">
                 <div className="space-y-1">
-                  <span className="text-xs font-bold text-amber-400 uppercase tracking-wider">Pending Medical Review</span>
+                  <span className="text-xs font-bold text-amber-400 uppercase tracking-wider">{t('laborWard.pendingReview')}</span>
                   <div className="text-2xl font-black text-amber-300">{pendingCount}</div>
                   <span className="text-[10px] text-slate-400">Requires Doctor verification</span>
                 </div>
