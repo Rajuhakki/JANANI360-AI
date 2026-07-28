@@ -58,7 +58,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, initial
         setPassword('Mother@12345');
         break;
       case UserRole.ASHA_WORKER:
-        setEmail('asha.sanveeka@karnataka.gov.in');
+        setEmail('asha.manjula@karnataka.gov.in');
         setPassword('Asha@12345');
         break;
       case UserRole.DOCTOR:
@@ -70,7 +70,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, initial
         setPassword('Admin@12345');
         break;
       case UserRole.DISTRICT_OFFICER:
-        setEmail('dho.ramesh@karnataka.gov.in');
+        setEmail('dho.mahesh@karnataka.gov.in');
         setPassword('Dho@12345');
         break;
       default:
@@ -139,11 +139,11 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, initial
             {/* Quick 1-Click Role Switcher */}
             <div className="space-y-2.5">
               {[
-                { role: UserRole.ASHA_WORKER, title: 'ASHA Worker', name: 'Sanveeka G.', icon: HeartHandshake },
-                { role: UserRole.DOCTOR, title: 'PHC Medical Officer', name: 'Dr. Ananth V.', icon: Stethoscope },
-                { role: UserRole.HOSPITAL_ADMIN, title: 'Hospital Administrator', name: 'Dr. Suresh G.', icon: Building2 },
-                { role: UserRole.DISTRICT_OFFICER, title: 'District Health Officer (DHO)', name: 'Dr. Ramesh G.', icon: ShieldCheck },
-                { role: UserRole.PATIENT, title: 'Mother & Family Citizen', name: 'Lakshmi Devi', icon: UserCheck }
+                { role: UserRole.ASHA_WORKER, title: t('stakeholders.ashaRole'), name: 'Manjula G.', icon: HeartHandshake },
+                { role: UserRole.DOCTOR, title: t('stakeholders.moRole'), name: 'Dr. Ananth V.', icon: Stethoscope },
+                { role: UserRole.HOSPITAL_ADMIN, title: t('stakeholders.adminRole'), name: 'Dr. Suresh G.', icon: Building2 },
+                { role: UserRole.DISTRICT_OFFICER, title: t('stakeholders.dhoRole'), name: 'Dr. Mahesh P.', icon: Building2 },
+                { role: UserRole.PATIENT, title: t('stakeholders.motherRole'), name: 'Lakshmi Devi', icon: UserCheck }
               ].map((p) => {
                 const Icon = p.icon;
                 const isSelected = selectedRole === p.role;
