@@ -630,27 +630,34 @@ Return ONLY a valid JSON object adhering to this schema:
       };
     }
 
-    // Format output response map with value and confidence scores
+    // Format output response map with value and confidence scores, removing all null/undefined entries
     const formattedData: Record<string, any> = {};
     const confidenceScores: Record<string, number> = {};
 
     Object.keys(parsedJson).forEach((key) => {
       const fieldObj = parsedJson[key];
+      let val = '';
+      let score = 0;
+
       if (fieldObj && typeof fieldObj === 'object' && 'value' in fieldObj) {
-        formattedData[key] = fieldObj.value;
-        confidenceScores[key] = Math.round((fieldObj.confidence || 0) * 100);
+        val = fieldObj.value !== null && fieldObj.value !== undefined && fieldObj.value !== 'null' ? String(fieldObj.value).trim() : '';
+        score = Math.round((fieldObj.confidence || 0) * 100);
       } else {
-        formattedData[key] = fieldObj;
-        confidenceScores[key] = fieldObj ? 85 : 0;
+        val = fieldObj !== null && fieldObj !== undefined && fieldObj !== 'null' ? String(fieldObj).trim() : '';
+        score = val ? 85 : 0;
       }
+
+      formattedData[key] = val;
+      confidenceScores[key] = score;
     });
 
-    // Alias keys for legacy consumer compatibility
-    formattedData.motherName = formattedData.fullName || formattedData.motherName || null;
-    formattedData.mobile = formattedData.mobileNumber || formattedData.mobile || null;
-    formattedData.height = formattedData.heightCm || formattedData.height || null;
-    formattedData.weight = formattedData.weightKg || formattedData.weight || null;
-    formattedData.medicalCondition = formattedData.existingMedicalCondition || formattedData.medicalCondition || null;
+    // Alias keys for legacy consumer compatibility without null values
+    formattedData.motherName = formattedData.fullName || formattedData.motherName || '';
+    formattedData.husbandName = formattedData.husbandName || '';
+    formattedData.mobile = formattedData.mobileNumber || formattedData.mobile || '';
+    formattedData.height = formattedData.heightCm || formattedData.height || '';
+    formattedData.weight = formattedData.weightKg || formattedData.weight || '';
+    formattedData.medicalCondition = formattedData.existingMedicalCondition || formattedData.medicalCondition || '';
 
     console.log(`[OCR Engine] Pixel-by-pixel image analysis complete:`, JSON.stringify(parsedJson, null, 2));
 

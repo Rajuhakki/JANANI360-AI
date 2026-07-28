@@ -226,81 +226,83 @@ export const RegisterMotherForm: React.FC<RegisterMotherFormProps> = ({
     const updatedForm = { ...form };
     const filledKeys = new Set<string>();
 
-    if (ocrData.motherName) {
-      updatedForm.fullName = ocrData.motherName.replace(/\s*\([^)]*\)/g, '');
+    const isValidVal = (v: any) => v && v !== 'null' && v !== 'undefined' && String(v).trim() !== '';
+
+    if (isValidVal(ocrData.motherName)) {
+      updatedForm.fullName = String(ocrData.motherName).replace(/\s*\([^)]*\)/g, '');
       filledKeys.add('fullName');
     }
 
-    if (ocrData.husbandName) {
-      updatedForm.husbandName = ocrData.husbandName.replace(/\s*\([^)]*\)/g, '');
+    if (isValidVal(ocrData.husbandName)) {
+      updatedForm.husbandName = String(ocrData.husbandName).replace(/\s*\([^)]*\)/g, '');
       filledKeys.add('husbandName');
     }
 
-    if (ocrData.age) {
-      updatedForm.age = ocrData.age;
+    if (isValidVal(ocrData.age)) {
+      updatedForm.age = String(ocrData.age);
       const calculatedYear = 2026 - Number(ocrData.age);
       updatedForm.dob = `${calculatedYear}-01-15`;
       filledKeys.add('age');
       filledKeys.add('dob');
     }
 
-    if (ocrData.mobile) {
-      updatedForm.phone = ocrData.mobile;
+    if (isValidVal(ocrData.mobile)) {
+      updatedForm.phone = String(ocrData.mobile);
       filledKeys.add('phone');
     }
 
-    if (ocrData.address) {
-      updatedForm.address = ocrData.address;
+    if (isValidVal(ocrData.address)) {
+      updatedForm.address = String(ocrData.address);
       filledKeys.add('address');
     }
 
-    if (ocrData.lmp) {
-      updatedForm.lmpDate = ocrData.lmp;
+    if (isValidVal(ocrData.lmp)) {
+      updatedForm.lmpDate = String(ocrData.lmp);
       filledKeys.add('lmpDate');
     }
 
-    if (ocrData.pregnancyNumber) {
-      updatedForm.gravida = ocrData.pregnancyNumber;
+    if (isValidVal(ocrData.pregnancyNumber)) {
+      updatedForm.gravida = String(ocrData.pregnancyNumber);
       filledKeys.add('gravida');
     }
 
-    if (ocrData.parity) {
-      updatedForm.parity = ocrData.parity;
+    if (isValidVal(ocrData.parity)) {
+      updatedForm.parity = String(ocrData.parity);
       filledKeys.add('parity');
     }
 
-    if (ocrData.abortions) {
-      updatedForm.abortions = ocrData.abortions;
+    if (isValidVal(ocrData.abortions)) {
+      updatedForm.abortions = String(ocrData.abortions);
       filledKeys.add('abortions');
     }
 
-    if (ocrData.bloodGroup) {
-      updatedForm.bloodGroup = ocrData.bloodGroup;
+    if (isValidVal(ocrData.bloodGroup)) {
+      updatedForm.bloodGroup = String(ocrData.bloodGroup);
       filledKeys.add('bloodGroup');
     }
 
-    if (ocrData.height) {
-      updatedForm.heightCm = ocrData.height;
+    if (isValidVal(ocrData.height)) {
+      updatedForm.heightCm = String(ocrData.height);
       filledKeys.add('heightCm');
     }
 
-    if (ocrData.weight) {
-      updatedForm.weightKg = ocrData.weight;
+    if (isValidVal(ocrData.weight)) {
+      updatedForm.weightKg = String(ocrData.weight);
       filledKeys.add('weightKg');
     }
 
-    if (ocrData.medicalCondition) {
-      updatedForm.medicalCondition = ocrData.medicalCondition;
+    if (isValidVal(ocrData.medicalCondition)) {
+      updatedForm.medicalCondition = String(ocrData.medicalCondition);
       filledKeys.add('medicalCondition');
     }
 
-    if (ocrData.taluk) {
-      updatedForm.taluk = ocrData.taluk;
+    if (isValidVal(ocrData.taluk)) {
+      updatedForm.taluk = String(ocrData.taluk);
       filledKeys.add('taluk');
     }
 
-    if (ocrData.district) {
-      updatedForm.district = ocrData.district;
+    if (isValidVal(ocrData.district)) {
+      updatedForm.district = String(ocrData.district);
       filledKeys.add('district');
     }
 
