@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Baby,
   Activity,
@@ -20,7 +21,8 @@ import {
   Stethoscope,
   ArrowRight,
   Phone,
-  MapPin
+  MapPin,
+  Ambulance
 } from 'lucide-react';
 import { laborService } from '../services/laborService';
 import { Navbar } from '../components/Navbar';
@@ -50,7 +52,7 @@ interface PhcReferral {
   medicalCondition?: string;
   registrationDate: string;
   ashaWorkerName: string;
-  status: 'PENDING_DOCTOR_REVIEW' | 'EVALUATED_BY_DOCTOR' | 'ADMITTED_TO_WARD';
+  status: 'PENDING_DOCTOR_REVIEW' | 'EVALUATED_BY_DOCTOR' | 'ADMITTED_TO_WARD' | 'TRANSFERRED_TO_HOSPITAL_ADMIN';
   sentAt?: string;
   doctorNotes?: string;
 }
@@ -141,6 +143,7 @@ const INITIAL_PHC_REFERRALS: PhcReferral[] = [
 ];
 
 export const LaborRoomDashboardPage: React.FC = () => {
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<'phc_model' | 'labor_ward'>('phc_model');
   const [phcList, setPhcList] = useState<PhcReferral[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -209,7 +212,7 @@ export const LaborRoomDashboardPage: React.FC = () => {
     return () => clearInterval(timer);
   }, []);
 
-  const handleStatusChange = (id: string, newStatus: 'PENDING_DOCTOR_REVIEW' | 'EVALUATED_BY_DOCTOR' | 'ADMITTED_TO_WARD', note?: string) => {
+  const handleStatusChange = (id: string, newStatus: any, note?: string) => {
     const updated = phcList.map((m) =>
       m.id === id
         ? { ...m, status: newStatus, doctorNotes: note || m.doctorNotes || 'Case evaluated by PHC Medical Officer.' }
@@ -220,6 +223,63 @@ export const LaborRoomDashboardPage: React.FC = () => {
     setSelectedReviewMother(null);
     setEvaluationNote('');
     alert(`✅ Maternal profile ${id} successfully marked as ${newStatus.replace(/_/g, ' ')}!`);
+  };
+
+  const handleTransferToHospitalAdmin = (mother: PhcReferral) => {
+    // 1. Mark status as TRANSFERRED in PHC queue
+    const updatedPhc = phcList.map((m) =>
+      m.id === mother.id
+        ? { ...m, status: 'TRANSFERRED_TO_HOSPITAL_ADMIN' as const, doctorNotes: m.doctorNotes || 'Emergency clinical referral initiated by PHC Medical Officer to District Hospital Administrator.' }
+        : m
+    );
+    setPhcList(updatedPhc);
+    localStorage.setItem('janani360_phc_referrals', JSON.stringify(updatedPhc));
+
+    // 2. Generate and push real transfer object for Hospital Administrator Suite
+    const existingTransfersRaw = localStorage.getItem('janani360_hospital_transfers');
+    const existingTransfers = existingTransfersRaw ? JSON.parse(existingTransfersRaw) : [];
+
+    const isEmergency = mother.medicalCondition && (mother.medicalCondition.toLowerCase().includes('risk') || mother.medicalCondition.toLowerCase().includes('anemia') || mother.medicalCondition.toLowerCase().includes('hypertension') || mother.medicalCondition.toLowerCase().includes('pph') || mother.medicalCondition.toLowerCase().includes('eclampsia'));
+    
+    const newTransfer = {
+      id: `TRF-${Math.floor(10000 + Math.random() * 90000)}`,
+      referralCode: mother.id,
+      ancNumber: mother.ancNumber,
+      motherName: mother.motherName,
+      age: mother.age,
+      mobile: mother.mobile,
+      village: mother.village,
+      originPhc: mother.assignedPhc || 'Varthur Primary Health Centre (PHC)',
+      bloodGroup: mother.bloodGroup || 'O+',
+      gravida: mother.gravida || 1,
+      parity: mother.parity || 0,
+      lmp: mother.lmp,
+      edd: mother.edd,
+      clinicalReason: mother.medicalCondition || 'High Risk Obstetric Observation Required',
+      doctorNotes: mother.doctorNotes || 'Emergency clinical triage transfer initiated by PHC Medical Officer.',
+      ashaWorkerName: mother.ashaWorkerName,
+      triagePriority: isEmergency ? 'PRIORITY_1_EMERGENCY' : 'PRIORITY_2_OBSERVATION',
+      etaMinutes: Math.floor(12 + Math.random() * 15),
+      ambulanceUnit: {
+        vehicleNumber: `KA-27-F-108${Math.floor(1 + Math.random() * 8)}`,
+        driverName: ['Ramesh K.', 'Basava Lingad', 'Prakash M.', 'Suresh N.', 'Shivakumar T.'][Math.floor(Math.random() * 5)],
+        driverPhone: '+919845088108',
+        oxygenActive: isEmergency
+      },
+      reservedBed: {
+        bedNumber: isEmergency ? `HDU-0${Math.floor(1 + Math.random() * 5)}` : `LDR-0${Math.floor(1 + Math.random() * 5)}`
+      },
+      transferTimestamp: new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }),
+      hospitalAdminStatus: 'EN_ROUTE',
+      benefitScheme: 'JSY_PMMVY_VERIFIED'
+    };
+
+    // Replace if same referralCode already exists, or unshift to front
+    const filtered = existingTransfers.filter((t: any) => t.referralCode !== mother.id);
+    filtered.unshift(newTransfer);
+    localStorage.setItem('janani360_hospital_transfers', JSON.stringify(filtered));
+
+    alert(`🚑 EMERGENCY REFERRAL DISPATCHED!\n\nPatient ${mother.motherName} has been immediately transmitted to the District Health Administrator & Casualty ER Radar.\n108 Ambulance Unit: ${newTransfer.ambulanceUnit.vehicleNumber}\nAssigned Bed Triage: ${newTransfer.reservedBed.bedNumber}`);
   };
 
   const handleDeliverySubmit = async () => {
@@ -308,14 +368,14 @@ export const LaborRoomDashboardPage: React.FC = () => {
             <div>
               <div className="flex items-center gap-2">
                 <span className="text-[10px] font-black uppercase tracking-widest bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2.5 py-0.5 rounded-full">
-                  Government of Karnataka · RCH Clinical Hub
+                  {t('laborWard.govBadge')}
                 </span>
               </div>
               <h1 className="text-lg sm:text-2xl font-black text-white tracking-tight flex items-center gap-2 mt-0.5">
-                Primary Health Care (PHC) Medical Officer Model
+                {t('laborWard.headerTitle')}
               </h1>
               <p className="text-xs text-slate-400 font-medium">
-                Real-time synchronized queue of pregnant mothers registered and transmitted by ASHA Workers line by line.
+                {t('laborWard.headerSubtitle')}
               </p>
             </div>
           </div>
@@ -332,7 +392,7 @@ export const LaborRoomDashboardPage: React.FC = () => {
               }`}
             >
               <Activity className="w-4 h-4" />
-              1. PHC Doctor Model ({phcList.length} Mothers)
+              {t('laborWard.tabPhcModel')} ({phcList.length} Mothers)
             </button>
             <button
               type="button"
@@ -361,7 +421,7 @@ export const LaborRoomDashboardPage: React.FC = () => {
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
               <div className="bg-slate-900/80 border border-slate-800 p-5 rounded-3xl shadow-xl flex items-center justify-between">
                 <div className="space-y-1">
-                  <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Total ASHA Referrals</span>
+                  <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">{t('laborWard.totalAshaReferrals')}</span>
                   <div className="text-2xl font-black text-white">{phcList.length}</div>
                   <span className="text-[10px] text-emerald-400 font-medium">⚡ Live sync via ASHA Acknowledgement</span>
                 </div>
@@ -372,7 +432,7 @@ export const LaborRoomDashboardPage: React.FC = () => {
 
               <div className="bg-slate-900/80 border border-slate-800 p-5 rounded-3xl shadow-xl flex items-center justify-between">
                 <div className="space-y-1">
-                  <span className="text-xs font-bold text-amber-400 uppercase tracking-wider">Pending Medical Review</span>
+                  <span className="text-xs font-bold text-amber-400 uppercase tracking-wider">{t('laborWard.pendingReview')}</span>
                   <div className="text-2xl font-black text-amber-300">{pendingCount}</div>
                   <span className="text-[10px] text-slate-400">Requires Doctor verification</span>
                 </div>
@@ -597,6 +657,22 @@ export const LaborRoomDashboardPage: React.FC = () => {
                                   <Building2 className="w-3 h-3 text-emerald-400" />
                                   Admit to Ward
                                 </button>
+
+                                {motherItem.status !== 'TRANSFERRED_TO_HOSPITAL_ADMIN' ? (
+                                  <button
+                                    type="button"
+                                    onClick={() => handleTransferToHospitalAdmin(motherItem)}
+                                    className="w-full px-3 py-1.5 bg-gradient-to-r from-red-600 to-rose-700 hover:from-red-500 hover:to-rose-600 text-white font-black text-[11px] rounded-xl shadow-lg shadow-red-600/30 transition flex items-center justify-center gap-1.5 transform active:scale-95"
+                                  >
+                                    <Ambulance className="w-3.5 h-3.5 animate-pulse shrink-0" />
+                                    <span>Transfer to Hospital Admin (108 ER)</span>
+                                  </button>
+                                ) : (
+                                  <div className="w-full py-1.5 px-2 bg-red-500/20 border border-red-500/40 text-red-300 rounded-xl font-black text-[10px] flex items-center justify-center gap-1 shadow-inner">
+                                    <Ambulance className="w-3.5 h-3.5 text-red-400 shrink-0" />
+                                    <span>Transferred to Hospital Admin ER</span>
+                                  </div>
+                                )}
                               </div>
                             </td>
                           </tr>

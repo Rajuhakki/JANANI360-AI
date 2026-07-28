@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { LandingPage } from './LandingPage';
 import { GovernmentHeader } from '../components/landing/GovernmentHeader';
 import { HeroSection } from '../components/landing/HeroSection';
@@ -16,6 +17,7 @@ import { LoginModal } from '../components/landing/LoginModal';
 import { UserRole } from '../store/authSlice';
 
 export const LoginPage: React.FC = () => {
+  const { t } = useTranslation();
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(true);
   const [initialRole, setInitialRole] = useState<UserRole>(UserRole.ASHA_WORKER);
 

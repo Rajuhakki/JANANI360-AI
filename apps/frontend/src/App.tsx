@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { LandingPage } from './pages/LandingPage';
 import { LoginPage } from './pages/LoginPage';
 import { MotherProfileHub } from './pages/MotherProfileHub';
+import { MotherPortalPage } from './pages/MotherPortalPage';
 import { AshaDataEntryPage } from './pages/AshaDataEntryPage';
 import { AshaDashboardPage } from './pages/AshaDashboardPage';
 import { CasualtyErRadarPage } from './pages/CasualtyErRadarPage';
@@ -102,6 +103,22 @@ export const App: React.FC = () => {
         />
         <Route 
           path="/mother-profile" 
+          element={
+            <ProtectedRoute>
+              <MotherPortalPage />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/mother-portal" 
+          element={
+            <ProtectedRoute>
+              <MotherPortalPage />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/mother-hub" 
           element={
             <ProtectedRoute>
               <MotherProfileHub />

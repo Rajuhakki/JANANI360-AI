@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { LogOut, CheckCircle2, ArrowRight } from 'lucide-react';
@@ -6,6 +7,7 @@ import { logout } from '../store/authSlice';
 import { AppDispatch } from '../store';
 
 export const LogoutPage: React.FC = () => {
+  const { t } = useTranslation();
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
 

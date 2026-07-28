@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Building2, MapPin, Phone, Activity, Heart, ShieldCheck, Edit3 } from 'lucide-react';
 
 export interface HospitalData {
@@ -25,6 +26,7 @@ interface HospitalCardProps {
 }
 
 export const HospitalCard: React.FC<HospitalCardProps> = ({ hospital, userRole, onUpdateCapacity }) => {
+  const { t } = useTranslation();
   const getTypeBadge = (type: string) => {
     switch (type) {
       case 'TERTIARY_MEDICAL_COLLEGE':

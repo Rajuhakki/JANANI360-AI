@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Lightbulb, AlertTriangle, ShieldCheck, ArrowRight, PhoneCall, Ambulance } from 'lucide-react';
 
 export interface NextActionData {
@@ -23,6 +24,7 @@ export const NextRecommendedActionCard: React.FC<Props> = ({
   language = 'kn',
   onExecuteAction
 }) => {
+  const { t } = useTranslation();
   const isCritical = actionData.urgency === 'CRITICAL';
   const isHigh = actionData.urgency === 'HIGH';
 

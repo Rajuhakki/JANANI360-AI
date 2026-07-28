@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
 import {
   User, Heart, Activity, Calendar, ShieldAlert, FileText, Phone, MapPin, Plus, RefreshCw, AlertTriangle, CheckCircle2, Clock, Ambulance, ChevronRight
@@ -12,6 +13,7 @@ import { RiskTrendGraph } from '../components/RiskTrendGraph';
 import { maternalService } from '../services/maternalService';
 
 export const MotherProfileHub: React.FC = () => {
+  const { t } = useTranslation();
   const [searchParams] = useSearchParams();
   const urlMotherId = searchParams.get('id') || searchParams.get('rchId');
 

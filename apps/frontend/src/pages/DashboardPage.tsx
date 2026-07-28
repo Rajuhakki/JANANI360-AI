@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { 
@@ -31,6 +32,7 @@ import { CommandCenterPage } from './CommandCenterPage';
 type TabKey = 'mother-portal' | 'command' | 'maternal' | 'referrals' | 'pediatric' | 'hospitals' | 'overview';
 
 export const DashboardPage: React.FC = () => {
+  const { t } = useTranslation();
   const { user } = useSelector((state: RootState) => state.auth);
   const dispatch = useDispatch();
   const navigate = useNavigate();

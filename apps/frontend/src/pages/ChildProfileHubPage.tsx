@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Baby, Syringe, Activity, ShieldCheck, Heart, User, Calendar, Plus, RefreshCw, X, CheckCircle2, Clock } from 'lucide-react';
 import { useParams } from 'react-router-dom';
 import { childService } from '../services/childService';
 import { Navbar } from '../components/Navbar';
 
 export const ChildProfileHubPage: React.FC = () => {
+  const { t } = useTranslation();
   const { id = '129004812749-C1' } = useParams();
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -80,14 +82,14 @@ export const ChildProfileHubPage: React.FC = () => {
                 {child.fullName}
               </h1>
               <p className="text-xs text-slate-400">
-                Mother: <strong className="text-slate-200">{mother?.fullName}</strong> (RCH: {mother?.rchId})
+                {t('childHealth.motherName')}: <strong className="text-slate-200">{mother?.fullName}</strong> (RCH: {mother?.rchId})
               </p>
             </div>
           </div>
 
           <div className="flex items-center gap-3 font-mono">
             <span className="bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-xs font-bold px-3 py-1 rounded-full uppercase">
-              Child RCH ID: {child.childRchId}
+              {t('childHealth.childRchId')}: {child.childRchId}
             </span>
           </div>
         </div>

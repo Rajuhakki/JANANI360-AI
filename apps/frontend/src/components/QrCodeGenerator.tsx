@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { QRCodeSVG } from 'qrcode.react';
 
 interface QrCodeGeneratorProps {
@@ -20,6 +21,7 @@ export const QrCodeGenerator: React.FC<QrCodeGeneratorProps> = ({
   bgColor = '#ffffff',
   className = ''
 }) => {
+  const { t } = useTranslation();
   return (
     <div
       className={`inline-block p-2 rounded-xl bg-white shadow-md flex items-center justify-center ${className}`}

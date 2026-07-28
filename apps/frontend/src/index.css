@@ -77,3 +77,33 @@
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: rgba(16, 185, 129, 0.7);
 }
+
+/* Google Translate Custom Styling & Banner Cleanup */
+.goog-te-banner-frame.skiptranslate,
+iframe.goog-te-banner-frame {
+  display: none !important;
+}
+body {
+  top: 0px !important;
+}
+.goog-te-gadget-icon {
+  display: none !important;
+}
+.goog-te-gadget-simple {
+  background-color: rgba(15, 23, 42, 0.9) !important;
+  border: 1px solid rgba(51, 65, 85, 0.8) !important;
+  padding: 4px 10px !important;
+  border-radius: 12px !important;
+  font-size: 12px !important;
+  color: #e2e8f0 !important;
+}
+.goog-te-gadget-simple span {
+  color: #e2e8f0 !important;
+}
+.goog-te-menu-value span {
+  color: #34d399 !important;
+  font-weight: 700 !important;
+}
+.goog-te-menu-frame {
+  max-width: 100% !important;
+}

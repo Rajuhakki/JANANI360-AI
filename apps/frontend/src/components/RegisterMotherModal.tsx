@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, UserPlus, ShieldAlert } from 'lucide-react';
 import { KARNATAKA_DISTRICTS } from '../data/karnatakaGeoData';
@@ -11,6 +12,7 @@ interface RegisterMotherModalProps {
 }
 
 export const RegisterMotherModal: React.FC<RegisterMotherModalProps> = ({ isOpen, onClose, onSuccess }) => {
+  const { t } = useTranslation();
   if (!isOpen) return null;
 
   const [fullName, setFullName] = useState('');

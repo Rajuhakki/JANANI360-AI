@@ -1,8 +1,10 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { ShieldX, ArrowLeft, Lock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 export const UnauthorizedPage: React.FC = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   return (

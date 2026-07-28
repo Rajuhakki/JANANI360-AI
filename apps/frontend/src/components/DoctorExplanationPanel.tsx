@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ShieldAlert, AlertTriangle, CheckCircle2, Building2, Stethoscope, Lock, FileText, X } from 'lucide-react';
 import api from '../services/api';
 
@@ -35,6 +36,7 @@ export const DoctorExplanationPanel: React.FC<Props> = ({
   language = 'kn',
   onOverrideSuccess
 }) => {
+  const { t } = useTranslation();
   const [showOverrideModal, setShowOverrideModal] = useState(false);
   const [overrideForm, setOverrideForm] = useState({
     doctorDecisionAction: 'Conservative Management at PHC with Daily BP Monitoring',

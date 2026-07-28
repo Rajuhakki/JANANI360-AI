@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { RootState } from '../store';
@@ -10,6 +11,7 @@ interface ProtectedRouteProps {
 }
 
 export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, allowedRoles }) => {
+  const { t } = useTranslation();
   const { isAuthenticated, user, isLoading, token } = useSelector((state: RootState) => state.auth);
   const location = useLocation();
 
