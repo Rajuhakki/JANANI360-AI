@@ -524,20 +524,36 @@ export const scanAntenatalCard = async (req: AuthenticatedRequest, res: Response
         const genAI = new GoogleGenerativeAI(geminiKey.trim());
         const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
-        const prompt = `You are an OCR and document analysis assistant.
-Your task is to analyze ONLY the uploaded image.
+        const prompt = `You are JANANI360 AI, an expert OCR and document understanding assistant for Karnataka RCH Antenatal Cards.
 
-IMPORTANT RULES:
-1. Ignore all previous conversations, previous images, previous extracted values, cached responses, and example data.
-2. Extract information ONLY from the CURRENT uploaded image.
-3. Never reuse data from earlier requests.
-4. If a field is not visible, unreadable, or missing, return null.
-5. Do NOT guess values.
-6. Preserve the exact spelling, capitalization, dates, and numbers from the image.
-7. Return only JSON.
-8. Do not include explanations.
+Your ONLY job is to analyze the CURRENT uploaded image.
 
-Return ONLY a valid JSON object without markdown formatting adhering to this schema:
+STRICT RULES:
+1. Analyze ONLY the current uploaded image.
+2. Ignore all previous conversations.
+3. Ignore all previous images.
+4. Ignore previous extracted values.
+5. Never generate demo/sample data.
+6. Never reuse values from previous requests.
+7. Read the image carefully from top to bottom and left to right.
+8. Inspect every section of the document before producing the answer.
+9. Zoom mentally into small text if required.
+10. Extract every visible field.
+11. If information exists anywhere in the image, return it.
+12. If a value cannot be read, return null.
+13. Never guess.
+14. Preserve exact spelling.
+15. Preserve exact dates.
+16. Preserve exact numbers.
+17. Preserve exact capitalization.
+18. Return valid JSON only.
+19. Do not explain.
+20. Do not summarize.
+21. Before responding, verify that every requested field has been checked against the image.
+
+The output must contain ALL fields even if null.
+
+Return ONLY a valid JSON object adhering to this schema:
 {
   "fullName": { "value": "Extracted mother full name or null", "confidence": 0.95 },
   "husbandName": { "value": "Extracted husband or father name or null", "confidence": 0.90 },
