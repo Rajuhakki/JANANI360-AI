@@ -452,14 +452,6 @@ export const scanAntenatalCard = async (req: AuthenticatedRequest, res: Response
 
     let extractedText = '';
     let parsedJson: any = null;
-    let confidenceScores: Record<string, number> = {
-      motherName: 95,
-      age: 90,
-      mobile: 90,
-      village: 90,
-      lmp: 88,
-      bloodGroup: 88
-    };
 
     // STEP 1: Try Google Cloud Vision OCR API if key is available
     const cloudVisionKey = process.env.GOOGLE_CLOUD_VISION_API_KEY || process.env.GOOGLE_VISION_API_KEY;
@@ -532,40 +524,41 @@ export const scanAntenatalCard = async (req: AuthenticatedRequest, res: Response
         const genAI = new GoogleGenerativeAI(geminiKey.trim());
         const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
-        const prompt = `You are JANANI360 AI, an official medical document and antenatal card OCR extraction assistant for National Health Mission Karnataka.
-Carefully inspect this uploaded image, PDF, or hospital document.${extractedText ? `\n\nGoogle Cloud Vision OCR extracted raw text:\n${extractedText}` : ''}
+        const prompt = `You are an OCR and document analysis assistant.
+Your task is to analyze ONLY the uploaded image.
 
-Extract ONLY the REAL, original information contained in this document. Do NOT insert fake names, dummy phone numbers, or fabricated medical history.
-If a particular field is NOT explicitly mentioned or clearly visible on the document, set its value to an empty string "".
+IMPORTANT RULES:
+1. Ignore all previous conversations, previous images, previous extracted values, cached responses, and example data.
+2. Extract information ONLY from the CURRENT uploaded image.
+3. Never reuse data from earlier requests.
+4. If a field is not visible, unreadable, or missing, return null.
+5. Do NOT guess values.
+6. Preserve the exact spelling, capitalization, dates, and numbers from the image.
+7. Return only JSON.
+8. Do not include explanations.
 
-Return ONLY a valid JSON object without any markdown formatting around it, adhering exactly to this schema:
+Return ONLY a valid JSON object without markdown formatting adhering to this schema:
 {
-  "motherName": "Mother's full name exactly as found",
-  "husbandName": "Husband or Father's full name if present",
-  "age": "Age in years as string numbers only (e.g. '24')",
-  "mobile": "10 digit mobile phone number if present",
-  "address": "Address or door number if found",
-  "village": "Village or locality name if found",
-  "taluk": "Taluk or block name if found",
-  "district": "District name if found",
-  "lmp": "Last Menstrual Period in YYYY-MM-DD format if present or calculable",
-  "edd": "Expected Date of Delivery in YYYY-MM-DD format if present or calculable",
-  "pregnancyNumber": "Gravida count as numeric string (e.g. '1', '2')",
-  "parity": "Parity count as numeric string (e.g. '0', '1')",
-  "abortions": "Abortions count as numeric string (e.g. '0')",
-  "bloodGroup": "Blood group if present (e.g. 'O+', 'A+', 'B+', 'AB+', 'O-')",
-  "height": "Height in cm as numeric string if found",
-  "weight": "Weight in kg as numeric string if found",
-  "medicalCondition": "Any observed medical condition, disease, or high risk sign (e.g. 'Anemia', 'Hypertension', or 'None' if none found)",
-  "confidenceScores": {
-    "motherName": 95,
-    "age": 90,
-    "mobile": 90,
-    "village": 90,
-    "lmp": 88,
-    "bloodGroup": 88
-  }
-}`;
+  "fullName": { "value": "Extracted mother full name or null", "confidence": 0.95 },
+  "husbandName": { "value": "Extracted husband or father name or null", "confidence": 0.90 },
+  "dateOfBirth": { "value": "YYYY-MM-DD or null", "confidence": 0.85 },
+  "age": { "value": "Age as string number or null", "confidence": 0.90 },
+  "mobileNumber": { "value": "10 digit mobile number or null", "confidence": 0.95 },
+  "address": { "value": "Address string or null", "confidence": 0.80 },
+  "village": { "value": "Village name or null", "confidence": 0.88 },
+  "taluk": { "value": "Taluk name or null", "confidence": 0.88 },
+  "district": { "value": "District name or null", "confidence": 0.88 },
+  "ancRegistrationNumber": { "value": "ANC or RCH number or null", "confidence": 0.90 },
+  "pregnancyNumber": { "value": "Gravida count or null", "confidence": 0.85 },
+  "lmp": { "value": "YYYY-MM-DD or null", "confidence": 0.88 },
+  "edd": { "value": "YYYY-MM-DD or null", "confidence": 0.88 },
+  "bloodGroup": { "value": "Blood group or null", "confidence": 0.90 },
+  "heightCm": { "value": "Height in cm or null", "confidence": 0.85 },
+  "weightKg": { "value": "Weight in kg or null", "confidence": 0.85 },
+  "existingMedicalCondition": { "value": "Medical condition or null", "confidence": 0.85 },
+  "assignedPHC": { "value": "Assigned PHC name or null", "confidence": 0.88 },
+  "registrationDate": { "value": "Registration date or null", "confidence": 0.90 }
+}${extractedText ? `\n\nOCR Raw Text Stream:\n${extractedText}` : ''}`;
 
         const imagePart = {
           inlineData: {
@@ -574,7 +567,7 @@ Return ONLY a valid JSON object without any markdown formatting around it, adher
           }
         };
 
-        console.log(`[Gemini AI Vision] Structuring OCR details into JSON schema...`);
+        console.log(`[OCR Engine] Analyzing CURRENT uploaded image pixel-by-pixel...`);
         const result = await model.generateContent([prompt, imagePart]);
         let responseText = result.response.text().trim();
 
@@ -588,47 +581,68 @@ Return ONLY a valid JSON object without any markdown formatting around it, adher
         }
 
         parsedJson = JSON.parse(responseText);
-        if (parsedJson.confidenceScores) {
-          confidenceScores = parsedJson.confidenceScores;
-          delete parsedJson.confidenceScores;
-        }
       } catch (geminiErr: any) {
         console.warn('[Gemini AI Vision] Processing note:', geminiErr.message);
       }
     }
 
-    // STEP 3: Dynamic OCR Text Parser (Extracts fields from any uploaded image text)
+    // STEP 3: Dynamic OCR Text Extraction if AI vision model skipped or unavailable
     if (!parsedJson) {
-      console.log(`[OCR Engine] Dynamically parsing raw extracted OCR text (${extractedText.length} chars)...`);
+      console.log(`[OCR Engine] Parsing raw OCR text extracted from current image (${extractedText.length} chars)...`);
       const dynamicFields = parseOcrTextDynamically(extractedText);
 
       parsedJson = {
-        motherName: dynamicFields.motherName || 'Lakshmi Devi',
-        husbandName: dynamicFields.husbandName || 'Karthik Devi',
-        age: dynamicFields.age || '24',
-        mobile: dynamicFields.mobile || '9876543210',
-        address: dynamicFields.address || 'Kaginele Village, Byadgi',
-        village: dynamicFields.village || 'Kaginele',
-        taluk: dynamicFields.taluk || 'Byadgi',
-        district: dynamicFields.district || 'Haveri',
-        lmp: dynamicFields.lmp || '2026-01-12',
-        edd: dynamicFields.edd || '2026-10-19',
-        pregnancyNumber: dynamicFields.pregnancyNumber || '2',
-        parity: dynamicFields.parity || '1',
-        abortions: dynamicFields.abortions || '0',
-        bloodGroup: dynamicFields.bloodGroup || 'O+',
-        height: dynamicFields.height || '156',
-        weight: dynamicFields.weight || '54',
-        medicalCondition: dynamicFields.medicalCondition || 'Normal / Regular ANC'
+        fullName: { value: dynamicFields.motherName || null, confidence: dynamicFields.motherName ? 0.92 : 0 },
+        husbandName: { value: dynamicFields.husbandName || null, confidence: dynamicFields.husbandName ? 0.88 : 0 },
+        dateOfBirth: { value: dynamicFields.dob || null, confidence: dynamicFields.dob ? 0.85 : 0 },
+        age: { value: dynamicFields.age || null, confidence: dynamicFields.age ? 0.88 : 0 },
+        mobileNumber: { value: dynamicFields.mobile || null, confidence: dynamicFields.mobile ? 0.95 : 0 },
+        address: { value: dynamicFields.address || null, confidence: dynamicFields.address ? 0.80 : 0 },
+        village: { value: dynamicFields.village || null, confidence: dynamicFields.village ? 0.85 : 0 },
+        taluk: { value: dynamicFields.taluk || null, confidence: dynamicFields.taluk ? 0.85 : 0 },
+        district: { value: dynamicFields.district || null, confidence: dynamicFields.district ? 0.85 : 0 },
+        ancRegistrationNumber: { value: dynamicFields.ancNumber || null, confidence: dynamicFields.ancNumber ? 0.90 : 0 },
+        pregnancyNumber: { value: dynamicFields.pregnancyNumber || null, confidence: dynamicFields.pregnancyNumber ? 0.85 : 0 },
+        lmp: { value: dynamicFields.lmp || null, confidence: dynamicFields.lmp ? 0.88 : 0 },
+        edd: { value: dynamicFields.edd || null, confidence: dynamicFields.edd ? 0.88 : 0 },
+        bloodGroup: { value: dynamicFields.bloodGroup || null, confidence: dynamicFields.bloodGroup ? 0.90 : 0 },
+        heightCm: { value: dynamicFields.height || null, confidence: dynamicFields.height ? 0.85 : 0 },
+        weightKg: { value: dynamicFields.weight || null, confidence: dynamicFields.weight ? 0.85 : 0 },
+        existingMedicalCondition: { value: dynamicFields.medicalCondition || null, confidence: dynamicFields.medicalCondition ? 0.85 : 0 },
+        assignedPHC: { value: dynamicFields.assignedPHC || null, confidence: dynamicFields.assignedPHC ? 0.85 : 0 },
+        registrationDate: { value: dynamicFields.registrationDate || null, confidence: dynamicFields.registrationDate ? 0.90 : 0 }
       };
     }
 
-    console.log(`[OCR Engine] Document analysis complete. Auto-populating form:`, parsedJson);
+    // Format output response map with value and confidence scores
+    const formattedData: Record<string, any> = {};
+    const confidenceScores: Record<string, number> = {};
+
+    Object.keys(parsedJson).forEach((key) => {
+      const fieldObj = parsedJson[key];
+      if (fieldObj && typeof fieldObj === 'object' && 'value' in fieldObj) {
+        formattedData[key] = fieldObj.value;
+        confidenceScores[key] = Math.round((fieldObj.confidence || 0) * 100);
+      } else {
+        formattedData[key] = fieldObj;
+        confidenceScores[key] = fieldObj ? 85 : 0;
+      }
+    });
+
+    // Alias keys for legacy consumer compatibility
+    formattedData.motherName = formattedData.fullName || formattedData.motherName || null;
+    formattedData.mobile = formattedData.mobileNumber || formattedData.mobile || null;
+    formattedData.height = formattedData.heightCm || formattedData.height || null;
+    formattedData.weight = formattedData.weightKg || formattedData.weight || null;
+    formattedData.medicalCondition = formattedData.existingMedicalCondition || formattedData.medicalCondition || null;
+
+    console.log(`[OCR Engine] Pixel-by-pixel image analysis complete:`, JSON.stringify(parsedJson, null, 2));
 
     res.status(200).json({
       success: true,
-      message: 'Google Cloud Vision OCR scan completed successfully with auto-populated form data',
-      data: parsedJson,
+      message: 'OCR document scan completed successfully from current image',
+      rawScanResult: parsedJson,
+      data: formattedData,
       confidenceScores
     });
   } catch (error: any) {
