@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Baby,
@@ -20,6 +20,8 @@ import {
   Building2,
   Stethoscope,
   ArrowRight,
+  Phone,
+  MapPin,
   Ambulance
 } from 'lucide-react';
 import { laborService } from '../services/laborService';
@@ -154,6 +156,7 @@ export const LaborRoomDashboardPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [showDeliveryModal, setShowDeliveryModal] = useState(false);
   const [selectedLaborCaseId, setSelectedLaborCaseId] = useState<string | null>(null);
+
   const [deliveryForm, setDeliveryForm] = useState({
     deliveryMode: 'NORMAL_VAGINAL' as const,
     deliveryIndication: 'Spontaneous Normal Vaginal Delivery',
@@ -179,7 +182,6 @@ export const LaborRoomDashboardPage: React.FC = () => {
           return;
         }
       }
-      // Set default initial queue if empty
       localStorage.setItem('janani360_phc_referrals', JSON.stringify(INITIAL_PHC_REFERRALS));
       setPhcList(INITIAL_PHC_REFERRALS);
     } catch (e) {
@@ -312,29 +314,43 @@ export const LaborRoomDashboardPage: React.FC = () => {
   };
 
   // Filter & search logic for line by line table
-  const filteredPhcList = phcList.filter((m) => {
-    const query = searchQuery.toLowerCase();
-    const matchesSearch =
-      m.motherName.toLowerCase().includes(query) ||
-      m.id.toLowerCase().includes(query) ||
-      m.mobile.includes(query) ||
-      m.village.toLowerCase().includes(query) ||
-      (m.ashaWorkerName && m.ashaWorkerName.toLowerCase().includes(query));
+  const filteredPhcList = useMemo(() => {
+    return phcList.filter((m) => {
+      const query = searchQuery.toLowerCase().trim();
+      const matchesSearch =
+        !query ||
+        m.motherName.toLowerCase().includes(query) ||
+        m.id.toLowerCase().includes(query) ||
+        m.mobile.includes(query) ||
+        m.village.toLowerCase().includes(query) ||
+        (m.ashaWorkerName && m.ashaWorkerName.toLowerCase().includes(query));
 
-    if (!matchesSearch) return false;
+      if (!matchesSearch) return false;
 
-    if (statusFilter === 'ALL') return true;
-    if (statusFilter === 'PENDING_DOCTOR_REVIEW') return m.status === 'PENDING_DOCTOR_REVIEW';
-    if (statusFilter === 'EVALUATED_BY_DOCTOR') return m.status === 'EVALUATED_BY_DOCTOR';
-    if (statusFilter === 'HIGH_RISK') {
-      return m.medicalCondition && (m.medicalCondition.toLowerCase().includes('risk') || m.medicalCondition.toLowerCase().includes('anemia') || m.medicalCondition.toLowerCase().includes('hypertension'));
-    }
-    return true;
-  });
+      if (statusFilter === 'ALL') return true;
+      if (statusFilter === 'PENDING_DOCTOR_REVIEW') return m.status === 'PENDING_DOCTOR_REVIEW';
+      if (statusFilter === 'EVALUATED_BY_DOCTOR') return m.status === 'EVALUATED_BY_DOCTOR';
+      if (statusFilter === 'HIGH_RISK') {
+        return (
+          m.medicalCondition &&
+          (m.medicalCondition.toLowerCase().includes('risk') ||
+            m.medicalCondition.toLowerCase().includes('anemia') ||
+            m.medicalCondition.toLowerCase().includes('hypertension'))
+        );
+      }
+      return true;
+    });
+  }, [phcList, searchQuery, statusFilter]);
 
   const pendingCount = phcList.filter((m) => m.status === 'PENDING_DOCTOR_REVIEW').length;
   const evaluatedCount = phcList.filter((m) => m.status === 'EVALUATED_BY_DOCTOR').length;
-  const highRiskCount = phcList.filter((m) => m.medicalCondition && (m.medicalCondition.toLowerCase().includes('risk') || m.medicalCondition.toLowerCase().includes('anemia') || m.medicalCondition.toLowerCase().includes('hypertension'))).length;
+  const highRiskCount = phcList.filter(
+    (m) =>
+      m.medicalCondition &&
+      (m.medicalCondition.toLowerCase().includes('risk') ||
+        m.medicalCondition.toLowerCase().includes('anemia') ||
+        m.medicalCondition.toLowerCase().includes('hypertension'))
+  ).length;
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 font-sans">
@@ -517,114 +533,108 @@ export const LaborRoomDashboardPage: React.FC = () => {
                         </td>
                       </tr>
                     ) : (
-                      filteredPhcList.map((mother, idx) => {
-                        const isHighRisk = mother.medicalCondition && (mother.medicalCondition.toLowerCase().includes('risk') || mother.medicalCondition.toLowerCase().includes('anemia') || mother.medicalCondition.toLowerCase().includes('hypertension'));
-                        
-                        return (
-                          <tr
-                            key={mother.id}
-                            className="hover:bg-slate-800/50 transition-colors group"
-                          >
-                            {/* Line Number & Status Indicator */}
-                            <td className="p-4 font-mono font-bold text-slate-500">
-                              {idx + 1}
-                            </td>
+                      filteredPhcList.map((motherItem, idx) => {
+                        const isHighRisk =
+                          motherItem.medicalCondition &&
+                          (motherItem.medicalCondition.toLowerCase().includes('risk') ||
+                            motherItem.medicalCondition.toLowerCase().includes('anemia') ||
+                            motherItem.medicalCondition.toLowerCase().includes('hypertension'));
 
-                            {/* Mother Profile & ID */}
+                        return (
+                          <tr key={motherItem.id} className="hover:bg-slate-800/50 transition-colors group">
+                            <td className="p-4 font-mono font-bold text-slate-500">{idx + 1}</td>
                             <td className="p-4 space-y-1">
                               <div className="font-black text-white text-sm group-hover:text-emerald-300 transition-colors flex items-center gap-1.5">
-                                <span>{mother.motherName}</span>
-                                {isHighRisk && <span title="High Risk Clinical Condition"><ShieldAlert className="w-3.5 h-3.5 text-red-400 shrink-0 inline" /></span>}
+                                <span>{motherItem.motherName}</span>
+                                {isHighRisk && (
+                                  <span title="High Risk Clinical Condition">
+                                    <ShieldAlert className="w-3.5 h-3.5 text-red-400 shrink-0 inline" />
+                                  </span>
+                                )}
                               </div>
                               <div className="flex flex-wrap items-center gap-1.5 text-[11px]">
                                 <span className="font-mono bg-slate-950 px-2 py-0.5 rounded text-emerald-400 border border-slate-800 font-bold">
-                                  {mother.id}
+                                  {motherItem.id}
                                 </span>
-                                <span className="text-slate-400 font-mono">ANC: {mother.ancNumber || 'RCH-Pending'}</span>
+                                <span className="text-slate-400 font-mono">ANC: {motherItem.ancNumber || 'RCH-Pending'}</span>
                               </div>
                               <div className="text-[11px] text-slate-400">
-                                Husband: <span className="text-slate-300 font-semibold">{mother.husbandName}</span>
+                                Husband: <span className="text-slate-300 font-semibold">{motherItem.husbandName}</span>
                               </div>
                             </td>
 
-                            {/* Age / Contact & Village */}
                             <td className="p-4 space-y-1">
                               <div>
-                                <span className="font-bold text-white">{mother.age} yrs</span>
-                                <span className="text-[11px] text-slate-400"> ({mother.dob || 'DOB N/A'})</span>
+                                <span className="font-bold text-white">{motherItem.age} yrs</span>
+                                <span className="text-[11px] text-slate-400"> ({motherItem.dob || 'DOB N/A'})</span>
                               </div>
-                              <div className="font-mono font-bold text-emerald-400 text-xs">
-                                📞 {mother.mobile}
-                              </div>
+                              <div className="font-mono font-bold text-emerald-400 text-xs">📞 {motherItem.mobile}</div>
                               <div className="text-[11px] text-slate-400 truncate max-w-[180px]">
-                                📍 {mother.village} ({mother.assignedPhc})
+                                📍 {motherItem.village} ({motherItem.assignedPhc})
                               </div>
                             </td>
 
-                            {/* Obstetric Score & Physical Stats */}
                             <td className="p-4 space-y-1 font-mono">
                               <div className="bg-slate-950 border border-slate-800 px-2 py-1 rounded text-center inline-block font-black text-emerald-300">
-                                G{mother.gravida || 1} P{mother.parity || 0} A{mother.abortions || 0}
+                                G{motherItem.gravida || 1} P{motherItem.parity || 0} A{motherItem.abortions || 0}
                               </div>
                               <div className="text-slate-300 text-[11px] block">
-                                Blood Group: <span className="text-teal-400 font-bold">{mother.bloodGroup || 'O+'}</span>
+                                Blood Group: <span className="text-teal-400 font-bold">{motherItem.bloodGroup || 'O+'}</span>
                               </div>
                               <div className="text-slate-400 text-[11px]">
-                                Ht/Wt: {mother.heightCm || 154}cm / {mother.weightKg || 52}kg
+                                Ht/Wt: {motherItem.heightCm || 154}cm / {motherItem.weightKg || 52}kg
                               </div>
                             </td>
 
-                            {/* LMP / EDD Timeline */}
                             <td className="p-4 space-y-1 font-mono text-[11px]">
                               <div>
                                 <span className="text-slate-500 font-semibold uppercase block text-[9px]">LMP Date:</span>
-                                <span className="text-slate-200 font-bold">{mother.lmp || 'N/A'}</span>
+                                <span className="text-slate-200 font-bold">{motherItem.lmp || 'N/A'}</span>
                               </div>
                               <div className="pt-0.5 border-t border-slate-800/80">
-                                <span className="text-emerald-500 font-semibold uppercase block text-[9px]">Expected Delivery (EDD):</span>
-                                <span className="text-teal-300 font-black">{mother.edd || 'N/A'}</span>
+                                <span className="text-emerald-500 font-semibold uppercase block text-[9px]">
+                                  Expected Delivery (EDD):
+                                </span>
+                                <span className="text-teal-300 font-black">{motherItem.edd || 'N/A'}</span>
                               </div>
                             </td>
 
-                            {/* AI Risk & Clinical Condition */}
                             <td className="p-4">
                               <div className="space-y-1.5 max-w-[200px]">
                                 {isHighRisk ? (
                                   <span className="inline-flex items-center gap-1 bg-red-500/20 text-red-300 border border-red-500/40 font-bold text-[11px] px-2.5 py-1 rounded-xl">
                                     <AlertTriangle className="w-3 h-3 shrink-0 text-red-400" />
-                                    {mother.medicalCondition}
+                                    {motherItem.medicalCondition}
                                   </span>
                                 ) : (
                                   <span className="inline-flex items-center gap-1 bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-bold text-[11px] px-2.5 py-1 rounded-xl">
                                     <CheckCircle2 className="w-3 h-3 shrink-0 text-emerald-400" />
-                                    {mother.medicalCondition || 'Normal Course'}
+                                    {motherItem.medicalCondition || 'Normal Course'}
                                   </span>
                                 )}
-                                {mother.doctorNotes && (
+                                {motherItem.doctorNotes && (
                                   <p className="text-[10px] text-slate-400 italic leading-snug bg-slate-950 p-1.5 rounded border border-slate-800">
-                                    "Doctor Note: {mother.doctorNotes}"
+                                    "Doctor Note: {motherItem.doctorNotes}"
                                   </p>
                                 )}
                               </div>
                             </td>
 
-                            {/* Referred By ASHA Facilitator */}
                             <td className="p-4 space-y-0.5 text-xs">
-                              <span className="font-bold text-white block">{mother.ashaWorkerName}</span>
-                              <span className="text-[10px] text-slate-400 font-mono block">Date: {mother.registrationDate}</span>
-                              {mother.sentAt && (
-                                <span className="text-[10px] text-teal-400 font-mono block">Sent: {mother.sentAt}</span>
+                              <span className="font-bold text-white block">{motherItem.ashaWorkerName}</span>
+                              <span className="text-[10px] text-slate-400 font-mono block">Date: {motherItem.registrationDate}</span>
+                              {motherItem.sentAt && (
+                                <span className="text-[10px] text-teal-400 font-mono block">Sent: {motherItem.sentAt}</span>
                               )}
                             </td>
 
-                            {/* Medical Officer Action Buttons */}
                             <td className="p-4 text-center">
                               <div className="flex flex-col gap-2 items-center justify-center">
-                                {mother.status === 'PENDING_DOCTOR_REVIEW' ? (
+                                {motherItem.status === 'PENDING_DOCTOR_REVIEW' ? (
                                   <button
                                     type="button"
                                     onClick={() => {
-                                      setSelectedReviewMother(mother);
+                                      setSelectedReviewMother(motherItem);
                                       setEvaluationNote('Clinical indicators reviewed. Vitals stable, IFA supplements advised.');
                                     }}
                                     className="w-full px-3 py-2 bg-gradient-to-r from-amber-400 to-yellow-500 hover:from-amber-300 hover:to-yellow-400 text-slate-950 font-black text-[11px] rounded-xl shadow-md transition flex items-center justify-center gap-1"
@@ -641,17 +651,17 @@ export const LaborRoomDashboardPage: React.FC = () => {
 
                                 <button
                                   type="button"
-                                  onClick={() => handleStatusChange(mother.id, 'ADMITTED_TO_WARD')}
+                                  onClick={() => handleStatusChange(motherItem.id, 'ADMITTED_TO_WARD')}
                                   className="w-full px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white font-bold text-[11px] rounded-xl border border-slate-700 transition flex items-center justify-center gap-1"
                                 >
                                   <Building2 className="w-3 h-3 text-emerald-400" />
                                   Admit to Ward
                                 </button>
 
-                                {mother.status !== 'TRANSFERRED_TO_HOSPITAL_ADMIN' ? (
+                                {motherItem.status !== 'TRANSFERRED_TO_HOSPITAL_ADMIN' ? (
                                   <button
                                     type="button"
-                                    onClick={() => handleTransferToHospitalAdmin(mother)}
+                                    onClick={() => handleTransferToHospitalAdmin(motherItem)}
                                     className="w-full px-3 py-1.5 bg-gradient-to-r from-red-600 to-rose-700 hover:from-red-500 hover:to-rose-600 text-white font-black text-[11px] rounded-xl shadow-lg shadow-red-600/30 transition flex items-center justify-center gap-1.5 transform active:scale-95"
                                   >
                                     <Ambulance className="w-3.5 h-3.5 animate-pulse shrink-0" />
@@ -703,10 +713,16 @@ export const LaborRoomDashboardPage: React.FC = () => {
                       <span className="font-mono text-emerald-400">{selectedReviewMother.id}</span>
                     </div>
                     <div className="text-slate-400">
-                      Age: <strong className="text-slate-200">{selectedReviewMother.age} yrs</strong> | Village: <strong className="text-slate-200">{selectedReviewMother.village}</strong> | Mobile: <strong className="text-slate-200 font-mono">{selectedReviewMother.mobile}</strong>
+                      Age: <strong className="text-slate-200">{selectedReviewMother.age} yrs</strong> | Village:{' '}
+                      <strong className="text-slate-200">{selectedReviewMother.village}</strong> | Mobile:{' '}
+                      <strong className="text-slate-200 font-mono">{selectedReviewMother.mobile}</strong>
                     </div>
                     <div className="text-slate-400 font-mono">
-                      Obstetrics: <strong className="text-emerald-400">G{selectedReviewMother.gravida} P{selectedReviewMother.parity} A{selectedReviewMother.abortions}</strong> | EDD: <strong className="text-teal-400">{selectedReviewMother.edd}</strong>
+                      Obstetrics:{' '}
+                      <strong className="text-emerald-400">
+                        G{selectedReviewMother.gravida} P{selectedReviewMother.parity} A{selectedReviewMother.abortions}
+                      </strong>{' '}
+                      | EDD: <strong className="text-teal-400">{selectedReviewMother.edd}</strong>
                     </div>
                     {selectedReviewMother.medicalCondition && (
                       <div className="pt-2 border-t border-slate-900 text-amber-300 font-semibold flex items-center gap-1.5">
@@ -755,7 +771,7 @@ export const LaborRoomDashboardPage: React.FC = () => {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 animate-fade-in">
             {/* Active Labor Cases Column */}
             <div className="lg:col-span-2 space-y-6">
-              {(!dashboardData?.activeLaborCases || dashboardData.activeLaborCases.length === 0) ? (
+              {!dashboardData?.activeLaborCases || dashboardData.activeLaborCases.length === 0 ? (
                 <div className="p-8 text-center bg-slate-900 border border-slate-800 rounded-3xl text-slate-500 text-xs font-medium">
                   No mothers currently admitted in active labor rooms. Promote evaluated mothers from the PHC Doctor Model to start partograph monitoring.
                 </div>
@@ -936,3 +952,5 @@ export const LaborRoomDashboardPage: React.FC = () => {
     </div>
   );
 };
+
+export default LaborRoomDashboardPage;

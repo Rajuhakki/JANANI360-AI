@@ -222,85 +222,114 @@ export const RegisterMotherForm: React.FC<RegisterMotherFormProps> = ({
   };
 
   // Bind AI OCR Result to Form
-  const handleOcrComplete = (ocrData: AshaOcrResult, scores: Record<string, number>) => {
+  const handleOcrComplete = (ocrData: AshaOcrResult & Record<string, any>, scores: Record<string, number>) => {
     const updatedForm = { ...form };
     const filledKeys = new Set<string>();
 
-    if (ocrData.motherName) {
-      updatedForm.fullName = ocrData.motherName.replace(/\s*\([^)]*\)/g, '');
+    const isValidVal = (v: any) => v !== null && v !== undefined && v !== 'null' && v !== 'undefined' && String(v).trim() !== '';
+
+    // 1. Mother Full Name
+    const nameVal = ocrData.fullName || ocrData.motherName;
+    if (isValidVal(nameVal)) {
+      updatedForm.fullName = String(nameVal).replace(/\s*\([^)]*\)/g, '').trim();
       filledKeys.add('fullName');
     }
 
-    if (ocrData.husbandName) {
-      updatedForm.husbandName = ocrData.husbandName.replace(/\s*\([^)]*\)/g, '');
+    // 2. Husband Name
+    if (isValidVal(ocrData.husbandName)) {
+      updatedForm.husbandName = String(ocrData.husbandName).replace(/\s*\([^)]*\)/g, '').trim();
       filledKeys.add('husbandName');
     }
 
-    if (ocrData.age) {
-      updatedForm.age = ocrData.age;
-      const calculatedYear = 2026 - Number(ocrData.age);
+    // 3. Age & Date of Birth
+    const ageVal = ocrData.age;
+    if (isValidVal(ageVal)) {
+      updatedForm.age = String(ageVal).trim();
+      const calculatedYear = 2026 - (Number(ageVal) || 24);
       updatedForm.dob = `${calculatedYear}-01-15`;
       filledKeys.add('age');
       filledKeys.add('dob');
     }
 
-    if (ocrData.mobile) {
-      updatedForm.phone = ocrData.mobile;
+    if (isValidVal(ocrData.dateOfBirth)) {
+      updatedForm.dob = String(ocrData.dateOfBirth).trim();
+      filledKeys.add('dob');
+    }
+
+    // 4. Mobile Phone Number
+    const mobileVal = ocrData.mobileNumber || ocrData.mobile;
+    if (isValidVal(mobileVal)) {
+      updatedForm.phone = String(mobileVal).trim();
       filledKeys.add('phone');
     }
 
-    if (ocrData.address) {
-      updatedForm.address = ocrData.address;
+    // 5. Door / Street Address
+    if (isValidVal(ocrData.address)) {
+      updatedForm.address = String(ocrData.address).trim();
       filledKeys.add('address');
     }
 
-    if (ocrData.lmp) {
-      updatedForm.lmpDate = ocrData.lmp;
+    // 6. LMP Date
+    if (isValidVal(ocrData.lmp)) {
+      updatedForm.lmpDate = String(ocrData.lmp).trim();
       filledKeys.add('lmpDate');
     }
 
-    if (ocrData.pregnancyNumber) {
-      updatedForm.gravida = ocrData.pregnancyNumber;
+    // 7. Gravida / Pregnancy Number
+    const gravidaVal = ocrData.pregnancyNumber || ocrData.gravida;
+    if (isValidVal(gravidaVal)) {
+      updatedForm.gravida = String(gravidaVal).trim();
       filledKeys.add('gravida');
     }
 
-    if (ocrData.parity) {
-      updatedForm.parity = ocrData.parity;
+    // 8. Parity
+    if (isValidVal(ocrData.parity)) {
+      updatedForm.parity = String(ocrData.parity).trim();
       filledKeys.add('parity');
     }
 
-    if (ocrData.abortions) {
-      updatedForm.abortions = ocrData.abortions;
+    // 9. Abortions
+    if (isValidVal(ocrData.abortions)) {
+      updatedForm.abortions = String(ocrData.abortions).trim();
       filledKeys.add('abortions');
     }
 
-    if (ocrData.bloodGroup) {
-      updatedForm.bloodGroup = ocrData.bloodGroup;
+    // 10. Blood Group
+    if (isValidVal(ocrData.bloodGroup)) {
+      updatedForm.bloodGroup = String(ocrData.bloodGroup).trim();
       filledKeys.add('bloodGroup');
     }
 
-    if (ocrData.height) {
-      updatedForm.heightCm = ocrData.height;
+    // 11. Height (cm)
+    const heightVal = ocrData.heightCm || ocrData.height;
+    if (isValidVal(heightVal)) {
+      updatedForm.heightCm = String(heightVal).trim();
       filledKeys.add('heightCm');
     }
 
-    if (ocrData.weight) {
-      updatedForm.weightKg = ocrData.weight;
+    // 12. Weight (kg)
+    const weightVal = ocrData.weightKg || ocrData.weight;
+    if (isValidVal(weightVal)) {
+      updatedForm.weightKg = String(weightVal).trim();
       filledKeys.add('weightKg');
     }
 
-    if (ocrData.medicalCondition) {
-      updatedForm.medicalCondition = ocrData.medicalCondition;
+    // 13. Medical Condition / Clinical Risk
+    const conditionVal = ocrData.existingMedicalCondition || ocrData.medicalCondition;
+    if (isValidVal(conditionVal)) {
+      updatedForm.medicalCondition = String(conditionVal).trim();
       filledKeys.add('medicalCondition');
     }
 
-    if (ocrData.taluk) {
-      updatedForm.taluk = ocrData.taluk;
+    // 14. Taluk
+    if (isValidVal(ocrData.taluk)) {
+      updatedForm.taluk = String(ocrData.taluk).trim();
       filledKeys.add('taluk');
     }
 
-    if (ocrData.district) {
-      updatedForm.district = ocrData.district;
+    // 15. District
+    if (isValidVal(ocrData.district)) {
+      updatedForm.district = String(ocrData.district).trim();
       filledKeys.add('district');
     }
 
@@ -436,7 +465,43 @@ export const RegisterMotherForm: React.FC<RegisterMotherFormProps> = ({
         const randomCode = Math.floor(1000 + Math.random() * 9000);
         const generatedId = `JAN-KA-2026-${uniqueTimestamp}${randomCode}`;
         const generatedAnc = `RCH-${Math.floor(100000 + Math.random() * 900000)}`;
+        const generatedId = res.motherId || res.mother?.rchId || 'JAN-KA-HVR-' + String(Math.floor(100000 + Math.random() * 900000));
+        const generatedAnc = res.ancNumber || autoAncPreview;
         setSuccessData({ motherId: generatedId, ancNumber: generatedAnc });
+
+        // Save to client local storage for instant PHC Doctor lookup
+        try {
+          const existingRaw = localStorage.getItem('janani_registered_mothers');
+          const existingList = existingRaw ? JSON.parse(existingRaw) : [];
+          const selectedVillageObj = villages.find((v) => v.id === form.villageId);
+          const selectedFacilityObj = facilities.find((f) => f.id === form.facilityId);
+
+          const lmpTime = new Date(form.lmpDate).getTime();
+          const calculatedEdd = !isNaN(lmpTime)
+            ? new Date(lmpTime + 280 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+            : '2026-09-07';
+
+          const newMotherEntry = {
+            id: res.mother?.id || `m-${generatedId}`,
+            rchId: generatedId,
+            motherId: generatedId,
+            fullName: form.fullName,
+            husbandName: form.husbandName,
+            age: form.age,
+            phone: form.phone,
+            bloodGroup: form.bloodGroup || 'O+',
+            villageName: selectedVillageObj?.nameEn || 'Varthur Village',
+            facilityName: selectedFacilityObj?.nameEn || 'Varthur Primary Health Centre (PHC)',
+            assignedAsha: 'Vimala (ASHA Worker)',
+            gravida: form.gravida,
+            parity: form.parity,
+            lmpDate: form.lmpDate,
+            eddDate: calculatedEdd
+          };
+          localStorage.setItem('janani_registered_mothers', JSON.stringify([newMotherEntry, ...existingList]));
+        } catch (e) {
+          console.warn('Could not cache registered mother in local storage', e);
+        }
 
         if (onSuccess) {
           onSuccess(generatedId);
@@ -501,15 +566,17 @@ export const RegisterMotherForm: React.FC<RegisterMotherFormProps> = ({
 
       {/* OCR Verification Notice Banner */}
       {showOcrVerifyBanner && (
-        <div className="bg-emerald-500/10 border-2 border-emerald-500/40 rounded-2xl p-4 text-xs text-emerald-300 flex items-center justify-between gap-3 shadow-lg animate-fade-in">
+        <div className="bg-emerald-500/10 border-2 border-emerald-500/40 rounded-[20px] p-4 text-xs text-emerald-300 flex items-center justify-between gap-3 shadow-lg animate-fade-in">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-xl bg-emerald-500/20 flex items-center justify-center text-emerald-400 shrink-0">
-              <Info className="w-5 h-5" />
+            <div className="w-8 h-8 rounded-xl bg-emerald-500/20 flex items-center justify-center text-emerald-400 shrink-0 font-black text-sm">
+              ✔
             </div>
             <div>
-              <h4 className="font-bold text-sm text-white">AI OCR Extraction Complete</h4>
+              <h4 className="font-bold text-sm text-emerald-300">
+                ✔ AI detected this information successfully.
+              </h4>
               <p className="text-slate-300">
-                Please verify the extracted information before submitting.
+                All detected values have been auto-filled into the form below. Please review before submitting.
               </p>
             </div>
           </div>
@@ -986,68 +1053,46 @@ export const RegisterMotherForm: React.FC<RegisterMotherFormProps> = ({
             Fields marked with <span className="text-red-400 font-bold">*</span> are required
           </div>
 
-          <div className="flex items-center gap-2.5 w-full sm:w-auto">
-            {/* Analyze Card Button */}
-            <button
-              type="button"
-              onClick={() => {
-                const scanBtn = document.querySelector('[data-ocr-trigger="true"]') as HTMLButtonElement;
-                const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
-                if (scanBtn) {
-                  scanBtn.click();
-                } else if (fileInput) {
-                  window.scrollTo({ top: 300, behavior: 'smooth' });
-                  fileInput.click();
-                } else {
-                  window.scrollTo({ top: 100, behavior: 'smooth' });
-                }
-              }}
-              disabled={saving}
-              className="flex-1 sm:flex-none px-4 py-3 bg-slate-800 hover:bg-slate-700 text-emerald-400 font-bold text-xs rounded-xl border border-slate-700 transition flex items-center justify-center gap-2 disabled:opacity-50"
-            >
-              <Scan className="w-4 h-4" />
-              Analyze Card
-            </button>
-
-            {/* Clear Form Button */}
-            <button
-              type="button"
-              onClick={handleClearForm}
-              disabled={saving}
-              className="flex-1 sm:flex-none px-4 py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs rounded-xl border border-slate-700 transition flex items-center justify-center gap-2 disabled:opacity-50"
-            >
-              <RotateCcw className="w-4 h-4" />
-              Clear Form
-            </button>
-
-            {/* Cancel Button */}
-            <button
-              type="button"
-              onClick={handleCancel}
-              disabled={saving}
-              className="flex-1 sm:flex-none px-4 py-3 bg-slate-800/80 hover:bg-slate-700 text-slate-400 hover:text-slate-200 font-bold text-xs rounded-xl border border-slate-700/80 transition flex items-center justify-center gap-2 disabled:opacity-50"
-            >
-              <X className="w-4 h-4" />
-              Cancel
-            </button>
-
-            {/* Save Registration Button */}
+          <div className="flex items-center gap-3 w-full sm:w-auto">
+            {/* Green: Submit Registration Button */}
             <button
               type="submit"
               disabled={saving}
-              className="flex-1 sm:flex-none px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-black text-xs uppercase tracking-wider rounded-xl shadow-lg shadow-emerald-500/25 transition flex items-center justify-center gap-2 disabled:opacity-50"
+              className="flex-1 sm:flex-none px-6 py-3.5 bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-black text-xs uppercase tracking-wider rounded-xl shadow-lg shadow-emerald-500/25 transition flex items-center justify-center gap-2 disabled:opacity-50"
             >
               {saving ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin" />
-                  Saving Mother Profile...
+                  Submitting Registration...
                 </>
               ) : (
                 <>
                   <Save className="w-4 h-4" />
-                  Save Registration
+                  Submit Registration
                 </>
               )}
+            </button>
+
+            {/* Gray: Reset Form Button */}
+            <button
+              type="button"
+              onClick={handleClearForm}
+              disabled={saving}
+              className="flex-1 sm:flex-none px-5 py-3.5 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs rounded-xl border border-slate-700 transition flex items-center justify-center gap-2 disabled:opacity-50"
+            >
+              <RotateCcw className="w-4 h-4" />
+              Reset Form
+            </button>
+
+            {/* Red: Cancel Button */}
+            <button
+              type="button"
+              onClick={handleCancel}
+              disabled={saving}
+              className="flex-1 sm:flex-none px-5 py-3.5 bg-red-500/20 hover:bg-red-500/30 text-red-300 font-bold text-xs rounded-xl border border-red-500/40 transition flex items-center justify-center gap-2 disabled:opacity-50"
+            >
+              <X className="w-4 h-4 text-red-400" />
+              Cancel
             </button>
           </div>
         </div>

@@ -16,6 +16,7 @@ import { DistrictCommandCenterPage } from './pages/DistrictCommandCenterPage';
 import { MotherPublicProfilePage } from './pages/MotherPublicProfilePage';
 import { QrScannerPage } from './pages/QrScannerPage';
 import { VerifyCardPage } from './pages/VerifyCardPage';
+import { PhcDoctorModulePage } from './pages/PhcDoctorModulePage';
 import { LogoutPage } from './pages/LogoutPage';
 import { UnauthorizedPage } from './pages/UnauthorizedPage';
 import { SessionExpiredPage } from './pages/SessionExpiredPage';
@@ -49,6 +50,22 @@ export const App: React.FC = () => {
         <Route path="/verify-card" element={<VerifyCardPage />} />
         <Route path="/verify/:id" element={<VerifyCardPage />} />
         <Route path="/verify" element={<VerifyCardPage />} />
+        <Route 
+          path="/phc-doctor" 
+          element={
+            <ProtectedRoute>
+              <PhcDoctorModulePage />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/doctor-checkup" 
+          element={
+            <ProtectedRoute>
+              <PhcDoctorModulePage />
+            </ProtectedRoute>
+          } 
+        />
         <Route 
           path="/dashboard" 
           element={

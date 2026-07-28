@@ -166,7 +166,9 @@ export const login = async (req: Request, res: Response): Promise<void> => {
         subCenterId: user.subCenterId,
         subCenter: user.subCenter
       },
-      tokens
+      tokens,
+      accessToken: tokens.accessToken,
+      refreshToken: tokens.refreshToken
     });
   } catch (error: any) {
     console.error('❌ Error in login:', error);
@@ -268,6 +270,8 @@ export const refreshToken = async (req: Request, res: Response): Promise<void> =
 
     res.status(200).json({
       success: true,
+      accessToken: newTokens.accessToken,
+      refreshToken: newTokens.refreshToken,
       tokens: newTokens
     });
   } catch (error: any) {

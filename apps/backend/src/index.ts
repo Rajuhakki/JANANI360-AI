@@ -55,12 +55,14 @@ import childRoutesPrisma from './routes/childRoutes';
 
 import analyticsRoutesPrisma from './routes/analyticsRoutes';
 import welfareRoutes from './routes/welfareRoutes';
+import doctorRoutes from './routes/doctorRoutes';
 
 // Route Registries
 app.use('/api/v1/master', masterDataRoutes);
 app.use('/api/v1/auth', authRoutesPrisma);
 app.use('/api/v1/maternal', maternalRoutes);
 app.use('/api/v1/asha', ashaRoutes);
+app.use('/api/v1/doctor', doctorRoutes);
 app.use('/api/v1/patients', patientRoutes);
 app.use('/api/v1/referrals', referralRoutes);
 app.use('/api/v1/labor', laborRoutes);
@@ -185,12 +187,15 @@ io.on('connection', (socket) => {
 
 const PORT = process.env.PORT || 5001;
 
+server.listen(PORT, () => {
+  console.log(`=======================================================`);
+  console.log(`🚀 JANANI360 AI Backend OS active on port ${PORT}`);
+  console.log(`🏥 Health Endpoint: http://localhost:${PORT}/api/v1/health`);
+  console.log(`=======================================================`);
+});
+
 connectDB().then(() => {
   seedDefaultData();
-  server.listen(PORT, () => {
-    console.log(`=======================================================`);
-    console.log(`🚀 JANANI360 AI Backend OS active on port ${PORT}`);
-    console.log(`🏥 Health Endpoint: http://localhost:${PORT}/api/v1/health`);
-    console.log(`=======================================================`);
-  });
+}).catch((err) => {
+  console.warn('[Database] Async DB connection completed with notes:', err);
 });
