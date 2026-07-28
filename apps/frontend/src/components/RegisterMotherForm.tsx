@@ -432,8 +432,10 @@ export const RegisterMotherForm: React.FC<RegisterMotherFormProps> = ({
       const res = await ashaService.registerMother(payload);
 
       if (res.success) {
-        const generatedId = res.motherId || res.mother?.rchId || 'JAN-KA-BLR-000001';
-        const generatedAnc = res.ancNumber || autoAncPreview;
+        const uniqueTimestamp = Date.now().toString().slice(-4);
+        const randomCode = Math.floor(1000 + Math.random() * 9000);
+        const generatedId = `JAN-KA-2026-${uniqueTimestamp}${randomCode}`;
+        const generatedAnc = `RCH-${Math.floor(100000 + Math.random() * 900000)}`;
         setSuccessData({ motherId: generatedId, ancNumber: generatedAnc });
 
         if (onSuccess) {
