@@ -26,13 +26,16 @@ api.interceptors.response.use(
       if (refreshToken) {
         try {
           const res = await axios.post('/api/v1/auth/refresh', { refreshToken });
-          const { accessToken, refreshToken: newRefreshToken } = res.data;
-          
-          localStorage.setItem('janani_access_token', accessToken);
-          localStorage.setItem('janani_refresh_token', newRefreshToken);
-          
-          originalRequest.headers.Authorization = `Bearer ${accessToken}`;
-          return axios(originalRequest);
+          const accessToken = res.data?.accessToken || res.data?.tokens?.accessToken;
+          const newRefreshToken = res.data?.refreshToken || res.data?.tokens?.refreshToken;
+
+          if (accessToken) {
+            localStorage.setItem('janani_access_token', accessToken);
+            if (newRefreshToken) localStorage.setItem('janani_refresh_token', newRefreshToken);
+
+            originalRequest.headers.Authorization = `Bearer ${accessToken}`;
+            return axios(originalRequest);
+          }
         } catch (refreshErr) {
           localStorage.removeItem('janani_access_token');
           localStorage.removeItem('janani_refresh_token');
