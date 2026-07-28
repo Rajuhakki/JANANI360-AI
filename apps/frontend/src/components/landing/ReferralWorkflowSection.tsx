@@ -7,7 +7,8 @@ import {
   Radio, 
   Syringe, 
   ArrowRight,
-  ShieldAlert
+  ShieldAlert,
+  CheckCircle
 } from 'lucide-react';
 
 export const ReferralWorkflowSection: React.FC = () => {
@@ -17,30 +18,34 @@ export const ReferralWorkflowSection: React.FC = () => {
     {
       stepNum: "01",
       icon: AlertTriangle,
-      title: t('referralWorkflow.step1'),
-      desc: t('referralWorkflow.step1Desc'),
-      color: "red"
+      title: t('referralWorkflow.step1', 'ASHA Worker Identification & AI Flag'),
+      desc: t('referralWorkflow.step1Desc', 'ASHA registers high-risk symptoms during village ANC rounds and clicks send referral.'),
+      color: "red",
+      badge: "Field Triage"
     },
     {
       stepNum: "02",
-      icon: Ambulance,
-      title: t('referralWorkflow.step2'),
-      desc: t('referralWorkflow.step2Desc'),
-      color: "amber"
+      icon: Radio,
+      title: t('referralWorkflow.step2', 'PHC Medical Officer Live Roster'),
+      desc: t('referralWorkflow.step2Desc', 'Referral instantly populates line-by-line on the PHC Doctor Model dashboard with diagnostic markers.'),
+      color: "amber",
+      badge: "Doctor Evaluation"
     },
     {
       stepNum: "03",
-      icon: Radio,
-      title: t('referralWorkflow.step3'),
-      desc: t('referralWorkflow.step3Desc'),
-      color: "emerald"
+      icon: Ambulance,
+      title: t('referralWorkflow.step3', '108 Ambulance GPS Synchronized Dispatch'),
+      desc: t('referralWorkflow.step3Desc', 'Upon admission determination, GPS telemetry locates and dispatches the nearest equipped ambulance.'),
+      color: "emerald",
+      badge: "Transit Lock"
     },
     {
       stepNum: "04",
       icon: Syringe,
-      title: t('referralWorkflow.step4'),
-      desc: t('referralWorkflow.step4Desc'),
-      color: "teal"
+      title: t('referralWorkflow.step4', 'District Labor Ward Partograph Intake'),
+      desc: t('referralWorkflow.step4Desc', 'Hospital obstetrics teams receive patient history prior to arrival and monitor delivery via electronic partograph.'),
+      color: "teal",
+      badge: "Ward Care"
     }
   ];
 
@@ -49,14 +54,17 @@ export const ReferralWorkflowSection: React.FC = () => {
       <div className="max-w-7xl mx-auto space-y-12">
         
         {/* Header */}
-        <div className="text-center space-y-3 max-w-3xl mx-auto">
-          <div className="inline-flex items-center space-x-2 space-x-reverse px-3 py-1 rounded-full bg-red-500/10 border border-red-500/20 text-red-300 text-xs font-bold uppercase tracking-wider">
-            <ShieldAlert className="w-3.5 h-3.5 text-red-400" />
-            <span>{t('referralWorkflow.tag')}</span>
+        <div className="text-center space-y-3.5 max-w-3xl mx-auto">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-red-500/10 border border-red-500/30 text-red-300 text-xs font-black uppercase tracking-wider shadow-sm">
+            <ShieldAlert className="w-4 h-4 text-red-400 shrink-0" />
+            <span>{t('referralWorkflow.tag', 'Emergency Telemetry Protocol')}</span>
           </div>
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-100 tracking-tight">
-            {t('referralWorkflow.title')}
+          <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
+            {t('referralWorkflow.title', 'Zero-Delay Referral to Labor Room Pipeline')}
           </h2>
+          <p className="text-sm text-slate-300 max-w-2xl mx-auto">
+            A continuous four-stage telemetry circuit ensuring high-risk mothers identified in remote villages receive immediate hospital ward intervention without paperwork delays.
+          </p>
         </div>
 
         {/* 4 Steps Timeline Grid */}
@@ -69,26 +77,35 @@ export const ReferralWorkflowSection: React.FC = () => {
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: idx * 0.12 }}
-                className="glass-panel p-6 rounded-3xl border border-slate-800 hover:border-red-500/40 glass-card-hover relative space-y-4"
+                transition={{ duration: 0.5, delay: idx * 0.1 }}
+                className="bg-slate-900/80 backdrop-blur-md p-6 rounded-3xl border border-slate-800 hover:border-red-500/50 shadow-xl transition-all flex flex-col justify-between group relative overflow-hidden"
               >
-                <div className="flex items-center justify-between">
-                  <span className="text-2xl font-black text-slate-700 font-mono">
-                    {step.stepNum}
-                  </span>
-                  <div className="w-10 h-10 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-400">
-                    <Icon className="w-5 h-5" />
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between gap-2 border-b border-slate-800 pb-3.5">
+                    <span className="text-3xl font-black text-slate-600 group-hover:text-red-400 transition-colors font-mono">
+                      {step.stepNum}
+                    </span>
+                    <div className="w-10 h-10 rounded-xl bg-red-500/15 border border-red-500/30 flex items-center justify-center text-red-400 shadow-inner group-hover:scale-110 transition-transform">
+                      <Icon className="w-5 h-5 shrink-0" />
+                    </div>
                   </div>
+
+                  <span className="inline-block text-[10px] font-extrabold uppercase px-2.5 py-1 rounded-md bg-slate-950 text-slate-300 border border-slate-800 shadow-sm">
+                    {step.badge}
+                  </span>
+
+                  <h3 className="text-lg font-black text-white leading-tight group-hover:text-red-300 transition-colors">
+                    {step.title}
+                  </h3>
+                  <p className="text-xs text-slate-300 font-medium leading-relaxed">
+                    {step.desc}
+                  </p>
                 </div>
 
-                <h3 className="text-base font-bold text-slate-100">{step.title}</h3>
-                <p className="text-xs text-slate-400 leading-relaxed">{step.desc}</p>
-
-                {idx < steps.length - 1 && (
-                  <div className="hidden lg:block absolute -right-3 top-1/2 -translate-y-1/2 z-10">
-                    <ArrowRight className="w-6 h-6 text-slate-700" />
-                  </div>
-                )}
+                <div className="pt-4 mt-6 border-t border-slate-800/80 flex items-center gap-2 text-[11px] font-bold text-slate-400">
+                  <CheckCircle className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                  <span>Protocol Automated</span>
+                </div>
               </motion.div>
             );
           })}
