@@ -206,6 +206,81 @@ export const SmartCardScanner: React.FC<SmartCardScannerProps> = ({
     }
   };
 
+  // Run AI OCR Processing with Real Gemini Multimodal Vision
+  const runAiAnalysis = async () => {
+    if (!previewUrl && !selectedFile) {
+      setErrorMessage('Please capture or select an Antenatal Card image first.');
+      return;
+    }
+
+    setIsAnalyzing(true);
+    setErrorMessage(null);
+    setScanSuccess(false);
+
+    try {
+      setAnalysisStep('Reading file data & preparing AI vision stream...');
+      let base64Data: string | undefined = undefined;
+      let mimeType: string | undefined = undefined;
+
+      if (selectedFile) {
+        mimeType = selectedFile.type || 'image/jpeg';
+        base64Data = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result as string);
+          reader.onerror = (error) => reject(error);
+          reader.readAsDataURL(selectedFile!);
+        });
+      } else if (previewUrl && previewUrl.startsWith('data:')) {
+        base64Data = previewUrl;
+        const matches = previewUrl.match(/^data:([a-zA-Z0-9]+\/[a-zA-Z0-9-.+]+);base64,/);
+        if (matches && matches[1]) mimeType = matches[1];
+      }
+
+      if (!base64Data) {
+        throw new Error('Could not convert image to read format. Please try re-uploading the file.');
+      }
+
+      setAnalysisStep('Sending document to Google Gemini Multimodal AI...');
+      const res = await ashaService.scanAntenatalCard(
+        base64Data,
+        selectedFile?.name || 'captured_card.jpg',
+        mimeType
+      );
+
+      setAnalysisStep('Extracting authentic demographic & clinical metrics...');
+      if (res.success && res.data) {
+        setScanSuccess(true);
+        onScanComplete(res.data, res.confidenceScores || {});
+      } else {
+        const msg =
+          res.message ||
+          'Unable to extract information from document. Please verify image quality.';
+        setErrorMessage(msg);
+        if (onScanError) onScanError(msg);
+      }
+    } catch (err: any) {
+      const msg =
+        err.response?.data?.message ||
+        err.message ||
+        'Unable to complete AI extraction. Please verify your GEMINI_API_KEY or complete fields manually.';
+      setErrorMessage(msg);
+      if (onScanError) onScanError(msg);
+    } finally {
+      setIsAnalyzing(false);
+      setAnalysisStep('');
+    }
+  };
+
+  const handleResetScan = () => {
+    setPreviewUrl(null);
+    setSelectedFile(null);
+    setScanSuccess(false);
+    setErrorMessage(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
   return (
     <div className="bg-slate-900/90 border border-slate-800 rounded-[20px] p-5 sm:p-6 shadow-xl space-y-4">
       {/* Top Main Smart Registration Card */}

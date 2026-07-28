@@ -32,7 +32,8 @@ const io = new SocketServer(server, {
 // Security & Middleware Stack
 app.use(helmet());
 app.use(cors({ origin: '*', credentials: true }));
-app.use(express.json());
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 app.use(morgan('dev'));
 
 // Rate Limiter
@@ -181,14 +182,17 @@ io.on('connection', (socket) => {
   });
 });
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5001;
+
+server.listen(PORT, () => {
+  console.log(`=======================================================`);
+  console.log(`🚀 JANANI360 AI Backend OS active on port ${PORT}`);
+  console.log(`🏥 Health Endpoint: http://localhost:${PORT}/api/v1/health`);
+  console.log(`=======================================================`);
+});
 
 connectDB().then(() => {
   seedDefaultData();
-  server.listen(PORT, () => {
-    console.log(`=======================================================`);
-    console.log(`🚀 JANANI360 AI Backend OS active on port ${PORT}`);
-    console.log(`🏥 Health Endpoint: http://localhost:${PORT}/api/v1/health`);
-    console.log(`=======================================================`);
-  });
+}).catch((err) => {
+  console.warn('[Database] Async DB connection completed with notes:', err);
 });
