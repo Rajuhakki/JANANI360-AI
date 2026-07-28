@@ -117,8 +117,7 @@ export const SmartCardScanner: React.FC<SmartCardScannerProps> = ({
       return;
     }
 
-    // Automatically trigger AI OCR analysis immediately!
-    triggerAiAnalysis(url, file);
+    // Set preview URL and prepare for manual Analyze action
   };
 
   // Drag & Drop Handlers
@@ -191,11 +190,8 @@ export const SmartCardScanner: React.FC<SmartCardScannerProps> = ({
       const file = new File([dataUrl], 'captured_antenatal_card.jpg', { type: 'image/jpeg' });
       setSelectedFile(file);
 
-      // Automatically close camera modal after capture
+      // Close camera modal after capture
       stopCamera();
-
-      // Automatically start AI OCR analysis immediately!
-      triggerAiAnalysis(dataUrl, file);
     }
   };
 
@@ -448,16 +444,16 @@ export const SmartCardScanner: React.FC<SmartCardScannerProps> = ({
 
             {/* Three Preview Action Buttons */}
             <div className="flex flex-wrap gap-2.5 justify-center">
-              {/* Button 1: Analyze Again */}
+              {/* Button 1: Analyze Image & Auto-Fill Form */}
               <button
                 type="button"
                 data-ocr-trigger="true"
                 onClick={() => triggerAiAnalysis()}
                 disabled={isAnalyzing}
-                className="px-4 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-black text-xs uppercase tracking-wider rounded-xl shadow-md flex items-center gap-2"
+                className="px-5 py-3 bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-black text-xs uppercase tracking-wider rounded-xl shadow-lg shadow-emerald-500/20 flex items-center gap-2 transform active:scale-95 transition"
               >
-                <Sparkles className="w-4 h-4" />
-                Analyze Again
+                <Sparkles className="w-4 h-4 animate-pulse" />
+                {scanSuccess ? '⚡ Re-Analyze Image & Fill Form' : '⚡ Analyze Image & Auto-Fill Form'}
               </button>
 
               {/* Button 2: Replace Image */}
